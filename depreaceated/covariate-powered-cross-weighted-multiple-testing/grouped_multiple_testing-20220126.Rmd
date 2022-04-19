@@ -1,0 +1,189 @@
+---
+title: "Grouped multiple testing"
+author: "Nikos Ignatiadis"
+date: "`r doc_date()`"
+output:
+  BiocStyle::html_document
+vignette: >
+    %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Setup
+
+## Load packages
+
+```{r  message=FALSE,result=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+theme_set(theme_cowplot())
+```
+
+## Colors and method names used throughout 
+
+```{r}
+beyonce_colors <- c(
+  "#b72da0", "#7c5bd2", "#0097ed", "#00c6c3",
+  "#9cd78a", "#f7f7a7", "#ebab5f", "#e24344",
+  "#04738d"
+) # ,"#d8cdc9")
+beyonce_colors[6] <- c("#dbcb09") # thicker yellow
+pretty_colors <- beyonce_colors[c(2, 1, 3:5)]
+
+method_names <- c("BH", "SBH", "Clfdr", "GBH-Storey", "IHW-Forest", "IHW-Grenander-Storey", "SABHA")
+method_names_print <- c("BH", "SBH", "Clfdr", "GBH", "IHW-Forest", "IHW", "SABHA")
+
+method_colors <- c("Black", beyonce_colors[c(3:5, 2, 1, 6)])
+names(method_colors) <- method_names_print
+
+method_linetype <- c(rep("solid", 4), "longdash", rep("solid", 2))
+names(method_linetype) <- method_names_print
+
+method_shapes <- c(20, 0, 1, 2, 12, 13, 2)
+names(method_shapes) <- method_names_print
+
+
+method_names <- method_names[c(1:3, 5:7)]
+method_colors <- method_colors[c(1:3, 5:7)]
+method_shapes <- method_shapes[c(1:3, 5:7)]
+
+method_names_real <- method_names[c(1:3, 5:6)]
+method_colors_real <- method_colors[c(1:3, 5:6)]
+method_shapes_real <- method_shapes[c(1:3, 5:6)]
+```
+
+# Simulations with signal
+
+```{r}
+group_sim_res <- bind_rows(readRDS(file = "../precomputed_results/grouped_simulations_signal.Rds"))
+```
+
+```{r}
+summarize_group_sim_res_real <- group_by(group_sim_res, method, K_coarse) %>%
+  summarize(
+    FDR = mean(FDP),
+    Power = mean(pow),
+    n_monte_carlo = n(),
+    pow_se = sd(pow) / sqrt(n_monte_carlo)
+  ) %>%
+  arrange(K_coarse, desc(Power)) %>%
+  ungroup() %>%
+  filter(method %in% method_names_real) %>%
+  mutate(method = factor(method, levels = method_names_real)) %>%
+  mutate(method = fct_recode(method,
+    # "GBH"="GBH-Storey",
+    # "IHW-GBH" = "IHW-GBH-Storey",
+    "IHW" = "IHW-Grenander-Storey"
+  ))
+```
+add toy rows of IHW Forest to `summarize_group_sim_res`
+```{r}
+evaluated_grouped_sim_forest <- bind_rows(readRDS(file = "../precomputed_results/evaluated_grouped_sim_forest.Rds"))
+summarize_group_sim_res_toy <- rbind(
+  summarize_group_sim_res_real,
+  mutate(evaluated_grouped_sim_forest,
+         method = "IHW-Forest")
+)
+```
+
+### Plot FDR
+
+```{r fig.width=5.6, fig.height=2.4}
+fdr_grouped_signal_plot_real <- ggplot(summarize_group_sim_res_real, aes(x = K_coarse, y = FDR, col = method)) + # shape=method,
+  geom_line(size = 1.5) + # geom_point() +
+  scale_color_manual(values = method_colors_real) +
+  # scale_shape_manual(values=method_shapes) +
+  geom_hline(yintercept = 0.1, linetype = 2) +
+  xlab("Number of groups (G)") +
+  scale_x_log10(breaks = c(2, 5, 10, 20, 40)) +
+  theme_cowplot() +
+  theme(legend.title = element_blank())
+fdr_grouped_signal_plot_real
+```
+
+```{r eval=T}
+fdr_grouped_signal_plot_real <- fdr_grouped_signal_plot_real + theme(legend.position = "none")
+ggsave(fdr_grouped_signal_plot_real, filename = "fdr_grouped_signal_plot_real.pdf", width = 3.4, height = 2.8)
+```
+
+```{r fig.width=5.6, fig.height=2.4}
+fdr_grouped_signal_plot_toy <- ggplot(summarize_group_sim_res_toy, aes(x = K_coarse, y = FDR, col = method, linetype = method)) + # shape=method,
+  geom_line(size = 1.5) + # geom_point() +
+  scale_color_manual(values = method_colors) +
+  scale_linetype_manual(values = method_linetype, guide = "none") +
+  # scale_shape_manual(values=method_shapes) +
+  geom_hline(yintercept = 0.1, linetype = 2) +
+  xlab("Number of groups (G)") +
+  scale_x_log10(breaks = c(2, 5, 10, 20, 40)) +
+  theme_cowplot() +
+  theme(legend.title = element_blank()) +
+  annotate("text", x = 8, y = 0.07, label = "?", colour = method_colors["IHW-Forest"], size = 15)
+fdr_grouped_signal_plot_toy
+```
+
+```{r eval=T}
+fdr_grouped_signal_plot_toy <- fdr_grouped_signal_plot_toy + theme(legend.position = "none")
+ggsave(fdr_grouped_signal_plot_toy, filename = "fdr_grouped_signal_plot_toy.pdf", width = 3.4, height = 2.8)
+```
+
+### Plot Power
+
+```{r fig.width=5.6, fig.height=2.4}
+power_grouped_signal_plot_real <- ggplot(summarize_group_sim_res_real, aes(x = K_coarse, y = Power, col = method)) + # shape=method,
+  geom_line(size = 1.5) + # geom_point() +
+  scale_color_manual(values = method_colors_real) +
+  # scale_shape_manual(values=method_shapes) +
+  xlab("Number of groups (G)") +
+  scale_x_log10(breaks = c(2, 5, 10, 20, 40)) +
+  theme_cowplot() +
+  theme(legend.title = element_blank())
+
+power_grouped_signal_plot_real
+```
+
+```{r}
+power_grouped_signal_plot_real <- power_grouped_signal_plot_real + guides(colour = guide_legend(nrow = 2))
+legend_real <- get_legend(power_grouped_signal_plot_real)
+legend_real <- ggpubr::as_ggplot(legend_real)
+ggsave(legend_real, filename = "legend_real.pdf", width = 3.4, height = 2.8)
+legend_real
+```
+
+```{r eval=T}
+power_grouped_signal_plot_real <- power_grouped_signal_plot_real + theme(legend.position = "none")
+
+ggsave(power_grouped_signal_plot_real, filename = "power_grouped_signal_plot_real.pdf", width = 3.4, height = 2.8) # width=5.6,height=2.8)
+```
+
+```{r fig.width=5.6, fig.height=2.4}
+power_grouped_signal_plot_toy <- ggplot(summarize_group_sim_res_toy, aes(x = K_coarse, y = Power, col = method, linetype = method)) + # shape=method,
+  geom_line(size = 1.5) + # geom_point() +
+  scale_color_manual(values = method_colors) +
+  scale_linetype_manual(values = method_linetype, guide = "none") +
+  # scale_shape_manual(values=method_shapes) +
+  xlab("Number of groups (G)") +
+  scale_x_log10(breaks = c(2, 5, 10, 20, 40)) +
+  theme_cowplot() +
+  theme(legend.title = element_blank()) +
+  annotate("text", x = 13, y = 0.6, label = "?", colour = method_colors["IHW-Forest"], size = 15)
+
+power_grouped_signal_plot_toy
+``` 
+
+```{r}
+power_grouped_signal_plot_toy <- power_grouped_signal_plot_toy + guides(colour = guide_legend(nrow = 2))
+legend_toy <- get_legend(power_grouped_signal_plot_toy)
+legend_toy <- ggpubr::as_ggplot(legend_toy)
+ggsave(legend_toy, filename = "legend_toy.pdf", width = 3.4, height = 2.8)
+legend_toy
+```
+
+```{r eval=T}
+power_grouped_signal_plot_toy <- power_grouped_signal_plot_toy + theme(legend.position = "none")
+
+ggsave(power_grouped_signal_plot_toy, filename = "power_grouped_signal_plot_toy.pdf", width = 3.4, height = 2.8) # width=5.6,height=2.8)
+```
