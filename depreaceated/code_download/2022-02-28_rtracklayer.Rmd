@@ -1,0 +1,232 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(rtracklayer)
+library("magrittr")
+library(dplyr)
+```
+
+Loading SNP data.
+```{r}
+# https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2
+file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHWpaper/inst/extdata/real_data/hqtl_chrom1_chrom2"
+file_loc <- "~/R/IHW real data/hqtl_chrom1_chrom2/"
+res_loc <- "~/R/IHW real data/downloaded files/"
+snp_chr1 <- readRDS(file.path(file_loc, "snppos_chr1.Rds")) %>% dplyr::select(snp, chrsnp, pos)
+snp_chr2 <- readRDS(file.path(file_loc, "snppos_chr2.Rds")) %>% dplyr::select(snp, chrsnp, pos)
+head(snp_chr1)
+```
+I want to annotate the data frame with additional side information for each SNP. Basically any biological variable works, the random forest is supposed supposed to automatically detect, if it is informative. It should however be available for every single SNP. 
+
+Get position range of the SNPs.
+```{r}
+base::range(snp_chr1$pos)
+base::range(snp_chr2$pos)
+```
+
+Set genomic range on chromosome 1 and 2 with some buffer.
+```{r}
+chr1_grange <- GRanges("chr1", IRanges(60726 - 5000, 249231445 + 5000))
+chr2_grange <- GRanges("chr2", IRanges(10133 - 5000, 243185846 + 5000))
+```
+
+Wolfgang suggested to use H3K4me3, H3K27ac, and CTCF, DNAse as covariates. Let's first focus on those. Mike Love suggested minor allele frequency and expression level. We will later see, where we can get latter two. 
+
+```{r}
+mySession <- browserSession()
+# can also use hg38 the newer human genome
+genome(mySession) <- "hg19"
+track.names.all <- trackNames(ucscTableQuery(mySession))
+table.names.all <- tableNames(ucscTableQuery(mySession, track = track_name_hist_10))
+```
+We can explore available data with `track.names.all` or on
+http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. I picked some arbitrary `track_name` and `table_name` which sounded like they relate to what Wolfgang suggested. I can use this code, even if it later turns out to be wrong. 
+```{r}
+# Layered H3K27Ac
+track_name_hist_1 <- "wgEncodeRegMarkH3k27ac" 
+track_name_hist_2 <- "wgEncodeRegMarkH3k27ac" 
+track_name_hist_3 <- "wgEncodeRegMarkH3k27ac" 
+# arbitrary tables from this track
+table_name_hist_1 <- "wgEncodeBroadHistoneGm12878H3k27acStdSig" 
+table_name_hist_2 <- "wgEncodeBroadHistoneH1hescH3k27acStdSig" 
+table_name_hist_3 <- "wgEncodeBroadHistoneHsmmH3k27acStdSig"
+
+# Layered H3K4me3
+track_name_hist_4 <- "wgEncodeRegMarkH3k4me3" 
+track_name_hist_5 <- "wgEncodeRegMarkH3k4me3" 
+track_name_hist_6 <- "wgEncodeRegMarkH3k4me3" 
+# arbitrary tables from this track
+table_name_hist_4 <-"wgEncodeBroadHistoneGm12878H3k4me3StdSig"
+table_name_hist_5 <-"wgEncodeBroadHistoneH1hescH3k4me3StdSig"
+table_name_hist_6 <-"wgEncodeBroadHistoneHsmmH3k4me3StdSig"
+
+# "UW CTCF Binding"
+track_name_hist_7 <- "wgEncodeUwTfbs" 
+track_name_hist_8 <- "wgEncodeUwTfbs" 
+track_name_hist_9 <- "wgEncodeUwTfbs" 
+# arbitrary tables from this track
+table_name_hist_7 <- "wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1"
+table_name_hist_8 <- "wgEncodeUwTfbsGm12878CtcfStdPkRep1"      
+table_name_hist_9 <- "wgEncodeUwTfbsGm12878CtcfStdRawRep1" 
+
+#Layered kH3k4me1
+track_name_hist_10 <- "wgEncodeRegMarkH3k4me1"
+track_name_hist_11 <- "wgEncodeRegMarkH3k4me1"
+track_name_hist_12 <- "wgEncodeRegMarkH3k4me1"
+
+table_name_hist_10 <-"wgEncodeBroadHistoneGm12878H3k4me1StdSig" 
+table_name_hist_11 <-"wgEncodeBroadHistoneH1hescH3k4me1StdSig" 
+table_name_hist_12 <- "wgEncodeBroadHistoneHsmmH3k4me1StdSig"
+
+# = UW DNaseI HS = arbitrary track which contains "DNAse", many more would have been possible
+track_name_hist_13 <- "wgEncodeUwDnase" 
+track_name_hist_14 <- "wgEncodeUwDnase" 
+track_name_hist_15 <- "wgEncodeUwDnase" 
+
+table_name_hist_10 <- "wgEncodeUwDnaseGm12878HotspotsRep1" # arbitrary table from this track
+
+```
+
+```{r}
+chr1_cov1 <- getTable(ucscTableQuery(mySession, track = track_name_hist_1, table = table_name_hist_1, range = chr1_grange))
+chr2_cov1 <- getTable(ucscTableQuery(mySession, track = track_name_hist_1, table = table_name_hist_1, range = chr2_grange))
+chr1_cov2 <- getTable(ucscTableQuery(mySession, track = track_name_hist_2, table = table_name_hist_2, range = chr1_grange))
+chr2_cov2 <- getTable(ucscTableQuery(mySession, track = track_name_hist_2, table = table_name_hist_2, range = chr2_grange))
+chr1_cov3 <- getTable(ucscTableQuery(mySession, track = track_name_hist_3, table = table_name_hist_3, range = chr1_grange))
+chr2_cov3 <- getTable(ucscTableQuery(mySession, track = track_name_hist_3, table = table_name_hist_3, range = chr2_grange))
+chr1_cov4 <- getTable(ucscTableQuery(mySession, track = track_name_hist_4, table = table_name_hist_4, range = chr1_grange))
+chr2_cov4 <- getTable(ucscTableQuery(mySession, track = track_name_hist_4, table = table_name_hist_4, range = chr2_grange))
+chr1_cov6 <- getTable(ucscTableQuery(mySession, track = track_name_hist_5, table = table_name_hist_5, range = chr1_grange))
+chr2_cov6 <- getTable(ucscTableQuery(mySession, track = track_name_hist_5, table = table_name_hist_5, range = chr2_grange))
+```
+
+the chosen tracks do not quite have the genomic ranges I would like, even though I specified them. Could I solve this by choosing a different track/table, is there I biological reason for data, or is it simply a problem of availability? Is there any smarter way of picking a table? Looping over all tables seems cumbersome.
+```{r}
+formatC(base::range(snp_chr1$pos), format = "e", digits = 2)
+formatC(range(chr1_cov1$end), format = "e", digits = 2)
+formatC(range(chr1_cov2$end), format = "e", digits = 2)
+formatC(range(chr1_cov3$chromEnd), format = "e", digits = 2)
+formatC(range(chr1_cov4$chromEnd), format = "e", digits = 2)
+```
+
+Tümay found the following paper:
+https://academic.oup.com/bioinformatics/article/28/8/1062/194941
+
+we interpret it, that the histone should come before the SNP. 
+```{r}
+findInterval(
+  c(60725, 60729),
+  c(60720, 60724, 60725, 60728),
+  left.open = T,
+  all.inside = T,
+  rightmost.closed = F
+) + 1
+```
+
+accordingly, we define a custom join. it is pretty efficient. 
+```{r}
+custom_join <- function(snp, cov, cov_chr_end) {
+  cov <- cov %>% dplyr::mutate(row_number = dplyr::row_number())
+  snp_cov <- snp %>%
+    dplyr::mutate(
+      corresponding_row = findInterval(
+        pos,
+        cov_chr_end,
+        left.open = T,
+        all.inside = T,
+        rightmost.closed = F
+      ) + 1
+    ) %>%
+    left_join(cov, by = c("corresponding_row" = "row_number"))
+  return(snp_cov)
+}
+```
+
+For `cov1` and `cov2` this works fine. 
+```{r}
+snp_chr1_cov1 <- custom_join(snp_chr1, chr1_cov1, chr1_cov1$end)
+head(snp_chr1_cov1)
+```
+```{r}
+length(unique(snp_chr1_cov1$value))#/nrow(snp_chr1_cov1)
+```
+
+```{r}
+snp_chr2_cov1 <- custom_join(snp_chr2, chr2_cov1, chr2_cov1$end)
+head(snp_chr2_cov1)
+```
+
+```{r}
+snp_chr1_cov2 <- custom_join(snp_chr1, chr1_cov2, chr1_cov2$end)
+head(snp_chr1_cov2)
+```
+
+```{r}
+snp_chr2_cov2 <- custom_join(snp_chr2, chr2_cov2, chr2_cov2$end)
+head(snp_chr2_cov2)
+```
+cov3 is problematic:
+```{r}
+snp_chr1_cov3 <- custom_join(snp_chr1, chr1_cov3, chr1_cov3$chromEnd)
+head(snp_chr1_cov3)
+length(unique(snp_chr1_cov3$signalValue))
+```
+the genomic region the closest genomic region is the same for all SNPs in this dataset.
+
+```{r}
+snp_chr2_cov3 <- custom_join(snp_chr2, chr2_cov3, chr2_cov3$chromEnd)
+head(snp_chr2_cov3)
+```
+
+```{r}
+snp_chr2_cov3 <- custom_join(snp_chr2, chr2_cov3, chr2_cov3$chromEnd)
+head(snp_chr2_cov3)
+```
+
+```{r}
+snp_chr1_cov4 <- custom_join(snp_chr1, chr1_cov4, chr1_cov4$chromEnd)
+head(snp_chr1_cov4)
+```
+
+```{r}
+snp_chr2_cov4 <- custom_join(snp_chr2, chr2_cov4, chr2_cov4$chromEnd)
+head(snp_chr2_cov4)
+```
+```{r}
+snp_chr1_cov5 <- custom_join(snp_chr2, chr2_cov5, chr2_cov5$chromEnd)
+head(snp_chr2_cov4)
+```
+
+```{r, eval = F}
+snp_chr1_cov1 <- snp_chr1_cov1 %>% transmute(snp, chrsnp, value)
+snp_chr2_cov1 <- snp_chr2_cov1 %>% transmute(snp, chrsnp, value)
+
+snp_chr1_cov2 <- snp_chr1_cov2 %>% transmute(snp, chrsnp, value)
+snp_chr2_cov2 <- snp_chr2_cov2 %>% transmute(snp, chrsnp, value)
+
+snp_chr1_cov3 <- snp_chr1_cov3 %>% transmute(snp, chrsnp, value =signalValue)
+snp_chr2_cov3 <- snp_chr2_cov3 %>% transmute(snp, chrsnp, value =signalValue)
+
+snp_chr1_cov4 <- snp_chr1_cov4 %>% transmute(snp, chrsnp, value =signalValue)
+snp_chr2_cov4 <- snp_chr2_cov4 %>% transmute(snp, chrsnp, value =signalValue)
+```
+
+
+```{r, eval = T}
+saveRDS(snp_chr1_cov1, file.path(res_loc, "snp_chr1_cov1.Rds"))
+saveRDS(snp_chr1_cov2, file.path(res_loc, "snp_chr1_cov2.Rds"))
+saveRDS(snp_chr1_cov3, file.path(res_loc, "snp_chr1_cov3.Rds"))
+saveRDS(snp_chr1_cov4, file.path(res_loc, "snp_chr1_cov4.Rds"))
+saveRDS(snp_chr1_cov5, file.path(res_loc, "snp_chr1_cov5.Rds"))
+saveRDS(snp_chr1_cov6, file.path(res_loc, "snp_chr1_cov6.Rds"))
+
+saveRDS(snp_chr2_cov1, file.path(res_loc, "snp_chr2_cov1.Rds"))
+saveRDS(snp_chr2_cov2, file.path(res_loc, "snp_chr2_cov2.Rds"))
+saveRDS(snp_chr2_cov3, file.path(res_loc, "snp_chr2_cov3.Rds"))
+saveRDS(snp_chr2_cov4, file.path(res_loc, "snp_chr2_cov4.Rds"))
+saveRDS(snp_chr2_cov5, file.path(res_loc, "snp_chr2_cov5.Rds"))
+saveRDS(snp_chr2_cov4, file.path(res_loc, "snp_chr2_cov6.Rds"))
+```
