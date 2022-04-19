@@ -15,4 +15,4 @@ R scripts that run the simulations.
 Simulation results from scripts in the *scripts* directory that have been pre-computed/cached.
 
 ### **vignettes/**
-R markdown documents that produce the pre-rendered vignettes above upon being compiled (using files saved in the *precomputed_results* folder). The only exception is the vignette for the hQTL data analysis example, which we include as part of the Bioconductor package [IHWpaper](http://bioconductor.org/packages/devel/IHWpaper).
+R markdown documents that produce the pre-rendered vignettes above upon being compiled (using files saved in the *precomputed_results* folder). 
