@@ -1,34 +1,21 @@
 ## ----warning=FALSE, message=FALSE---------------------------------------------
 library(dplyr)
 
-library(fdrtool)
-library(ggplot2)
-library(cowplot)
-theme_set(theme_cowplot())
+#library(fdrtool)
+
 library(tidyr)
 library(scales)
-#load my stuff
-#devtools::load_all("../IHW-1")
-#devtools::load_all("../RFCDE")
-# library(latex2exp)
-# library(biomaRt)
-devtools::install_github("FridljDa/IHW1", ref = "ihw_forest2")
-library(IHW)
+
+#library(IHW)
 
 ## -----------------------------------------------------------------------------
-#file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
-#file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHWpaper/inst/extdata/real_data/hqtl_chrom1_chrom2"
- file_loc <- "~/R/IHW real data/hqtl_chrom1_chrom2/"
-#download_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHW realdata/downloaded files/"
- download_loc <- "~/R/IHW real data/downloaded files/"
+
+file_loc <- "data/hqtl_chrom1_chrom2/"
+download_loc <- "data/downloaded_covariates"
 
 ### -----------------------------------------------------------------------------
 chr1_df <- readRDS(file.path(file_loc, "chr1_subset.Rds"))
 chr2_df <- readRDS(file.path(file_loc, "chr2_subset.Rds"))
-# rs115505656
-
-## -----------------------------------------------------------------------------
-#pval_threshold <- 10^(-4)
 
 ## -----------------------------------------------------------------------------
 snp_chr1 <- readRDS(file.path(file_loc, "snppos_chr1.Rds"))
@@ -118,18 +105,6 @@ chr2_df <- left_join(chr2_df, select(snp_chr2_cov1, snp, cov1 = value), by = (c(
   left_join(select(snp_chr2_cov13, snp, cov13 = signalValue), by = (c("SNP" = "snp"))) %>%
   left_join(select(snp_chr2_cov14, snp, cov14 = signalValue), by = (c("SNP" = "snp"))) %>%
   left_join(select(snp_chr2_cov15, snp, cov15 = value), by = (c("SNP" = "snp")))
-
-## -----------------------------------------------------------------------------
-# my_breaks <- c(-1,
-#               seq(from=10000,to=290000, by=10000) ,
-#               seq(from=300000, to=0.9*10^6, by=100000),
-#               seq(from=10^6, to=25.1*10^7, by=10^7))
-# myf1 <- cut(chr1_df$cov_dist, my_breaks)
-# myf2 <- cut(chr2_df$cov_dist, my_breaks)
-
-## -----------------------------------------------------------------------------
-ms_chr1 <- readRDS(file.path(file_loc, "m_groups_chr1.Rds"))
-ms_chr2 <- readRDS(file.path(file_loc, "m_groups_chr2.Rds"))
 
 ## -----------------------------------------------------------------------------
 chr1_chr2_df <- rbind(chr1_df, chr2_df)

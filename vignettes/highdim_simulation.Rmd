@@ -1,0 +1,65 @@
+---
+title: "Boca Leek IHW Benchmark"
+output: html_document
+---
+
+## Preperation
+First some cleaning and basic packages.
+```{r setup, message = F}
+library(magrittr)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(cowplot)
+knitr::opts_chunk$set(echo = TRUE)
+
+set.seed(123)
+theme_set(theme_cowplot())
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+
+
+eval_all$strat <- factor(eval_all$strat,
+    levels = c('BH',  'IHW-Quantile',"IHW-Forest"),ordered = TRUE)#'quantile', "BocaLeek more Noise" 'AdaPT',
+    
+eval_all <- eval_all %>%
+  group_by(dimension, strat) %>%
+  summarize(
+    FDR = mean(FDP, na.rm = TRUE),
+    Power = mean(pow, na.rm = TRUE),
+    n_monte_carlo = sum(!is.na(FDP)),
+    pow_se = sd(pow, na.rm = TRUE) / sqrt(n_monte_carlo)
+  ) %>%
+  ungroup()
+
+ eval_all_FDR <- ggplot(eval_all, aes_string(x = "dimension", y = "FDR", shape = "strat", col = "strat")) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = alpha, linetype = 2) +
+  guides(color=guide_legend(title="Method", legend.text=element_text(size=4)),
+         shape =  "none")+
+   scale_x_continuous(breaks= scales::pretty_breaks())+
+   scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))# fill=guide_legend(nrow=2,byrow=TRUE)
+ 
+eval_all_power <- ggplot(eval_all, aes_string(x = "dimension", y = "Power", shape = "strat", col = "strat")) +
+  geom_line() +
+  geom_point()  +
+  ylab("Power")+
+  guides(color=guide_legend(title="Method", legend.text=element_text(size=4)))+
+  scale_x_continuous(breaks= scales::pretty_breaks())+
+   scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
+
+g_combined<- ggarrange(eval_all_FDR, eval_all_power, nrow = 1, widths = c(1, 1), common.legend = TRUE, legend = "bottom") 
+
+#g_combined <- annotate_figure(g_combined, top = text_grob("ifelse(sum(cov_row[1]^2) <= 1, 0.9, 0)", 
+#               color = "red", face = "bold", size = 14))
+```
+
+```{r}
+ggplot2::ggsave("~/R/IHW-1/figures/benchmark.png", g_combined,
+                width = 5, height = 3.25)
+g_combined
+```
+
