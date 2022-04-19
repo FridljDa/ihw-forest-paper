@@ -13,8 +13,8 @@ forest_par <- list(
   maxdepth = 3,
   nodesize = "auto"
 )
-#dimensions <- seq(from = 2, to = 6, by = 2)
-dimensions <- 2
+dimensions <- seq(from = 2, to = 6, by = 2)
+#dimensions <- 2
 
 ## ------Simulation------
 prop_alt <- function(cov_row) {
