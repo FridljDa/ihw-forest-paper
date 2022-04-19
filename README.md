@@ -17,5 +17,5 @@ Simulation results from scripts in the *scripts* directory that have been pre-co
 ### **vignettes/**
 R markdown documents that produce the pre-rendered vignettes above upon being compiled (using files saved in the *precomputed_results* folder). 
 
-### **hqtl_chrom1_chrom2/**
-hard copy from (here)[https://github.com/nignatiadis/IHWpaper/tree/master/inst/extdata/real_data/hqtl_chrom1_chrom2] 
+### **data/**
+input data, mostly external real biological data
