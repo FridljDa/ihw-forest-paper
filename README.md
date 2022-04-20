@@ -1,4 +1,7 @@
 # ihw-forest-paper
+This build of the adaptMT package provides necessary modifications for using AdaPT with gradient boosted trees via the xgboost library. Please see our pre-print, Application of post-selection inference to multi-omics data yields insights into the etiologies of human diseases for details regarding our implementation. An updated tutorial to using both the adapt_xgboost and adapt_xgboost_cv functions will be available soon. The goal is to integrate the functionality of these modifications into the original adaptMT package that is available on the CRAN.
+
+
 This repository serves as companion to the following paper: TODO
 
 All numerical results and figures in the aforementioned paper are made third-party reproducible herein.

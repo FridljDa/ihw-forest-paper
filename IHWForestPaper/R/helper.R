@@ -19,6 +19,7 @@ error_fdp_table <- function(x) {
 }
 
 library(IHWStatsPaper) #TODO
+
 #' Apply multiple testing methods to the simulation with the continuous covariate.
 #
 #' @param seed     Integer; used for printing which simulation it running (does not set an actual RNG seed)
@@ -26,8 +27,8 @@ library(IHWStatsPaper) #TODO
 #' @param m Number of hypotheses (default: m=10000)
 #' @param lfdr_only Bool (default:FALSE), whether to run all methods (if FALSE) or only lfdr based methods (if TRUE)
 #'
-#' @import IHWStatsPaper fdp_eval
-#' @import dplyr bind_rows
+#' @import IHWStatsPaper 
+#' @import dplyr 
 #' @return Data frame with FDP and Power of different methods on this simulation.
 #' @export
 run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par){

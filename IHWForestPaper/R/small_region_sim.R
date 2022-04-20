@@ -48,15 +48,22 @@ small_region_sim <- function(m, r, lengths){
 }
 
 ## -------evaluate-----
+library(doRNG)
+library(doParallel)
+library(parallel)
+
+#' @import doRNG
+#' @import doParallel
+#' @import parallel
 #' @export
 eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1){
   sim <- small_region_sim(m, r, lengths)
   
-  #n.cores <- parallel::detectCores()
-  #doParallel::registerDoParallel(cores = min(5, n.cores - 1))
+  n.cores <- parallel::detectCores()
+  doParallel::registerDoParallel(cores = min(5, n.cores - 1))
   
-  eval <- lapply(seq_along(sim), function(i){
-    #eval <- doParallel::foreach(i = seq_len(nrow(sim_combs))) %dorng% {
+  #eval <- lapply(seq_along(sim), function(i){
+  eval <- foreach(i = seq_along(sim)) %dorng% {
     #i <- 1
     print(paste0("simulation run:", i))
     sim_i <- sim[[i]]
@@ -70,6 +77,6 @@ eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1){
     sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = FALSE, forest_par)
     
     mutate(sim_res_i, length = length_i)
-  })
+  }#)
   eval <- bind_rows(eval)
 }

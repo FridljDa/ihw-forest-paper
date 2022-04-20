@@ -48,16 +48,24 @@ noise_sim <- function(m, r, dimensions){
 }
 
 ## -------evaluate-----
+#library(doRNG) #TODO
+#library(doParallel)
 
+library(doRNG)
+library(doParallel)
+library(parallel)
+#' @import doRNG
+#' @import doParallel
+#' @import parallel
 #' @export
 eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
   sim <- noise_sim(m, r, dimensions)
   
-  #n.cores <- parallel::detectCores()
-  #doParallel::registerDoParallel(cores = min(5, n.cores - 1))
+  n.cores <- parallel::detectCores()
+  doParallel::registerDoParallel(cores = min(5, n.cores - 1))
   
-  eval <- lapply(seq_along(sim), function(i){
-    #eval <- doParallel::foreach(i = seq_len(nrow(sim_combs))) %dorng% {
+  #eval <- lapply(seq_along(sim), function(i){
+  eval <- foreach(i = seq_along(sim)) %dorng% {
     #i <- 1
     print(paste0("simulation run:", i))
     sim_i <- sim[[i]]
@@ -71,6 +79,6 @@ eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
     sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = FALSE, forest_par)
     
     mutate(sim_res_i, dimension = dimension_i)
-  })
+  }
   eval <- bind_rows(eval)
 }
