@@ -2,16 +2,17 @@
 library(magrittr)
 library(dplyr)
 
-library(doParallel)
-n.cores <- parallel::detectCores()
-doParallel::registerDoParallel(cores = min(5, n.cores - 1))
-library(doRNG)
-set.seed(123)
+#library(doParallel)
+#n.cores <- parallel::detectCores()
+#doParallel::registerDoParallel(cores = min(5, n.cores - 1))
+#library(doRNG)
+#set.seed(123)
 
-library(IHWStatsPaper)
+#library(IHWStatsPaper)
 # TODO
 # devtools::load_all("../IHW")
-library("IHW")
+# library("IHW")
+devtools::load_all("IHWForestPaper")
 
 ##---parameters----
 m <- 1e4
@@ -28,12 +29,17 @@ forest_par <- list(
   maxdepth = 3,
   nodesize = "auto"
 )
+## -----small region sim------
+lengths <- seq(from = 1, to = 101, by = 10)
+lengths <- 2
+
+eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
+saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds")
 
 ## -----noise sim------
 dimensions <- seq(from = 1, to = 6, by = 1)
 dimensions <- 2
-source("IHWForestPaper/R/helper.R")
-source("IHWForestPaper/R/noise_sim.R")
-#rm(list = ls())
-noise_sim_eval <- noise_sim_eval(m, r, dimensions, forest_par)
-saveRDS(noise_sim_eval, file = "precomputed_results/noise_sim.Rds")
+
+eval_noise_sim <- IHWForestPaper::eval_noise_sim(m, r, dimensions, forest_par)
+saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
+

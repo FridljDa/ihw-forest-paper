@@ -1,5 +1,5 @@
 ## ------Simulation------
-prop_alt <- function(cov_row) {
+prop_alt2 <- function(cov_row) {
   r <- sum(cov_row^2)
   # exp(-5*r)
   # 1 / (1 + exp(-cov1))
@@ -10,25 +10,25 @@ prop_alt <- function(cov_row) {
   # 1 / (1 + exp(-cov_row[1]))
   # ifelse(sum(cov_row^2)  <= 1, 0.02, 0.4)
   # ifelse(cov_row[1]^2+cov_row[2]^2  <= 1, 0.02, 0.4)
-  ifelse(cov_row[1] <= 0.5, 0.9, 0)
+  ifelse(cov_row <= 1, 0.9, 0)
   # ifelse(r <= 0.1, 0.9, 0) #This works well
 }
 
-noise_sim <- function(m, r, dimensions){
+small_region_sim <- function(m, r, lengths){
   sim_combs <- expand.grid(
     m = m,
-    dimensions = dimensions,
+    lengths = lengths,
     seed = seq_len(r)
   )
   
   # simple_sim <- foreach(i = seq_len(r)) %dorng% {
   simple_sim <- lapply(seq_len(nrow(sim_combs)), function(i) {
     m_i <- sim_combs$m[i]
-    dimension_i <- sim_combs$dimensions[i]
+    length_i <- sim_combs$lengths[i]
     seed_i <- sim_combs$seed[i]
-    covariate_i <- matrix(runif(m_i * dimension_i, 0, 1), nrow = m_i)
+    covariate_i <- runif(m_i, 0, length_i)
     
-    prop_alt_i <- apply(covariate_i, 1, prop_alt)
+    prop_alt_i <- sapply(covariate_i, prop_alt2)
     
     Hs_i <- rbinom(m, size = 1, prop_alt_i)
     
@@ -42,16 +42,15 @@ noise_sim <- function(m, r, dimensions){
     )
     
     return(list(covariate = covariate_i, prop_alt = prop_alt_i, Hs = Hs_i, pvalue = pvalue_i, 
-                dimension = dimension_i, seed = seed_i, m_i = m))
+                length = length_i, seed = seed_i, m_i = m))
   })
   simple_sim
 }
 
 ## -------evaluate-----
-
 #' @export
-eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
-  sim <- noise_sim(m, r, dimensions)
+eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1){
+  sim <- small_region_sim(m, r, lengths)
   
   #n.cores <- parallel::detectCores()
   #doParallel::registerDoParallel(cores = min(5, n.cores - 1))
@@ -61,7 +60,7 @@ eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
     #i <- 1
     print(paste0("simulation run:", i))
     sim_i <- sim[[i]]
-    dimension_i <- sim_i$dimension
+    length_i <- sim_i$length
     seed_i <- sim_i$seed
     
     Ps_i <- sim_i$pvalue
@@ -70,7 +69,7 @@ eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
     
     sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = FALSE, forest_par)
     
-    mutate(sim_res_i, dimension = dimension_i)
+    mutate(sim_res_i, length = length_i)
   })
   eval <- bind_rows(eval)
 }

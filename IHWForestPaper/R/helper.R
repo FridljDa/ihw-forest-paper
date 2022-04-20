@@ -1,14 +1,14 @@
 ihw_quantile_wrapper <- function(Ps, Xs, alpha){
   #TODO nfold?
-  ihw_quantile <- ihw(Ps, Xs, .1, stratification_method = "quantiles", null_proportion = T)
-  rejected_hypotheses(ihw_quantile)
+  ihw_quantile <- IHW::ihw(Ps, Xs, .1, stratification_method = "quantiles", null_proportion = T)
+  IHW::rejected_hypotheses(ihw_quantile)
 }
 
 ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par){
-  ihw_forest <- ihw(Ps, Xs, .1, stratification_method = "forest", null_proportion = T,
+  ihw_forest <- IHW::ihw(Ps, Xs, .1, stratification_method = "forest", null_proportion = T,
                     ntrees = forest_par$ntrees, ntaus = forest_par$ntaus, maxdepth = forest_par$maxdepth, 
                     nodesize = forest_par$nodesize, nsplit = forest_par$nsplit)
-  rejected_hypotheses(ihw_forest)
+  IHW::rejected_hypotheses(ihw_forest)
 }
 
 error_fdp_table <- function(x) {
@@ -18,7 +18,7 @@ error_fdp_table <- function(x) {
   x
 }
 
-
+library(IHWStatsPaper) #TODO
 #' Apply multiple testing methods to the simulation with the continuous covariate.
 #
 #' @param seed     Integer; used for printing which simulation it running (does not set an actual RNG seed)
@@ -26,6 +26,8 @@ error_fdp_table <- function(x) {
 #' @param m Number of hypotheses (default: m=10000)
 #' @param lfdr_only Bool (default:FALSE), whether to run all methods (if FALSE) or only lfdr based methods (if TRUE)
 #'
+#' @import IHWStatsPaper fdp_eval
+#' @import dplyr bind_rows
 #' @return Data frame with FDP and Power of different methods on this simulation.
 #' @export
 run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par){

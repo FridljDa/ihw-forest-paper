@@ -16,5 +16,4 @@ Imports:
     dplyr,
     doRNG,
     doParallel
-
 RoxygenNote: 7.1.2
