@@ -1,5 +1,10 @@
 ---
 title: "Boca Leek IHW Benchmark"
+author: "Daniel Fridljand"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+header-includes:
+   - \usepackage{bbm}
 output: html_document
 ---
 
@@ -22,6 +27,7 @@ theme_set(theme_cowplot())
 ## Colors and method names used throughout 
 
 ```{r}
+options(bitmapType ="cairo")
 # (from https://github.com/dill/beyonce)
 beyonce_colors <- c("#b72da0", "#7c5bd2", "#0097ed","#00c6c3",
                     "#9cd78a", "#f7f7a7", "#ebab5f", "#e24344",
@@ -41,6 +47,16 @@ names(method_shapes) <- method_names
 ```
 
 # Noise simulation
+
+\begin{eqnarray}
+& X_i \sim U[0,1]^d \\
+&\pi_1(X) = \mathbf{1}(X^1 \leq 0.5)0.9\\
+&H_i \mid X_i \sim \text{Bernoulli}(\pi_1(X_i))\\
+&P_i \mid H_i = 0, X_i \sim U[0,1]\\
+&P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
+\end{eqnarray}
+Note parameter $d$ in the first line. Hereafter, dimension = $d$.
+
 
 ## Load result files
 ```{r}
@@ -103,6 +119,16 @@ ggplot2::ggsave("../figures/noise_sim.png", g_combined,
 ```
 # Small region simulation
 
+\begin{eqnarray}
+& X_i \sim U[0,l] \\
+&\pi_1(X) = \mathbf{1}(X^1 \leq 1)0.9\\
+&H_i \mid X_i \sim \text{Bernoulli}(\pi_1(X_i))\\
+&P_i \mid H_i = 0, X_i \sim U[0,1]\\
+&P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
+\end{eqnarray}
+
+Note parameter $l$ in the first line. Hereafter, length = $l$.
+
 ## Load result files
 ```{r}
 small_region_sim_res <-readRDS(file="../precomputed_results/small_region_sim.Rds")
@@ -132,7 +158,8 @@ small_region_sim_res_FDR <- ggplot(small_region_sim_res, aes_string(x = "length"
   geom_hline(yintercept = alpha, linetype = 2) +
   guides(color=guide_legend(title="Method", legend.text=element_text(size=4)),
          shape =  "none")+
-   scale_x_continuous(breaks= scales::pretty_breaks())
+   scale_x_continuous(breaks= scales::pretty_breaks())+
+  scale_y_log10()
   #+ xlab(expression(bar(beta)))
   #+ #scale_y_log10(breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4))
    #scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))# fill=guide_legend(nrow=2,byrow=TRUE)
@@ -160,10 +187,11 @@ small_region_sim_res_power
 g_combined<- ggarrange(small_region_sim_res_FDR, small_region_sim_res_power, nrow = 1, widths = c(1, 1), 
                        common.legend = TRUE, legend = "bottom") 
 
-#g_combined <- annotate_figure(g_combined, top = text_grob("ifelse(sum(cov_row[1]^2) <= 1, 0.9, 0)", 
-#               color = "red", face = "bold", size = 14))
 g_combined
+```
+
+```{r}
 ggplot2::ggsave("../figures/small_region_sim.png", g_combined,
                 width = 5, height = 3.25)
-
 ```
+
