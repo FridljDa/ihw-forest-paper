@@ -17,7 +17,7 @@ devtools::load_all("IHWForestPaper")
 ##---parameters----
 m <- 5e4 #TODO more
 r <- 200
-r <- 20 # number of monte carlo replicates, increases run time immensely!
+r <- 100 # number of monte carlo replicates, increases run time immensely!
 alpha <- .1
 
 #folds_fdp_eval <- sample(1:3, m, replace = TRUE)
@@ -30,7 +30,7 @@ forest_par <- list(
   nodesize = "auto"
 )
 ## -----small region sim------
-lengths <- seq(from = 1, to = 1001, by = 500)
+lengths <- seq(from = 1, to = 1001, by = 200)
 #lengths <- 2
 
 eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
@@ -38,8 +38,8 @@ saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds"
 
 ## -----noise sim------
 dimensions <- seq(from = 1, to = 6, by = 1)
-dimensions <- 2
+#dimensions <- 2
 
-#eval_noise_sim <- IHWForestPaper::eval_noise_sim(m, r, dimensions, forest_par)
-#saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
+eval_noise_sim <- IHWForestPaper::eval_noise_sim(m, r, dimensions, forest_par)
+saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
 
