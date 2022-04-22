@@ -1,0 +1,92 @@
+---
+title: "Boca Leek IHW Benchmark"
+author: "Daniel Fridljand"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+header-includes:
+   - \usepackage{bbm}
+output: html_document
+---
+
+## Preperation
+First some cleaning and basic packages.
+```{r setup, message = F}
+library(magrittr)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(cowplot)
+library(RColorBrewer)
+knitr::opts_chunk$set(echo = TRUE)
+
+set.seed(123)
+theme_set(theme_cowplot())
+library(IHW)
+```
+
+## Colors and method names used throughout 
+
+
+## Load files
+
+```{r, eval = F}
+#file_loc <- "data/hqtl_chrom1_chrom2/"
+#download_loc <- "data/downloaded_covariates"
+list.files("../precomputed_results")
+chr1_df <- readRDS(chr1_df, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
+chr2_df <- readRDS(chr2_df, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
+```
+
+```{r, eval=F}
+chr1_df <- chr1_df[seq_len(1e5), ]
+chr2_df <- chr2_df[seq_len(1e5), ]
+```
+
+```{r}
+chr1_chr2_df <- rbind(chr1_df, chr2_df)
+chr1_chr2_cov <- chr1_chr2_df %>% select(starts_with("cov"))
+chr1_chr2_cov <- as.matrix(chr1_chr2_cov)
+
+folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
+m <- nrow(chr1_chr2_df)
+```
+
+```{r}
+alpha <- .01 / (log(m) + 1)
+
+ntrees <- 5L # number of trees per forest
+ntaus <- 10
+
+nsplit <- 3
+maxdepth <- 3 # 3 worked well!
+nodesize <- 1200
+```
+
+```{r}
+chr1_chr2_cov_test <- chr1_chr2_cov[,1] #TODO 
+ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov_test, alpha = alpha, folds = folds_vec, stratification_method = "forest", ntrees = ntrees,
+                    nsplit=nsplit, ntaus = ntaus, maxdepth = maxdepth, nodesize = nodesize,
+                     null_proportion = T)
+
+#saveRDS(ihw_forest, file = "ihw_forest.Rds")
+saveRDS(ihw_forest, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/ihw_forest.Rds")
+```
+
+```{r}
+#TODO 
+groups_factor <- groups_factor(ihw_forest)[, 1, drop = TRUE]
+ihw_forest2 <- ihw(chr1_chr2_df$pvalue, groups_factor, alpha = alpha, folds = folds_vec, covariate_type = "nominal")
+```
+
+```{r}
+rej_bh <- sum(p.adjust(chr1_chr2_df$pvalue, n = m, method = "BH") <= alpha)
+```
+
+```{r}
+rej_forest <- rejections(ihw_forest)
+ihw_forest2 <- rejections(ihw_forest2)
+rej_bh
+ihw_forest
+ihw_forest2
+```
+
