@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 set.seed(123)
 theme_set(theme_cowplot())
-
+options(bitmapType ="cairo")
 ```
 
 ## Colors and method names used throughout 
@@ -78,6 +78,7 @@ noise_sim_res <- noise_sim_res %>%
   ) %>%
   ungroup()
 ```
+
 ## Plot FDR
 ```{r}
 noise_sim_res_FDR <- ggplot(noise_sim_res, aes_string(x = "dimension", y = "FDR", shape = "method", col = "method")) +
@@ -104,6 +105,7 @@ noise_sim_res_power <- ggplot(noise_sim_res, aes_string(x = "dimension", y = "Po
    #scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 noise_sim_res_power
 ```
+
 ## Combine and save
 
 ```{r}

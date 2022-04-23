@@ -22,6 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 set.seed(123)
 theme_set(theme_cowplot())
 library(IHW)
+options(bitmapType ="cairo")
 ```
 
 ## Colors and method names used throughout 
@@ -29,10 +30,10 @@ library(IHW)
 
 ## Load files
 
-```{r, eval = F}
+```{r, eval = T}
 #file_loc <- "data/hqtl_chrom1_chrom2/"
 #download_loc <- "data/downloaded_covariates"
-list.files("../precomputed_results")
+#list.files("../precomputed_results")
 chr1_df <- readRDS(chr1_df, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
 chr2_df <- readRDS(chr2_df, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
 ```
