@@ -16,7 +16,10 @@ devtools::install_github("FridljDa/IHW", ref = "forest")
 ```
 
 ## Pre-rendered vignettes
-TODO 
+First, below we provide links to pre-rendered vignettes that reproduce figures.
+* Simulations  [[Vignette]](http://htmlpreview.github.io/?https://github.com/FridljDa/ihw-forest-paper/blob/main/vignettes/simulation.html)
+
+
 
 ### **scripts/**
 R scripts that run the simulations.
