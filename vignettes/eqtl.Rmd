@@ -10,6 +10,7 @@ output: html_document
 
 ## Preperation
 First some cleaning and basic packages.
+analog to http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html 
 ```{r setup, message = F}
 library(magrittr)
 library(dplyr)
@@ -31,11 +32,15 @@ options(bitmapType ="cairo")
 ## Load files
 
 ```{r, eval = T}
-#file_loc <- "data/hqtl_chrom1_chrom2/"
-#download_loc <- "data/downloaded_covariates"
-#list.files("../precomputed_results")
-chr1_df <- readRDS(chr1_df, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
-chr2_df <- readRDS(chr2_df, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
+#chr1_df <- readRDS(file = "precomputed_results/chr1_df.Rds")
+#chr2_df <- readRDS(file = "precomputed_results/chr1_df.Rds")
+
+chr1_df <- readRDS(file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
+chr2_df <- readRDS(file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/chr1_df.Rds")
+
+file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+ms_chr1 <- readRDS(file.path(file_loc, "m_groups_chr1.Rds"))
+ms_chr2 <- readRDS(file.path(file_loc, "m_groups_chr2.Rds"))
 ```
 
 ```{r, eval=F}
@@ -49,38 +54,63 @@ chr1_chr2_cov <- chr1_chr2_df %>% select(starts_with("cov"))
 chr1_chr2_cov <- as.matrix(chr1_chr2_cov)
 
 folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
-m <- nrow(chr1_chr2_df)
+
+m_groups <- cbind(ms_chr1, ms_chr2)
+m <- sum(m_groups)# This is really really important, do not do m <- nrow(chr1_chr2_df)
+alpha <- .01 / (log(m) + 1)
+```
+
+
+```{r}
+rej_bh <- sum(p.adjust(chr1_chr2_df$pvalue, n = m, method = "BH") <= alpha)
+rej_bh #TODO should be 9110
+```
+
+```{r, eval = T}
+#chr1_chr2_cov_test <- chr1_chr2_cov[,1, drop = TRUE] #TODO 
+ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$cov_dist, alpha = alpha)
+
+#ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$cov_dist, alpha = alpha, folds = folds_vec, stratification_method = "quantiles",
+#                     null_proportion = F)
+
+saveRDS(ihw_quantile, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/ihw_quantile.Rds")
+rejections(ihw_quantile)
 ```
 
 ```{r}
-alpha <- .01 / (log(m) + 1)
+IHW::adj_pvalues(ihw_quantile) <= alpha
+```
 
-ntrees <- 5L # number of trees per forest
-ntaus <- 10
+```{r}
+ntrees <- 1L # number of trees per forest
+ntaus <- 1
 
 nsplit <- 3
 maxdepth <- 3 # 3 worked well!
 nodesize <- 1200
 ```
 
-```{r}
+```{r, eval = T}
 chr1_chr2_cov_test <- chr1_chr2_cov[,1] #TODO 
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov_test, alpha = alpha, folds = folds_vec, stratification_method = "forest", ntrees = ntrees,
                     nsplit=nsplit, ntaus = ntaus, maxdepth = maxdepth, nodesize = nodesize,
-                     null_proportion = T)
+                     null_proportion = F)
 
-#saveRDS(ihw_forest, file = "ihw_forest.Rds")
 saveRDS(ihw_forest, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/ihw_forest.Rds")
+rejections(ihw_forest)
+```
+
+
+```{r, eval = T}
+ihw_forest <- readRDS(file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/ihw_forest.Rds")
 ```
 
 ```{r}
 #TODO 
+head(groups_factor(ihw_forest))
 groups_factor <- groups_factor(ihw_forest)[, 1, drop = TRUE]
+class(groups_factor)
 ihw_forest2 <- ihw(chr1_chr2_df$pvalue, groups_factor, alpha = alpha, folds = folds_vec, covariate_type = "nominal")
-```
-
-```{r}
-rej_bh <- sum(p.adjust(chr1_chr2_df$pvalue, n = m, method = "BH") <= alpha)
 ```
 
 ```{r}

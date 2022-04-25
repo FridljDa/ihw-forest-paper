@@ -74,37 +74,40 @@ snp_chr2_cov14 <- readRDS(file.path(download_loc, "snp_chr2_cov14.Rds"))
 snp_chr2_cov15 <- readRDS(file.path(download_loc, "snp_chr2_cov15.Rds"))
 
 ## ----join new covariates-------
-chr1_df <- left_join(chr1_df, select(snp_chr1_cov1, snp, cov1 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov2, snp, cov2 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov3, snp, cov3 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov4, snp, cov4 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov5, snp, cov5 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov6, snp, cov6 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov7, snp, cov7 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov8, snp, cov8 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov9, snp, cov9 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov10, snp, cov10 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov11, snp, cov11 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov12, snp, cov12 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov13, snp, cov13 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov14, snp, cov14 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr1_cov15, snp, cov15 = value), by = (c("SNP" = "snp")))
+if(FALSE){
+  chr1_df <- left_join(chr1_df, select(snp_chr1_cov1, snp, cov1 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov2, snp, cov2 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov3, snp, cov3 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov4, snp, cov4 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov5, snp, cov5 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov6, snp, cov6 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov7, snp, cov7 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov8, snp, cov8 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov9, snp, cov9 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov10, snp, cov10 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov11, snp, cov11 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov12, snp, cov12 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov13, snp, cov13 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov14, snp, cov14 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr1_cov15, snp, cov15 = value), by = (c("SNP" = "snp")))
+  
+  chr2_df <- left_join(chr2_df, select(snp_chr2_cov1, snp, cov1 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov2, snp, cov2 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov3, snp, cov3 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov4, snp, cov4 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov5, snp, cov5 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov6, snp, cov6 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov7, snp, cov7 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov8, snp, cov8 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov9, snp, cov9 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov10, snp, cov10 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov11, snp, cov11 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov12, snp, cov12 = value), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov13, snp, cov13 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov14, snp, cov14 = signalValue), by = (c("SNP" = "snp"))) %>%
+    left_join(select(snp_chr2_cov15, snp, cov15 = value), by = (c("SNP" = "snp")))  
+}
 
-chr2_df <- left_join(chr2_df, select(snp_chr2_cov1, snp, cov1 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov2, snp, cov2 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov3, snp, cov3 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov4, snp, cov4 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov5, snp, cov5 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov6, snp, cov6 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov7, snp, cov7 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov8, snp, cov8 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov9, snp, cov9 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov10, snp, cov10 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov11, snp, cov11 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov12, snp, cov12 = value), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov13, snp, cov13 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov14, snp, cov14 = signalValue), by = (c("SNP" = "snp"))) %>%
-  left_join(select(snp_chr2_cov15, snp, cov15 = value), by = (c("SNP" = "snp")))
 
 ## -----------------------------------------------------------------------------
 saveRDS(chr1_df, file = "precomputed_results/chr1_df.Rds")

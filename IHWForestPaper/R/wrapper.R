@@ -17,14 +17,14 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alpha){
   Xs <- runif(20000, min=0, max=2.5) # covariate
   Hs <- rbinom(20000,1,0.1) # hypothesis true or false
   Zs <- rnorm(20000, Xs*Hs) # Z-score
-  .Random.seed <- save.seed
+
   Ps <- 1-pnorm(Zs) # pvalue
   
   args_search <- list("nrounds100md2" = list("nrounds" = 5,
                                              "max_depth" = 2,
                                              #"min_child_weight" = 1,
                                              "verbose" = 0,
-                                             "nthread" = 5))
+                                             "nthread" = 2))
   
   res <- adaptMT::adapt_xgboost_cv(
     as.matrix(Xs),
