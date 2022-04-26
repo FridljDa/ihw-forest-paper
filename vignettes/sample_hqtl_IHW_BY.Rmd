@@ -1,0 +1,119 @@
+---
+title: "hQTL analysis with IHW-Benjamini-Yekutieli"
+author: "Nikos Ignatiadis"
+date: "`r doc_date()`"
+package: "`r pkg_ver('IHWpaper')`"
+output: BiocStyle::html_document
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{"Stats paper: hQTL analysis with IHW-Benjamini-Yekutieli"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r warning=FALSE, message=FALSE}
+library(dplyr)
+library(IHW)
+library(fdrtool)
+library(ggplot2)
+library(cowplot)
+theme_set(theme_cowplot())
+library(tidyr)
+library(scales)
+library(latex2exp)
+set.seed(1)
+```
+See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R for more details
+Let us start by loading in the data:
+
+```{r}
+file_loc <- system.file("extdata","real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
+file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+```
+
+First the two tables with the p-values corresponding to the two chromosomes. Note that only p-values <= 1e-4 are stored in these.
+```{r}
+chr1_df <- readRDS(file.path(file_loc, "chr1_subset.Rds"))
+chr2_df <- readRDS(file.path(file_loc, "chr2_subset.Rds"))
+```
+
+```{r}
+pval_threshold <- 10^(-4)
+```
+
+Also recall each hypothesis corresponds to a peak (which we call gene below) and a SNP. Hence let us load files about each of the SNPs and peaks:
+
+```{r}
+snp_chr1 <- readRDS(file.path(file_loc, "snppos_chr1.Rds"))
+snp_chr2 <-  readRDS(file.path(file_loc, "snppos_chr2.Rds"))
+
+all_peaks <- readRDS(file.path(file_loc, "peak_locations.Rds"))
+peaks_chr1 <- dplyr::filter(all_peaks, chr=="chr1")
+peaks_chr2 <- dplyr::filter(all_peaks, chr=="chr2")
+rm(all_peaks)
+```
+
+TODO delete, make smaller
+```{r, eval = T}
+chr1_df <- chr1_df %>% sample_n(1000)
+chr2_df <- chr2_df %>% sample_n(1000)
+
+peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
+peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
+
+snp_chr1 <- snp_chr1 %>% filter(snp %in% chr1_df$SNP)
+snp_chr2 <- snp_chr2 %>% filter(snp %in% chr2_df$SNP)
+```
+
+```{r}
+chr1_df <- full_join(select(snp_chr1, snp, pos), peaks_chr1, by = character()) %>%
+  left_join(chr1_df, by=(c("snp"="SNP","id"="gene"))) %>%
+       mutate(dist = pmin( abs(pos-start), abs(pos-end)))
+
+chr2_df <- full_join(select(snp_chr2, snp, pos), peaks_chr2, by = character()) %>%
+  left_join(chr2_df, by=(c("snp"="SNP","id"="gene"))) %>%
+       mutate(dist = pmin( abs(pos-start), abs(pos-end)))
+```
+
+```{r}
+nrow(chr1_df) + nrow(chr2_df)
+m <- nrow(peaks_chr1) * nrow(snp_chr2) + nrow(snp_chr2)*nrow(peaks_chr2)
+m
+```
+
+Let us put the data for the two chromosomes together:
+
+```{r}
+chr1_chr2_df <- rbind(chr1_df, chr2_df)
+folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
+```
+
+
+# Apply IHW-BY and BY
+
+We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjamini-Hochberg at the corrected level:
+
+```{r}
+alpha <- .01/(log(m)+1)
+```
+
+Now let us run the IHW procedure:
+```{r}
+ihw_chr1_chr2 <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds=folds_vec)
+```
+
+
+Rejections of BY:
+
+```{r}
+sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method="BH") <= alpha)
+```
+
+Rejections of IHW-BY:
+
+```{r}
+rejections(ihw_chr1_chr2)
+```
+
+So we see that discoveries have more than doubled.
