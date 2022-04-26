@@ -39,6 +39,7 @@ chr2_df <- readRDS(file.path(file_loc, "chr2_subset.Rds"))
 
 ```{r}
 pval_threshold <- 10^(-4)
+range(chr1_df$pvalue)
 ```
 
 Also recall each hypothesis corresponds to a peak (which we call gene below) and a SNP. Hence let us load files about each of the SNPs and peaks:
@@ -52,6 +53,10 @@ peaks_chr1 <- dplyr::filter(all_peaks, chr=="chr1")
 peaks_chr2 <- dplyr::filter(all_peaks, chr=="chr2")
 ```
 
+```{r}
+#TODO look at p-values inside of peaks
+#snp_chr1$pos <= peaks_chr1$end
+```
 
 
 We can use these both to infer how many hypotheses were conducted in total (or at a given distance), but also to calculate our covariates which are a function of SNP and peak (their distance).
@@ -87,13 +92,14 @@ cnt = 0
 ms <- rep(0, length(levels(myf1)))
 pb = txtProgressBar(min = 0, max = nrow(peaks_chr1), initial = 0) 
 
-for (i in 1:nrow(peaks_chr1)){
+#for (i in 1:nrow(peaks_chr1)){
+  i <- 1
   setTxtProgressBar(pb,i)
   start_pos <- peaks_chr1$start[i]
   end_pos <- peaks_chr1$end[i]
   dist_vec <- pmin( abs(snp_chr1$pos - start_pos), abs(snp_chr1$pos - end_pos) )
   ms <- ms + table(cut(dist_vec, my_breaks))
-}
+#}
 
 saveRDS( ms, file = "m_groups_chr1.Rds" )
 
