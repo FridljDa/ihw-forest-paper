@@ -94,7 +94,7 @@ lambda <- Inf
 
 taus <- NULL
 ntrees <- 2L # number of trees per forest
-ntaus <- 1
+n_censor_thres <- 1
 maxdepth <- 2
 min.node.size <- NULL
 
@@ -118,7 +118,7 @@ data_cut <- data_cut %>%
 ```
 
 ```{r}
-groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size) 
+groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size) 
 groups_bocaleek_test <-  groups_bocaleek[folds==2,]
 
 data_bocaleek <- cbind(data_test, groups_bocaleek_test)
@@ -152,7 +152,7 @@ rej_bh <- sum(p.adjust(data_train$pvalue, n = nrow(data_train), method = "BH") <
 
 covariates <- select(data_train, starts_with("cov"))
 ihw_bocaleek <- ihw(data_train$pvalue, as.matrix(covariates), alpha = 0.1, strat = "BocaLeek", ntrees = ntrees,nbins = nbins,
-taus = taus,  ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf)
+taus = taus,  n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf)
 
 rej_bocaleek <- rejections(ihw_bocaleek)
 rej_bh
@@ -273,7 +273,7 @@ data_cut <- data_cut %>%
 ```
 
 ```{r}
-groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size) 
+groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size) 
 
 groups_bocaleek_test <-  groups_bocaleek[folds==2,]
 

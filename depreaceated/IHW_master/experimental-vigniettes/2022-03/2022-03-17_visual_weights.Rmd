@@ -98,8 +98,8 @@ lambda <- Inf
 
 
 ntrees <- 10L # number of trees per forest
-ntaus <- 10
-#taus <- seq(0, 1, length.out = ntaus+2)[2:(ntaus+1)] 
+n_censor_thres <- 10
+#taus <- seq(0, 1, length.out = n_censor_thres+2)[2:(n_censor_thres+1)] 
 taus <- NULL
 
 maxdepth <- 3 #3 worked well!
@@ -118,7 +118,7 @@ folds_fdp_eval <- sample(1:5, nrow(data_train), replace = TRUE)
 ihw_quantile <- ihw(data_train$pvalue, covariate_train, alpha = 0.1, strat = "quantile", nbins = nbins, lambda = Inf, folds = folds_fdp_eval)
 
 ihw_bocaleek <- ihw(data_train$pvalue, covariate_train, alpha = 0.1, strat = "BocaLeek", ntrees = ntrees,nbins = nbins,
-taus = taus,  ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf, folds = folds_fdp_eval)
+taus = taus,  n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf, folds = folds_fdp_eval)
   
 rjs_quantile <- IHW::rejected_hypotheses(ihw_quantile)
 rjs_bocaleek <- IHW::rejected_hypotheses(ihw_bocaleek)
@@ -161,7 +161,7 @@ data_cut <- data_cut %>%
 ```
 
 ```{r}
-groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size) 
+groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size) 
 groups_bocaleek_test <-  groups_bocaleek[folds==2,]
 
 data_bocaleek <- cbind(data_test, groups_bocaleek_test)

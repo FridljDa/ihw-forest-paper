@@ -48,7 +48,7 @@ The following parameters are auto-set in the BioConductor implementation. My cod
 lambda <- Inf
 
 ntrees <- 3L # number of trees per forest
-ntaus <- 10
+n_censor_thres <- 10
 taus <- NULL
 
 nsplit <- 5
@@ -231,7 +231,7 @@ eval_bocaleek_simple <- lapply(seq_len(nrow(sim_combs)), function(i){
 
   ihw_bocaleek <- ihw(simple_sim_i$pvalue, covariate_i,
     alpha = 0.1, strat = "BocaLeek", ntrees = ntrees,
-    taus = taus, ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf, nsplit = nsplit, null_proportion = T)
+    taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf, nsplit = nsplit, null_proportion = T)
 
   rjs_i <- IHW::rejected_hypotheses(ihw_bocaleek)
   Hs_i <- simple_sim_i$Hs

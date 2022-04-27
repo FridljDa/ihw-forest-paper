@@ -24,7 +24,7 @@ alpha <- .1
 
 forest_par <- list(
   ntrees = 3,
-  ntaus = 10,
+  n_censor_thres = 10,
   nsplit = 3,
   maxdepth = 3,
   nodesize = "auto"

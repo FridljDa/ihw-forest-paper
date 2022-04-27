@@ -35,7 +35,7 @@ min.node.size <- 1000
 nsplit <- 5
 nbins <- 10L
 
-ntaus <- 1
+n_censor_thres <- 1
 taus <- NULL
 ```
 
@@ -94,7 +94,7 @@ weighted_bh_rejections(weights(ihw_res_1), pvalues)
 weighted_bh_rejections(weights(ihw_res_2), pvalues)
 ```
 ```{r}
-groups_bocaleek <- group_by_forest_BocaLeek(pvalues, as.matrix(covariates), folds, ntrees = ntrees, taus = taus, ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size, nsplit = nsplit)
+groups_bocaleek <- group_by_forest_BocaLeek(pvalues, as.matrix(covariates), folds, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, nsplit = nsplit)
 str(groups_bocaleek)
 ```
 
@@ -128,7 +128,7 @@ weighted_bh_rejections(weights(ihw_res_2), pvalues)
 
 ```{r}
 ihw_bocaleek <- ihw(pvalues, covariates,covariate_type = "ordinal",nbins == "auto",
-    alpha = 0.1, strat = "BocaLeek",folds, ntrees = ntrees, taus = taus, ntaus = ntaus, maxdepth = maxdepth, min.node.size = min.node.size, nsplit = nsplit, lambda = Inf)
+    alpha = 0.1, strat = "BocaLeek",folds, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, nsplit = nsplit, lambda = Inf)
 rejections(ihw_bocaleek)
 ```
 

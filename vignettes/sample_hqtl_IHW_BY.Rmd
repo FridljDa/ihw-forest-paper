@@ -110,7 +110,7 @@ m_groups(ihw_quantile)
 
 ```{r}
 #TODO specify taus!
-ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec, stratification_method = "forest", ntaus = 1, ntrees = 1)
+ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec, stratification_method = "forest", n_censor_thres = 1, ntrees = 1)
 ```
 
 cal

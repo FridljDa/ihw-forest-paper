@@ -87,7 +87,7 @@ IHW::adj_pvalues(ihw_quantile) <= alpha
 
 ```{r}
 ntrees <- 1L # number of trees per forest
-ntaus <- 1
+n_censor_thres <- 1
 
 nsplit <- 3
 maxdepth <- 3 # 3 worked well!
@@ -97,7 +97,7 @@ nodesize <- 1200
 ```{r, eval = T}
 chr1_chr2_cov_test <- chr1_chr2_cov[,1] #TODO 
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov_test, alpha = alpha, folds = folds_vec, stratification_method = "forest", ntrees = ntrees,
-                    nsplit=nsplit, ntaus = ntaus, maxdepth = maxdepth, nodesize = nodesize,
+                    nsplit=nsplit, n_censor_thres = n_censor_thres, maxdepth = maxdepth, nodesize = nodesize,
                      null_proportion = F)
 
 saveRDS(ihw_forest, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/ihw_forest.Rds")
