@@ -28,7 +28,7 @@ See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/
 Let us start by loading in the data:
 
 ```{r}
-file_loc <- system.file("extdata","real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
+file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
 file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 ```
 
@@ -46,35 +46,27 @@ Also recall each hypothesis corresponds to a peak (which we call gene below) and
 
 ```{r}
 snp_chr1 <- readRDS(file.path(file_loc, "snppos_chr1.Rds"))
-snp_chr2 <-  readRDS(file.path(file_loc, "snppos_chr2.Rds"))
+snp_chr2 <- readRDS(file.path(file_loc, "snppos_chr2.Rds"))
 
 all_peaks <- readRDS(file.path(file_loc, "peak_locations.Rds"))
-peaks_chr1 <- dplyr::filter(all_peaks, chr=="chr1")
-peaks_chr2 <- dplyr::filter(all_peaks, chr=="chr2")
+peaks_chr1 <- dplyr::filter(all_peaks, chr == "chr1")
+peaks_chr2 <- dplyr::filter(all_peaks, chr == "chr2")
 rm(all_peaks)
 ```
 
-TODO delete, make smaller
-```{r}
-unique(chr1_df$pos)[100] %>% round(-5)
-unique(chr1_df$end)[100] %>% round(-5)
-unique(chr2_df$pos)[100] %>% round(-5)
-unique(chr2_df$end)[100] %>% round(-5)
-```
-```{r}
-chr1_df <- chr1_df %>% filter(pos <= 17500000 & end <= 1300000)
-chr2_df <- chr2_df %>% filter(pos <= 20200000 & end <= 12200000)
-
-peaks_chr1 <- peaks_chr1 %>% filter(pos <= 17500000)
-peaks_chr2 <- peaks_chr2 %>% filter(pos <= 20200000)
-
-snp_chr1 <- snp_chr1 %>% filter(end <= 1300000)
-snp_chr2 <- snp_chr2 %>% filter(end <= 12200000)
-```
-
 ```{r, eval = F}
-chr1_df <- chr1_df %>% sample_n(1000)
-chr2_df <- chr2_df %>% sample_n(1000)
+snp_chr1 <- snp_chr1 %>% slice(1000)
+snp_chr2 <- snp_chr2 %>% slice(1000)
+
+peaks_chr1 <- peaks_chr1 %>% slice(1000)
+peaks_chr2 <- peaks_chr2 %>% slice(1000)
+```
+
+
+The below sampling does the job, ensures that there are enough "real" hypotheses, but is biased
+```{r, eval = T}
+chr1_df <- chr1_df %>% sample_n(10000)
+chr2_df <- chr2_df %>% sample_n(10000)
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -84,21 +76,30 @@ snp_chr2 <- snp_chr2 %>% filter(snp %in% chr2_df$SNP)
 ```
 
 ```{r}
-chr1_df <- full_join(select(snp_chr1, snp, pos), peaks_chr1, by = character()) %>%
-  left_join(chr1_df, by=(c("snp"="SNP","id"="gene"))) %>%
-       mutate(dist = pmin( abs(pos-start), abs(pos-end)),
-              pvalue = replace_na(pvalue,1))
+full_comb_chr1 <- full_join(select(snp_chr1, snp, pos), peaks_chr1, by = character())
+full_comb_chr2 <- full_join(select(snp_chr2, snp, pos), peaks_chr2, by = character())
+```
 
-chr2_df <- full_join(select(snp_chr2, snp, pos), peaks_chr2, by = character()) %>%
-  left_join(chr2_df, by=(c("snp"="SNP","id"="gene"))) %>%
-       mutate(dist = pmin( abs(pos-start), abs(pos-end)),
-              pvalue = replace_na(pvalue,1))
+```{r}
+chr1_df <- full_comb_chr1 %>%
+  left_join(chr1_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
+  mutate(
+    dist = pmin(abs(pos - start), abs(pos - end)),
+    pvalue = replace_na(pvalue, 1)
+  ) # TODO
+
+chr2_df <- full_comb_chr2 %>%
+  left_join(chr2_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
+  mutate(
+    dist = pmin(abs(pos - start), abs(pos - end)),
+    pvalue = replace_na(pvalue, 1)
+  )
 ```
 
 ```{r}
 nrow(chr1_df) + nrow(chr2_df)
-m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2)*nrow(peaks_chr2)
-m 
+m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2) * nrow(peaks_chr2)
+m
 ```
 
 Let us put the data for the two chromosomes together:
@@ -114,30 +115,35 @@ folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjamini-Hochberg at the corrected level:
 
 ```{r}
-alpha <- .01/(log(m)+1)
+alpha <- .01 / (log(m) + 1)
 ```
 
 Now let us run the IHW procedure:
 ```{r}
 ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec)
-nrow(ihw_quantile)
 m_groups(ihw_quantile)
+strat_quantile <- stratification_breaks(ihw_quantile)
 ```
 
-```{r, eval = F}
-#TODO specify taus!
-ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec, stratification_method = "forest", n_censor_thres = 1, ntrees = 1)
-nrow(ihw_forest)
+```{r, eval = T}
+ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha,
+  folds = folds_vec, stratification_method = "forest",
+  n_censor_thres = 2, ntrees = 1, nsplit = 4, maxdepth = 4
+)
 m_groups(ihw_forest)
-IHW::stratification_breaks
-(ihw_forest)
+strat_forest <- stratification_breaks(ihw_forest, fold = 1, tree = 1) # , n_censor_thres = , ntrees = 1
 ```
 
-cal
+```{r}
+ggplot(df1, aes(x = x, y = y)) +
+  geom_line() +
+  geom_vline(xintercept = strat_forest)
+```
+
 Rejections of BY:
 
 ```{r}
-sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method="BH") <= alpha)
+sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method = "BH") <= alpha)
 ```
 
 Rejections of IHW-BY-quantile:
