@@ -69,22 +69,25 @@ snp_chr2 <- snp_chr2 %>% filter(snp %in% chr2_df$SNP)
 ```{r}
 chr1_df <- full_join(select(snp_chr1, snp, pos), peaks_chr1, by = character()) %>%
   left_join(chr1_df, by=(c("snp"="SNP","id"="gene"))) %>%
-       mutate(dist = pmin( abs(pos-start), abs(pos-end)))
+       mutate(dist = pmin( abs(pos-start), abs(pos-end)),
+              pvalue = replace_na(pvalue,1))
 
 chr2_df <- full_join(select(snp_chr2, snp, pos), peaks_chr2, by = character()) %>%
   left_join(chr2_df, by=(c("snp"="SNP","id"="gene"))) %>%
-       mutate(dist = pmin( abs(pos-start), abs(pos-end)))
+       mutate(dist = pmin( abs(pos-start), abs(pos-end)),
+              pvalue = replace_na(pvalue,1))
 ```
 
 ```{r}
 nrow(chr1_df) + nrow(chr2_df)
-m <- nrow(peaks_chr1) * nrow(snp_chr2) + nrow(snp_chr2)*nrow(peaks_chr2)
-m
+m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2)*nrow(peaks_chr2)
+m 
 ```
 
 Let us put the data for the two chromosomes together:
 
-```{r}
+```{r}RF-SRC:  train response elements must not be plus or minus infinity:  [         1,      33854] =          inf 
+
 chr1_chr2_df <- rbind(chr1_df, chr2_df)
 folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 ```
@@ -100,20 +103,30 @@ alpha <- .01/(log(m)+1)
 
 Now let us run the IHW procedure:
 ```{r}
-ihw_chr1_chr2 <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds=folds_vec)
+ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec)
+nrow(ihw_quantile)
+m_groups(ihw_quantile)
 ```
 
+```{r}
+#TODO specify taus!
+ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec, stratification_method = "forest", ntaus = 1, ntrees = 1)
+```
 
+cal
 Rejections of BY:
 
 ```{r}
 sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method="BH") <= alpha)
 ```
 
-Rejections of IHW-BY:
+Rejections of IHW-BY-quantile:
 
 ```{r}
-rejections(ihw_chr1_chr2)
+rejections(ihw_quantile)
 ```
+Rejections of IHW-BY-forest:
 
-So we see that discoveries have more than doubled.
+```{r}
+rejections(ihw_forest)
+```

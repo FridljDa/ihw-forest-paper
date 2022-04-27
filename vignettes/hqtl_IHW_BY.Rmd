@@ -23,7 +23,7 @@ library(tidyr)
 library(scales)
 library(latex2exp)
 ```
-
+See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R for more details
 Let us start by loading in the data:
 
 ```{r}
@@ -53,7 +53,10 @@ peaks_chr1 <- dplyr::filter(all_peaks, chr=="chr1")
 peaks_chr2 <- dplyr::filter(all_peaks, chr=="chr2")
 ```
 
+TODO delete, make smaller
 ```{r}
+dt <- dt %>%
+  slice(1:4)
 #TODO look at p-values inside of peaks
 #snp_chr1$pos <= peaks_chr1$end
 ```
@@ -138,8 +141,11 @@ m_groups <- cbind(ms_chr1, ms_chr2)
 
 ```{r}
 m <- sum(m_groups) #total number of hypotheses
+#equivalent
+#nrow(peaks_chr1) *nrow(snp_chr2) + nrow(snp_chr2)*nrow(peaks_chr2)
 m
 ```
+
 
 # Histogram plots
 

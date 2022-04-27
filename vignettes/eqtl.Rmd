@@ -75,6 +75,10 @@ ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$cov_dist, alpha = alpha)
 
 saveRDS(ihw_quantile, file = "/g/huber/users/fridljand/R/ihw-forest-paper/precomputed_results/ihw_quantile.Rds")
 rejections(ihw_quantile)
+
+#sorted_adj_p <- p.adjust(weighted_pvalues(ihw_quantile), method = "BH", n = m)
+#sorted_adj_p <- p.adjust(weighted_pvalues(ihw_quantile), method = "BH", n = nrow(chr1_chr2_df))
+#sum(sorted_adj_p <= alpha)
 ```
 
 ```{r}
