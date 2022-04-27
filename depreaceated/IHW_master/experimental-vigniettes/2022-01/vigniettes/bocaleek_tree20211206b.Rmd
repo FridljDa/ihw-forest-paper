@@ -37,9 +37,9 @@ pvalues <- 1 - pnorm(Zs) # pvalue
 The input parameters are nfolds nbins ntrees seed covariate Ps sorted_folds
 
 ```{r Pseudo calculation}
-maxdepth <- log2(nbins)
-maxdepth <- ceiling(maxdepth)
-min.node.size <- 2^(maxdepth + 1) - 1
+nodedepth <- log2(nbins)
+nodedepth <- ceiling(nodedepth)
+min.node.size <- 2^(nodedepth + 1) - 1
 ```
 
 
@@ -61,7 +61,7 @@ forest_fold <- lapply(1:nfolds, function(i) {
     mtry = 1,
      regularization.factor = 1e-30,
     # regularization.usedepth = TRUE,
-    max.depth = maxdepth,
+    max.depth = nodedepth,
     splitrule = "variance",
     importance = "none",
     seed = seed

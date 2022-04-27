@@ -53,7 +53,7 @@ m1 <- rpart(
   formula = Ys ~ Xs,
   data    = data,
   method  = "anova",
-  control = rpart.control(cp = 0, minbucket = floor(m/(3*nbins)), maxdepth = log2(nbins))
+  control = rpart.control(cp = 0, minbucket = floor(m/(3*nbins)), nodedepth = log2(nbins))
 )
 rpart.plot(m1)
 ```

@@ -100,7 +100,7 @@ ntrees <- 5L # number of trees per forest
 n_censor_thres <- 10
 taus <- NULL
 
-maxdepth <- 6 #3 worked well!
+nodedepth <- 6 #3 worked well!
 min.node.size <- 1000
 nsplit <- 5
 nbins <- 4L
@@ -147,7 +147,7 @@ data_cut <- data_cut %>%
 ```
 
 ```{r}
-groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, nsplit = nsplit) 
+groups_bocaleek <- group_by_forest_BocaLeek(data_train_test$pvalue, select(data_train_test, starts_with("cov")), folds, nbins=nbins, ntrees = ntrees, taus = taus, n_censor_thres = n_censor_thres, nodedepth = nodedepth, min.node.size = min.node.size, nsplit = nsplit) 
 groups_bocaleek_test <-  groups_bocaleek[folds==2,]
 
 data_bocaleek <- cbind(data_test, groups_bocaleek_test)

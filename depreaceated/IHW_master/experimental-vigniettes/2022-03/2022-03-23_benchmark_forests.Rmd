@@ -52,7 +52,7 @@ n_censor_thres <- 10
 taus <- NULL
 
 nsplit <- 5
-maxdepth <- 10 # 3 worked well!
+nodedepth <- 10 # 3 worked well!
 min.node.size <- NULL
 nbins <- 3L
 
@@ -231,7 +231,7 @@ eval_bocaleek_simple <- lapply(seq_len(nrow(sim_combs)), function(i){
 
   ihw_bocaleek <- ihw(simple_sim_i$pvalue, covariate_i,
     alpha = 0.1, strat = "BocaLeek", ntrees = ntrees,
-    taus = taus, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf, nsplit = nsplit, null_proportion = T)
+    taus = taus, n_censor_thres = n_censor_thres, nodedepth = nodedepth, min.node.size = min.node.size, lambda = Inf, nsplit = nsplit, null_proportion = T)
 
   rjs_i <- IHW::rejected_hypotheses(ihw_bocaleek)
   Hs_i <- simple_sim_i$Hs

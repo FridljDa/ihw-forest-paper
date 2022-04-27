@@ -26,7 +26,7 @@ forest_par <- list(
   ntrees = 3,
   n_censor_thres = 10,
   nsplit = 3,
-  maxdepth = 3,
+  nodedepth = 3,
   nodesize = "auto"
 )
 ## -----small region sim------

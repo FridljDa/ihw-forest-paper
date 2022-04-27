@@ -20,7 +20,7 @@ nfolds <- 5
 nbins <- 5
 # tree specific parameters
 minbucket <- floor(m / (3 * nbins)) # todo smaller trees are ok for forest
-maxdepth <- log2(nbins)
+nodedepth <- log2(nbins)
 ```
 
 ```{r generate data}
@@ -49,7 +49,7 @@ fold_trees <- lapply(1:nfolds, function(i) {
     formula = Ys ~ Xs,
     data    = data_other_folds,
     method  = "anova",
-    control = rpart.control(cp = 0, minbucket = minbucket, maxdepth = maxdepth)
+    control = rpart.control(cp = 0, minbucket = minbucket, nodedepth = nodedepth)
   )
 
   return(tree_holdout_fold)

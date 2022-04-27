@@ -23,6 +23,7 @@ library(tidyr)
 library(scales)
 library(latex2exp)
 set.seed(1)
+devtools::load_all("../../IHW")
 ```
 See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R for more details
 Let us start by loading in the data:
@@ -30,6 +31,7 @@ Let us start by loading in the data:
 ```{r}
 file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
 file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 ```
 
 First the two tables with the p-values corresponding to the two chromosomes. Note that only p-values <= 1e-4 are stored in these.
@@ -97,6 +99,10 @@ chr2_df <- full_comb_chr2 %>%
 ```
 
 ```{r}
+hist(chr1_df$pvalue[chr1_df$pvalue<1])
+```
+
+```{r}
 nrow(chr1_df) + nrow(chr2_df)
 m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2) * nrow(peaks_chr2)
 m
@@ -106,7 +112,8 @@ Let us put the data for the two chromosomes together:
 
 ```{r}
 chr1_chr2_df <- rbind(chr1_df, chr2_df)
-folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
+#folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
+folds_vec <- c(rep(factor(1), nrow(chr1_df)), rep(factor(2), nrow(chr2_df)))
 ```
 
 
@@ -126,15 +133,17 @@ strat_quantile <- stratification_breaks(ihw_quantile)
 ```
 
 ```{r, eval = T}
+devtools::load_all("../../IHW")
+
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha,
   folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 2, ntrees = 1, nsplit = 4, maxdepth = 4
+  n_censor_thres = 2, ntrees = 1, nsplit = NULL, nodedepth = 4, nodesize = 1000
 )
-m_groups(ihw_forest)
+#IHW::m_groups(ihw_forest)
 strat_forest <- stratification_breaks(ihw_forest, fold = 1, tree = 1) # , n_censor_thres = , ntrees = 1
 ```
 
-```{r}
+```{r, eval =F}
 ggplot(df1, aes(x = x, y = y)) +
   geom_line() +
   geom_vline(xintercept = strat_forest)

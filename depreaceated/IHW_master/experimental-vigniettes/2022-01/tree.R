@@ -62,6 +62,6 @@ m1 <- rpart(
   data    = data2,
   method  = "anova",
   control = rpart.control(minbucket = 20, cp = 0.02, xval = 10)
-)#control = list(minsplit = 10, maxdepth = 12, xval = 10)
+)#control = list(minsplit = 10, nodedepth = 12, xval = 10)
 #rpart.control(minbucket = 20, cp = 0.0002, maxsurrogate = 0, usesurrogate = 0, xval = 10)
 rpart.plot(m1)

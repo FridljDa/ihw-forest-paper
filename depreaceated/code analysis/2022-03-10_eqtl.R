@@ -164,14 +164,14 @@ n_censor_thres <- 10
 taus <- NULL
 
 nsplit <- 7
-maxdepth <- 10 # 3 worked well!
+nodedepth <- 10 # 3 worked well!
 min.node.size <- 1200
 
 ## -----------------------------------------------------------------------------
 #ihw_cut <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha = alpha, folds = folds_vec, strat = "cut", lambda = Inf)
 chr1_chr2_cov_test <- chr1_chr2_cov[,1, drop = F] #TODO 
 ihw_bocaleek <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov_test, alpha = alpha, folds = folds_vec, strat = "BocaLeek", ntrees = ntrees,nbins = nbins, 
-                    taus = taus, nsplit=nsplit, n_censor_thres = n_censor_thres, maxdepth = maxdepth, min.node.size = min.node.size, lambda = Inf,
+                    taus = taus, nsplit=nsplit, n_censor_thres = n_censor_thres, nodedepth = nodedepth, min.node.size = min.node.size, lambda = Inf,
                      null_proportion = T)
 #ihw_RFCDE <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha = alpha, folds = folds_vec, strat = "RFCDE", n_basis = n_basis, ntrees = ntrees,nbins = nbins, lambda = Inf)
 #ihw_Julia <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha = alpha, folds = folds_vec, strat = "Julia", n_basis = n_basis, ntrees = ntrees,nbins = nbins, lambda = Inf)

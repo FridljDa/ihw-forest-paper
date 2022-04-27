@@ -40,9 +40,23 @@ ggplot(sim, aes(x=pvalue)) +
 ```
 ## single fold 
 
+That's what we want
 ```{r}
 ihw_res1_single_fold_easy <- ihw(sim$pvalue, sim$filterstat, .1, nbins=10, nfolds=1)
 rejections(ihw_res1_single_fold_easy)
+```
+
+```{r}
+sim_filtered <- subset(sim, sim$pvalue <= p_value_threshold)
+ihw_res1_filtered_single_fold <- ihw(sim_filtered$pvalue, sim_filtered$filterstat,.1, nbins=10,
+                                     nfolds=1)
+rejections(ihw_res1_filtered_single_fold)
+weighted_pvalues <- weighted_pvalues(ihw_res1_filtered_single_fold)
+adj_pvalues_new <- p.adjust(weighted_pvalues, method = "BH", n = nrow(sim))
+sum(adj_pvalues_new <= .1)
+```
+```{r}
+ihw_res_filt <- ihw(sim_filt$pvalue, sim_filt$group, 0.1, nfolds = 1, m_groups = mgroups)#
 ```
 
 ```{r}
@@ -67,9 +81,10 @@ sim_replaced2 <- sim %>%
 
 ihw_res1_replaced2_single_fold <- ihw(sim_replaced2$pvalue, sim_replaced2$filterstat,.1, nbins=10,
                                      nfolds=1)
-adj_pvalues_new <- p.adjust(weighted_pvalues(ihw_res1_replaced2_single_fold),method = "BH", n = nrow(sim))
+weighted_pvalues <- na.exclude(weighted_pvalues(ihw_res1_replaced2_single_fold))
+adj_pvalues_new <- p.adjust(weighted_pvalues, method = "BH", n = nrow(sim))
 sum(adj_pvalues_new <= .1)
-rejections(ihw_res1_replaced_single_fold)
+rejections(ihw_res1_replaced2_single_fold)
 ```
 
 ```{r, eval = F}
@@ -92,63 +107,4 @@ ihw_res1_replaced <- ihw(sim_replaced$pvalue, sim_replaced$filterstat, .1, nbins
                                      nfolds=2)
 
 rejections(ihw_res1_replaced)
-```
-
-## lets say we have access...
-lets get from sim_filt to sim_replaced
-```{r}
-library(sets)
-require(data.table)
-sim_filt <- subset(sim, sim$pvalue <= p_value_threshold) # this is, what we actually have access to 
-missing_filterstat <- gset_difference(as.gset(sim$filterstat), as.gset(sim_filt$filterstat)) 
-missing_filterstat <- rep(unlist(missing_filterstat), times=gset_memberships(missing_filterstat))
-
-length(missing_filterstat) + nrow(sim_filt) == nrow(sim)
-sim_filt_dif <- data.frame(filterstat = missing_filterstat,
-                           pvalue = 1)
-sim_full <- data.table::rbindlist(list(sim_filt_dif, sim_filt), fill = TRUE)
-nrow()
-```
-
-```{r}
-x <- c(1,2,2,3,1,5,4,4,5,3) 
-y <- c(2,1,5,5)
-z <- gset_difference(as.gset(x), as.gset(y)) 
-```
-
-## less relevant
-```{r}
-set.seed(1)
-sim_replaced2 <- sim %>%
-  dplyr::mutate(pvalue = ifelse(pvalue <= p_value_threshold,
-                                pvalue,
-                                NA)) #what here?
-ihw_res1_replaced2_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$filterstat,.1, nbins=10,
-                                     nfolds=2)
-
-rejections(ihw_res1_replaced2_single_fold)
-```
-
-```{r}
-mgroups <- table(sim$group)
-
-ihw_res1_filtered_single_fold <- ihw(sim$pvalue, sim$group,.1, 
-                                     nfolds=2, m_groups=mgroups)
-rejections(ihw_res1_filtered_single_fold)
-```
-
-```{r}
-#sim$filterstat
-
-ihw_res1_filtered_single_fold <- ihw(sim_filt$pvalue, sim_filt$group,.1, 
-                                     nfolds=2, m_groups=mgroups)
-
-rejections(ihw_res1_filtered_single_fold)
-```
-
-```{r}
-ihw_res1_replaced_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$group,.1, 
-                                     nfolds=2, m_groups=mgroups)
-
-rejections(ihw_res1_replaced_single_fold)
 ```

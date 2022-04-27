@@ -127,9 +127,9 @@ indic <- (pvalue >= tau) / (1 - tau)
 data_train <- data.frame(indic, covariate, folds)
 
 # calculate parameters for forest
-maxdepth <- log2(nbins)
-maxdepth <- ceiling(maxdepth)
-min.node.size <- 2^(maxdepth + 1) - 1
+nodedepth <- log2(nbins)
+nodedepth <- ceiling(nodedepth)
+min.node.size <- 2^(nodedepth + 1) - 1
 minbucket <- floor(m / (3 * nbins)) # only for
 
 groups <- matrix(0, nrow = nrow(data_train), ncol = ntrees)
@@ -146,7 +146,7 @@ forest_other_fold <- ranger::ranger(
   num.trees = ntrees,
   mtry = 1,
   min.node.size = min.node.size, # TODO force full tree
-  max.depth = maxdepth,
+  max.depth = nodedepth,
   splitrule = "variance",
   importance = "none"
 )
