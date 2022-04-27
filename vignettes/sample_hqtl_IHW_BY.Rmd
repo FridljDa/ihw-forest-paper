@@ -86,8 +86,7 @@ m
 
 Let us put the data for the two chromosomes together:
 
-```{r}RF-SRC:  train response elements must not be plus or minus infinity:  [         1,      33854] =          inf 
-
+```{r}
 chr1_chr2_df <- rbind(chr1_df, chr2_df)
 folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 ```
@@ -108,7 +107,7 @@ nrow(ihw_quantile)
 m_groups(ihw_quantile)
 ```
 
-```{r}
+```{r, eval = F}
 #TODO specify taus!
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec, stratification_method = "forest", n_censor_thres = 1, ntrees = 1)
 ```
@@ -127,6 +126,6 @@ rejections(ihw_quantile)
 ```
 Rejections of IHW-BY-forest:
 
-```{r}
+```{r, eval = F}
 rejections(ihw_forest)
 ```
