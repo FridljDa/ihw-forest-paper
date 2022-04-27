@@ -49,7 +49,8 @@ rejections(ihw_res1_single_fold_easy)
 sim_replaced <- sim %>%
   dplyr::mutate(pvalue = ifelse(pvalue <= p_value_threshold,
                                 pvalue,
-                                1))
+                                1)
+                )
 
 ihw_res1_replaced_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$filterstat,.1, nbins=10,
                                      nfolds=1)
@@ -57,6 +58,19 @@ ihw_res1_replaced_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$filtersta
 rejections(ihw_res1_replaced_single_fold)
 ```
 
+```{r}
+sim_replaced2 <- sim %>%
+  dplyr::mutate(pvalue = ifelse(pvalue <= p_value_threshold,
+                                pvalue,
+                                NA)
+                )
+
+ihw_res1_replaced2_single_fold <- ihw(sim_replaced2$pvalue, sim_replaced2$filterstat,.1, nbins=10,
+                                     nfolds=1)
+adj_pvalues_new <- p.adjust(weighted_pvalues(ihw_res1_replaced2_single_fold),method = "BH", n = nrow(sim))
+sum(adj_pvalues_new <= .1)
+rejections(ihw_res1_replaced_single_fold)
+```
 
 ```{r, eval = F}
 thresholds(ihw_res1_single_fold_easy, levels_only=T)

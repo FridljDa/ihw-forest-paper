@@ -1,3 +1,5 @@
+library(IHW)
+library(magrittr)
 wasserman_normal_sim <- function(m, pi0, xi_min, xi_max, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
 
