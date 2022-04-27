@@ -55,7 +55,24 @@ rm(all_peaks)
 ```
 
 TODO delete, make smaller
-```{r, eval = T}
+```{r}
+unique(chr1_df$pos)[100] %>% round(-5)
+unique(chr1_df$end)[100] %>% round(-5)
+unique(chr2_df$pos)[100] %>% round(-5)
+unique(chr2_df$end)[100] %>% round(-5)
+```
+```{r}
+chr1_df <- chr1_df %>% filter(pos <= 17500000 & end <= 1300000)
+chr2_df <- chr2_df %>% filter(pos <= 20200000 & end <= 12200000)
+
+peaks_chr1 <- peaks_chr1 %>% filter(pos <= 17500000)
+peaks_chr2 <- peaks_chr2 %>% filter(pos <= 20200000)
+
+snp_chr1 <- snp_chr1 %>% filter(end <= 1300000)
+snp_chr2 <- snp_chr2 %>% filter(end <= 12200000)
+```
+
+```{r, eval = F}
 chr1_df <- chr1_df %>% sample_n(1000)
 chr2_df <- chr2_df %>% sample_n(1000)
 
@@ -110,6 +127,10 @@ m_groups(ihw_quantile)
 ```{r, eval = F}
 #TODO specify taus!
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec, stratification_method = "forest", n_censor_thres = 1, ntrees = 1)
+nrow(ihw_forest)
+m_groups(ihw_forest)
+IHW::stratification_breaks
+(ihw_forest)
 ```
 
 cal
@@ -126,6 +147,6 @@ rejections(ihw_quantile)
 ```
 Rejections of IHW-BY-forest:
 
-```{r, eval = F}
+```{r}
 rejections(ihw_forest)
 ```
