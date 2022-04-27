@@ -1,0 +1,76 @@
+---
+title: "censoring_sim"
+author: "Daniel Fridljand"
+date: "4/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r cars}
+wasserman_normal_sim <- function(m, pi0, xi_min, xi_max, seed=NULL){
+  if (!is.null(seed)) set.seed(seed)
+  
+  X   <- runif(m, min=xi_min, max=xi_max)
+  H   <- rbinom(m,1,1-pi0)
+  Z   <- rnorm(m, H*X)
+  pvalue <- 1-pnorm(Z)
+  simDf <- data.frame(pvalue=pvalue, filterstat=X,H=H, Z=Z)
+}
+sim <- wasserman_normal_sim(10000,0.85, 0, 3, seed=1)
+```
+
+Do simple quantile grouping for the beginning. Note, that forest is more complicated, because it also depends on p-values (not fully available)
+```{r}
+set.seed(1)
+sim$group <- as.factor(IHW:::groups_by_filter(sim$filterstat, 10))
+mgroups <- table(sim$group)
+```
+
+```{r}
+p_value_threshold <- 0.2
+ggplot(sim, aes(x=pvalue)) + 
+  geom_histogram() +
+  geom_vline(xintercept = p_value_threshold, linetype="dashed", 
+                color = "red", size=1.5)
+```
+
+```{r}
+sim_filt <- subset(sim, sim$pvalue <= p_value_threshold) #this is, what we have access to
+
+sim_replaced <- sim %>%
+  dplyr::mutate(pvalue = ifelse(pvalue <= p_value_threshold,
+                                pvalue,
+                                NA))
+```
+
+```{r}
+set.seed(1)
+ihw_res_full_easy <- ihw(sim$pvalue, sim$filterstat, 0.1, nbins = 10, nfolds=1)
+rejections(ihw_res_full_easy)
+```
+
+```{r}
+set.seed(1)
+ihw_res_full <- ihw(sim$pvalue, sim$group, 0.1, m_groups=mgroups, nfolds=1)
+rejections(ihw_res_full)
+```
+
+```{r}
+set.seed(1)
+ihw_res_filt <- ihw(sim_filt$pvalue, sim_filt$group, 0.1, m_groups=mgroups, nfolds=1)
+rejections(ihw_res_filt)
+```
+
+```{r}
+
+```
+

@@ -1,0 +1,140 @@
+---
+title: "censoring_sim"
+author: "Daniel Fridljand"
+date: "4/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r cars}
+wasserman_normal_sim <- function(m, pi0, xi_min, xi_max, seed=NULL){
+  if (!is.null(seed)) set.seed(seed)
+
+  X   <- runif(m, min=xi_min, max=xi_max)
+  H   <- rbinom(m,1,1-pi0)
+  Z   <- rnorm(m, H*X)
+  pvalue <- 1-pnorm(Z)
+  simDf <- data.frame(pvalue=pvalue, filterstat=X,H=H, Z=Z)
+}
+
+
+sim <- wasserman_normal_sim(10000,0.85, 0, 3, seed=1)
+sim$group <- as.factor(IHW:::groups_by_filter(sim$filterstat, 10))
+```
+
+```{r}
+p_value_threshold <- 0.01
+ggplot(sim, aes(x=pvalue)) + 
+  geom_histogram() +
+  geom_vline(xintercept = p_value_threshold, linetype="dashed", 
+                color = "red", size=1.5)
+```
+## single fold 
+
+```{r}
+ihw_res1_single_fold_easy <- ihw(sim$pvalue, sim$filterstat, .1, nbins=10, nfolds=1)
+rejections(ihw_res1_single_fold_easy)
+```
+
+```{r}
+sim_replaced <- sim %>%
+  dplyr::mutate(pvalue = ifelse(pvalue <= p_value_threshold,
+                                pvalue,
+                                1))
+
+ihw_res1_replaced_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$filterstat,.1, nbins=10,
+                                     nfolds=1)
+
+rejections(ihw_res1_replaced_single_fold)
+```
+
+
+```{r, eval = F}
+thresholds(ihw_res1_single_fold_easy, levels_only=T)
+thresholds(ihw_res1_replaced_single_fold, levels_only=T)
+```
+
+## multiple folds
+
+
+```{r}
+set.seed(123)
+ihw_res1_easy <- ihw(sim$pvalue, sim$filterstat, .1, nbins=10, nfolds=2)
+rejections(ihw_res1_easy)
+```
+
+```{r}
+set.seed(123)
+ihw_res1_replaced <- ihw(sim_replaced$pvalue, sim_replaced$filterstat, .1, nbins=10,
+                                     nfolds=2)
+
+rejections(ihw_res1_replaced)
+```
+
+## lets say we have access...
+lets get from sim_filt to sim_replaced
+```{r}
+library(sets)
+require(data.table)
+sim_filt <- subset(sim, sim$pvalue <= p_value_threshold) # this is, what we actually have access to 
+missing_filterstat <- gset_difference(as.gset(sim$filterstat), as.gset(sim_filt$filterstat)) 
+missing_filterstat <- rep(unlist(missing_filterstat), times=gset_memberships(missing_filterstat))
+
+length(missing_filterstat) + nrow(sim_filt) == nrow(sim)
+sim_filt_dif <- data.frame(filterstat = missing_filterstat,
+                           pvalue = 1)
+sim_full <- data.table::rbindlist(list(sim_filt_dif, sim_filt), fill = TRUE)
+nrow()
+```
+
+```{r}
+x <- c(1,2,2,3,1,5,4,4,5,3) 
+y <- c(2,1,5,5)
+z <- gset_difference(as.gset(x), as.gset(y)) 
+```
+
+## less relevant
+```{r}
+set.seed(1)
+sim_replaced2 <- sim %>%
+  dplyr::mutate(pvalue = ifelse(pvalue <= p_value_threshold,
+                                pvalue,
+                                NA)) #what here?
+ihw_res1_replaced2_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$filterstat,.1, nbins=10,
+                                     nfolds=2)
+
+rejections(ihw_res1_replaced2_single_fold)
+```
+
+```{r}
+mgroups <- table(sim$group)
+
+ihw_res1_filtered_single_fold <- ihw(sim$pvalue, sim$group,.1, 
+                                     nfolds=2, m_groups=mgroups)
+rejections(ihw_res1_filtered_single_fold)
+```
+
+```{r}
+#sim$filterstat
+
+ihw_res1_filtered_single_fold <- ihw(sim_filt$pvalue, sim_filt$group,.1, 
+                                     nfolds=2, m_groups=mgroups)
+
+rejections(ihw_res1_filtered_single_fold)
+```
+
+```{r}
+ihw_res1_replaced_single_fold <- ihw(sim_replaced$pvalue, sim_replaced$group,.1, 
+                                     nfolds=2, m_groups=mgroups)
+
+rejections(ihw_res1_replaced_single_fold)
+```
