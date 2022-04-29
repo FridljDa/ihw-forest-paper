@@ -1,12 +1,11 @@
 ---
 title: "hQTL analysis with IHW-Benjamini-Yekutieli"
-author: "Nikos Ignatiadis"
+author: "Danie Fridljand"
 date: "`r doc_date()`"
-package: "`r pkg_ver('IHWpaper')`"
 output: BiocStyle::html_document
 bibliography: bibliography.bib
 vignette: >
-  %\VignetteIndexEntry{"Stats paper: hQTL analysis with IHW-Benjamini-Yekutieli"}
+  %\VignetteIndexEntry{"IHW-Forest-paper: hQTL analysis with IHW-Benjamini-Yekutieli"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,23 +22,30 @@ library(tidyr)
 library(scales)
 library(latex2exp)
 set.seed(1)
-devtools::load_all("../../IHW")
 ```
-See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R for more details
+
+```{r setup, include=FALSE, cache = FALSE}
+knitr::opts_knit$set(root_dir = "/g/huber/users/fridljand/R/ihw-forest-paper/")
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+In this markdown, we apply several multiple testing procedures to the same hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. 
 Let us start by loading in the data:
 
 ```{r}
-file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
-file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
-file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+#file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
+#file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
+# file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 ```
 
-First the two tables with the p-values corresponding to the two chromosomes. Note that only p-values <= 1e-4 are stored in these.
+First we load the two tables with the p-values corresponding to the two chromosomes. Note that only p-values <= 1e-4 are stored in these.
 ```{r}
-chr1_df <- readRDS(file.path(file_loc, "chr1_subset.Rds"))
-chr2_df <- readRDS(file.path(file_loc, "chr2_subset.Rds"))
+chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% select(SNP, gene, pvalue)
+chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% select(SNP, gene, pvalue)
 ```
-
+For details, how the pvalues are calculated, see See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R for more details.
 ```{r}
 pval_threshold <- 10^(-4)
 ```
@@ -47,28 +53,32 @@ pval_threshold <- 10^(-4)
 Also recall each hypothesis corresponds to a peak (which we call gene below) and a SNP. Hence let us load files about each of the SNPs and peaks:
 
 ```{r}
-snp_chr1 <- readRDS(file.path(file_loc, "snppos_chr1.Rds"))
-snp_chr2 <- readRDS(file.path(file_loc, "snppos_chr2.Rds"))
+snp_chr1 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr1.Rds")) %>% select(snp, pos)
+snp_chr2 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr2.Rds")) %>% select(snp, pos)
 
-all_peaks <- readRDS(file.path(file_loc, "peak_locations.Rds"))
-peaks_chr1 <- dplyr::filter(all_peaks, chr == "chr1")
-peaks_chr2 <- dplyr::filter(all_peaks, chr == "chr2")
+all_peaks <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/peak_locations.Rds"))
+peaks_chr1 <- dplyr::filter(all_peaks, chr == "chr1") %>% select(id, start, end)
+peaks_chr2 <- dplyr::filter(all_peaks, chr == "chr2") %>% select(id, start, end)
 rm(all_peaks)
+paste(nrow(snp_chr1),"*", nrow(peaks_chr1), "+", nrow(snp_chr2),"*", nrow(peaks_chr2))
 ```
-
+ 
+ The full analysis has 15.725.016.812 = 16 billion hypotheses. This is 
 ```{r, eval = F}
-snp_chr1 <- snp_chr1 %>% slice(1000)
-snp_chr2 <- snp_chr2 %>% slice(1000)
+snp_chr1 <- snp_chr1 %>% slice(100)
+snp_chr2 <- snp_chr2 %>% slice(100)
 
-peaks_chr1 <- peaks_chr1 %>% slice(1000)
-peaks_chr2 <- peaks_chr2 %>% slice(1000)
+peaks_chr1 <- peaks_chr1 %>% slice(100)
+peaks_chr2 <- peaks_chr2 %>% slice(100)
 ```
 
+
+We are aware, that the below sub-sampling is biased. `chr1_df` only contains only p-values <= 1e-4 are stored in these. We will revisit this later.
 
 The below sampling does the job, ensures that there are enough "real" hypotheses, but is biased
 ```{r, eval = T}
-chr1_df <- chr1_df %>% sample_n(10000)
-chr2_df <- chr2_df %>% sample_n(10000)
+chr1_df <- chr1_df %>% sample_n(1000)
+chr2_df <- chr2_df %>% sample_n(1000)
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -78,42 +88,133 @@ snp_chr2 <- snp_chr2 %>% filter(snp %in% chr2_df$SNP)
 ```
 
 ```{r}
-full_comb_chr1 <- full_join(select(snp_chr1, snp, pos), peaks_chr1, by = character())
-full_comb_chr2 <- full_join(select(snp_chr2, snp, pos), peaks_chr2, by = character())
+full_comb_chr1 <- full_join(snp_chr1, peaks_chr1, by = character()) %>%
+  transmute(snp, id,
+    dist = pmin(abs(pos - start), abs(pos - end))
+  )
+full_comb_chr2 <- full_join(snp_chr1, peaks_chr2, by = character()) %>%
+  transmute(snp, id,
+    dist = pmin(abs(pos - start), abs(pos - end))
+  )
 ```
 
 ```{r}
 chr1_df <- full_comb_chr1 %>%
   left_join(chr1_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  mutate(
-    dist = pmin(abs(pos - start), abs(pos - end)),
+  transmute(dist,
     pvalue = replace_na(pvalue, 1)
-  ) # TODO
+  )
 
 chr2_df <- full_comb_chr2 %>%
   left_join(chr2_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  mutate(
-    dist = pmin(abs(pos - start), abs(pos - end)),
+  transmute(dist,
     pvalue = replace_na(pvalue, 1)
   )
+rm(full_comb_chr1, full_comb_chr2)
 ```
 
 ```{r}
-hist(chr1_df$pvalue[chr1_df$pvalue<1])
+hist(chr1_df$pvalue[chr1_df$pvalue < 1])
 ```
 
 ```{r}
 nrow(chr1_df) + nrow(chr2_df)
 m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2) * nrow(peaks_chr2)
 m
+
+rm(snp_chr1, peaks_chr1, snp_chr1, peaks_chr2)
 ```
 
 Let us put the data for the two chromosomes together:
 
 ```{r}
 chr1_chr2_df <- rbind(chr1_df, chr2_df)
-#folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
+# folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 folds_vec <- c(rep(factor(1), nrow(chr1_df)), rep(factor(2), nrow(chr2_df)))
+rm(chr1_df, chr2_df)
+```
+
+# Histogram plots
+```{r, eval=FALSE}
+chr1_chr2_df_plot <- chr1_chr2_df %>% filter(pvalue < 1)
+```
+
+Get our colors:
+```{r, eval=FALSE}
+beyonce_colors <- c(
+  "#b72da0", "#7c5bd2", "#0097ed", "#00c6c3",
+  "#9cd78a", "#f7f7a7", "#ebab5f", "#e24344",
+  "#04738d"
+) # ,"#d8cdc9")
+beyonce_colors[6] <- c("#dbcb09") # thicker yellow
+pretty_colors <- beyonce_colors[c(2, 1, 3:5)]
+```
+
+  
+```{r, eval=FALSE}
+qs <- c(0.025, 0.05)
+cutoffs <- c(0, quantile(chr1_chr2_df_plot$dist, qs), Inf)
+cov_scatter_gg <- ggplot(chr1_chr2_df_plot, aes(
+  x = rank(dist) / nrow(chr1_chr2_df_plot),
+  y = -log10(pvalue)
+)) +
+  geom_bin2d(bins = 150, drop = TRUE) + #  geom_point(alpha=0.2, col=pretty_colors[1]) +
+  geom_vline(xintercept = qs, linetype = "dashed") +
+  ylab(expression(paste(-log[10], "(p-value)"))) +
+  xlab(expression(paste("Quantile of distance"))) +
+  scale_fill_gradientn(trans = "log10", colors = alpha(pretty_colors[1], c(0.2, 1)))
+cov_scatter_gg
+```
+```{r , eval=FALSE}
+# qs <- c(0.025, 0.05)
+# cutoffs <- c(0, quantile(chr1_chr2_df$dist,qs), Inf)
+cov_scatter_gg <- ggplot(chr1_chr2_df_plot, aes(
+  x = dist,
+  y = -log10(pvalue)
+)) +
+  geom_bin2d(bins = 150, drop = TRUE) + #  geom_point(alpha=0.2, col=pretty_colors[1]) +
+  # geom_vline(xintercept=qs, linetype="dashed") +
+  ylab(expression(paste(-log[10], "(p-value)"))) +
+  xlab(expression(paste("genomic distance distance"))) +
+  scale_fill_gradientn(trans = "log10", colors = alpha(pretty_colors[1], c(0.2, 1)))
+cov_scatter_gg
+```
+
+```{r eval=FALSE}
+ggsave(cov_scatter_gg, filename = "cov_scatter_gg.pdf", width = 4, height = 3)
+```
+
+First let us plot the marginal histogram:
+
+```{r, eval=FALSE}
+gg_marginal_hist <- ggplot(chr1_chr2_df_plot, aes(x = pvalue * 10^4)) +
+  geom_histogram(aes(y = ..density..), alpha = 0.5, binwidth = 0.05, boundary = 0, colour = "black", fill = pretty_colors[1]) +
+  scale_x_continuous(expand = c(0.02, 0), breaks = c(0, 0.5, 1)) +
+  scale_y_continuous(expand = c(0.02, 0), limits = c(0, 2.5)) +
+  ylab(expression(paste("Density"))) +
+  xlab(TeX("p-value ($\\times 10^{-4}$)"))
+gg_marginal_hist
+```
+```{r, eval=FALSE}
+ggsave(gg_marginal_hist, filename = "gg_marginal_hist.pdf", width = 4, height = 3)
+```
+
+
+```{r, eval = F}
+gg_stratified_hist <- ggplot(chr1_chr2_df, aes(x = pvalue * 10^4)) +
+  geom_histogram(aes(y = ..density..), alpha = 0.5, binwidth = 0.05, boundary = 0, colour = "black", fill = pretty_colors[1]) +
+  scale_x_continuous(expand = c(0.02, 0), breaks = c(0, 0.5, 1)) +
+  scale_y_continuous(expand = c(0.02, 0), limits = c(0, 11)) +
+  ylab("Density") +
+  xlab(TeX("p-value ($\\times 10^{-4}$)")) +
+  facet_grid(~cutoff_groups) +
+  theme(strip.background = element_blank(), strip.text.y = element_blank()) +
+  theme(panel.spacing = unit(2, "lines"))
+gg_stratified_hist
+```
+
+```{r eval=FALSE}
+ggsave(gg_stratified_hist, filename = "gg_stratified_hist.pdf", width = 7, height = 3)
 ```
 
 
@@ -128,25 +229,27 @@ alpha <- .01 / (log(m) + 1)
 Now let us run the IHW procedure:
 ```{r}
 ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec)
+```
+run some diagnostics
+```{r, eval = F}
 m_groups(ihw_quantile)
-strat_quantile <- stratification_breaks(ihw_quantile)
+stratification_breaks(ihw_quantile)
 ```
 
 ```{r, eval = T}
-devtools::load_all("../../IHW")
-
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha,
   folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 2, ntrees = 1, nsplit = NULL, nodedepth = 4, nodesize = 1000
+  n_censor_thres = 2, ntrees = 1 # , nodedepth = 5, nodesize = 1000
 )
-#IHW::m_groups(ihw_forest)
-strat_forest <- stratification_breaks(ihw_forest, fold = 1, tree = 1) # , n_censor_thres = , ntrees = 1
+```
+run some diagnostics
+```{r, eval = F}
+IHW::m_groups(ihw_forest)
+stratification_breaks(ihw_forest, fold = 1, tree = 1)
 ```
 
-```{r, eval =F}
-ggplot(df1, aes(x = x, y = y)) +
-  geom_line() +
-  geom_vline(xintercept = strat_forest)
+```{r, eval = F}
+adapt <- IHWStatsPaper::adapt_mtp(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, formula_rhs = "~dist")
 ```
 
 Rejections of BY:
@@ -164,4 +267,9 @@ Rejections of IHW-BY-forest:
 
 ```{r}
 rejections(ihw_forest)
+```
+
+# Session Info Details
+```{r, echo=FALSE, eval=TRUE}
+sessionInfo()
 ```
