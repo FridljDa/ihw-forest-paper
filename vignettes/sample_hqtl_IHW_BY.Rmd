@@ -78,8 +78,8 @@ peaks_chr2 <- peaks_chr2[1:100, ]
 ```
 
 ```{r, eval = T, include=T}
-chr1_df <- chr1_df %>% sample_n(1000) #slice_sample(n = 1000)
-chr2_df <- chr2_df %>% sample_n(1000) #slice_sample(n = 1000)
+chr1_df <- chr1_df %>% slice(1000) #slice_sample(n = 1000)
+chr2_df <- chr2_df %>% slice(1000) #slice_sample(n = 1000)
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -119,7 +119,22 @@ chr1_df <- full_comb_chr1 %>%
 chr2_df <- full_comb_chr2 %>%
   left_join(chr2_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
   transmute(dist, pvalue = replace_na(pvalue, 1))
+```
 
+We also want to use minor allele frequency (MAF) as covariate. 
+```{r}
+chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
+chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
+```
+Again, no na-values allowed. 
+```{r}
+chr1_maf <- chr1_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+chr2_maf <- chr2_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+```
+
+```{r}
+chr1_df <- chr1_df %>% left_join(chr1_maf, by = (c("SNP" = "refsnp_id")))
+chr2_df <- chr2_df %>% left_join(chr2_maf, by = (c("SNP" = "refsnp_id")))
 ```
 
 We double check, that number of total hypotheses works out.
@@ -129,6 +144,8 @@ m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2) * nrow(peaks_chr2)
 m == nrow(chr1_df) + nrow(chr2_df)
 m == nrow(full_comb_chr1) + nrow(full_comb_chr2)
 m
+any(is.na(chr1_df))
+any(is.na(chr2_df))
 ```
 
 Let us put the data for the two chromosomes together:
@@ -233,9 +250,16 @@ We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjam
 alpha <- .01 / (log(m) + 1)
 ```
 
+Lets extract the covariate columns into one matrix
+```{r}
+chr1_chr2_cov <- chr1_chr2_df %>% 
+  select(dist, minor_allele_freq) %>%
+  as.matrix()
+```
+
 Now let us run the IHW procedure:
 ```{r}
-ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec)
+ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha, folds = folds_vec)
 ```
 run some diagnostics
 ```{r, eval = F}
@@ -244,7 +268,7 @@ stratification_breaks(ihw_quantile)
 ```
 
 ```{r, eval = T}
-ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha,
+ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha,
   folds = folds_vec, stratification_method = "forest",
   n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )
