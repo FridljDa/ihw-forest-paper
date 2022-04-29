@@ -34,8 +34,8 @@ In this markdown, we apply several multiple testing procedures to the same hQTL 
 
 
 ```{r}
-#file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
-#file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+# file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
+# file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
 # file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 ```
@@ -65,7 +65,7 @@ pval_threshold <- 10^(-4)
 
 In the hQTL analysis, we test all possible combinations between peaks and SNPs within a chromosome, e.g.
 ```{r}
-paste(nrow(snp_chr1),"*", nrow(peaks_chr1), "+", nrow(snp_chr2),"*", nrow(peaks_chr2))
+paste(nrow(snp_chr1), "*", nrow(peaks_chr1), "+", nrow(snp_chr2), "*", nrow(peaks_chr2))
 ```
  
 The full analysis has 15.725.016.812 = 16 billion hypotheses. This is too massive. To get some progress, we need to sub-sample it. We are aware, that the below sub-sampling is biased. `chr1_df` only contains only p-values <= 1e-4 are stored in these. We will revisit this later.
@@ -78,8 +78,8 @@ peaks_chr2 <- peaks_chr2[1:100, ]
 ```
 
 ```{r, eval = T, include=T}
-chr1_df <- chr1_df %>% slice(1000) #slice_sample(n = 1000)
-chr2_df <- chr2_df %>% slice(1000) #slice_sample(n = 1000)
+chr1_df <- chr1_df %>% slice_sample(n = 1000) # slice_sample(n = 1000)
+chr2_df <- chr2_df %>% slice_sample(n = 1000) # slice_sample(n = 1000)
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -95,16 +95,27 @@ range(snp_chr2$pos)
 c(min(peaks_chr1$start), min(peaks_chr1$end))
 c(min(peaks_chr2$start), min(peaks_chr2$end))
 ```
+We also want to use minor allele frequency (MAF) as covariate. 
+```{r}
+chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
+chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
+```
+
+```{r, eval = F}
+snp_chr1 <- snp_chr1 %>% left_join(chr1_maf, by = (c("snp" = "refsnp_id")))
+snp_chr2 <- snp_chr2 %>% left_join(chr2_maf, by = (c("snp" = "refsnp_id")))
+#TODO check, all downloaded
+```
 
 We now take all cross-combinations between the remaining SNPs and peaks with-in chromosmes. We calculate the genomic distance between peaks and SNPs along the way. As [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), they are going to serve as main covariate.
 ```{r}
 full_comb_chr1 <- full_join(snp_chr1, peaks_chr1, by = character()) %>%
-  transmute(snp, id,
+  transmute(snp, id, #minor_allele_freq,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
 
 full_comb_chr2 <- full_join(snp_chr2, peaks_chr2, by = character()) %>%
-  transmute(snp, id,
+  transmute(snp, id, #minor_allele_freq,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
 nrow(full_comb_chr1) + nrow(full_comb_chr2)
@@ -114,27 +125,15 @@ We add the pre-calculated p-values to the hypotheses with. For the internal opti
 ```{r}
 chr1_df <- full_comb_chr1 %>%
   left_join(chr1_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  transmute(dist, pvalue = replace_na(pvalue, 1))
+  transmute(dist, 
+            #minor_allele_freq = replace_na(minor_allele_freq, 0), 
+            pvalue = replace_na(pvalue, 1))
 
 chr2_df <- full_comb_chr2 %>%
   left_join(chr2_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  transmute(dist, pvalue = replace_na(pvalue, 1))
-```
-
-We also want to use minor allele frequency (MAF) as covariate. 
-```{r}
-chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
-chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
-```
-Again, no na-values allowed. 
-```{r}
-chr1_maf <- chr1_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-chr2_maf <- chr2_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-```
-
-```{r}
-chr1_df <- chr1_df %>% left_join(chr1_maf, by = (c("SNP" = "refsnp_id")))
-chr2_df <- chr2_df %>% left_join(chr2_maf, by = (c("SNP" = "refsnp_id")))
+  transmute(dist, 
+            #minor_allele_freq = replace_na(minor_allele_freq, 0), 
+            pvalue = replace_na(pvalue, 1))
 ```
 
 We double check, that number of total hypotheses works out.
@@ -155,7 +154,7 @@ chr1_chr2_df <- rbind(chr1_df, chr2_df)
 # folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 folds_vec <- c(rep(factor(1), nrow(chr1_df)), rep(factor(2), nrow(chr2_df)))
 rm(chr1_df, chr2_df)
-rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2, full_comb_chr1, full_comb_chr2)
+rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2, full_comb_chr1, full_comb_chr2, chr1_maf, chr2_maf)
 ```
 
 # Apply IHW-BY and BY
@@ -167,15 +166,19 @@ alpha <- .01 / (log(m) + 1)
 ```
 
 Lets extract the covariate columns into one matrix
-```{r}
-chr1_chr2_cov <- chr1_chr2_df %>% 
+```{r, eval = F}
+chr1_chr2_cov <- chr1_chr2_df %>%
   select(dist, minor_allele_freq) %>%
   as.matrix()
 ```
 
 Now let us run the IHW procedure:
 ```{r}
-ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha, folds = folds_vec)
+ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds = folds_vec)
+```
+
+```{r}
+try(ihw_quantile <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha, folds = folds_vec))
 ```
 run some diagnostics
 ```{r, eval = F}
@@ -184,7 +187,7 @@ stratification_breaks(ihw_quantile)
 ```
 
 ```{r, eval = T}
-ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_cov, alpha,
+ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha,
   folds = folds_vec, stratification_method = "forest",
   n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )

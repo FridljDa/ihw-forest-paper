@@ -13,8 +13,8 @@ chr2_df <- readRDS("data/hqtl_chrom1_chrom2/chr2_subset.Rds")
 #snppos_chr1 <- snppos_chr1[1:1000,]
 #snppos_chr2 <- snppos_chr2[1:1000,]
 #TODO delete, loop over bits
-chr1_df <- chr1_df %>% slice(1000) #slice_sample(n = 1000)
-chr2_df <- chr2_df %>% slice(1000)
+chr1_df <- chr1_df %>% slice(1:1000) #slice_sample(n = 1000)
+chr2_df <- chr2_df %>% slice(1:1000) #nope!
 
 ensembl <- useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
 
