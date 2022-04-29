@@ -31,7 +31,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 
 In this markdown, we apply several multiple testing procedures to the same hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. 
-Let us start by loading in the data:
+
 
 ```{r}
 #file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
@@ -40,17 +40,7 @@ root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
 # file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 ```
 
-First we load the two tables with the p-values corresponding to the two chromosomes. Note that only p-values <= 1e-4 are stored in these.
-```{r}
-chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% select(SNP, gene, pvalue)
-chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% select(SNP, gene, pvalue)
-```
-For details, how the pvalues are calculated, see See https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R for more details.
-```{r}
-pval_threshold <- 10^(-4)
-```
-
-Also recall each hypothesis corresponds to a peak (which we call gene below) and a SNP. Hence let us load files about each of the SNPs and peaks:
+Recall that each hypothesis in an hQTL analysis corresponds to a peak (which we call gene below) and a SNP. Hence let us load files about each of the SNPs and peaks:
 
 ```{r}
 snp_chr1 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr1.Rds")) %>% select(snp, pos)
@@ -60,23 +50,30 @@ all_peaks <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/peak_locations
 peaks_chr1 <- dplyr::filter(all_peaks, chr == "chr1") %>% select(id, start, end)
 peaks_chr2 <- dplyr::filter(all_peaks, chr == "chr2") %>% select(id, start, end)
 rm(all_peaks)
+```
+We ommit columns, which are not relevant for us right now, because have already pre-calculated the p-values. In the hQTL analysis, we test all possible combinations between peaks and SNPs within a chromosome, e.g.
+```{r}
 paste(nrow(snp_chr1),"*", nrow(peaks_chr1), "+", nrow(snp_chr2),"*", nrow(peaks_chr2))
 ```
  
- The full analysis has 15.725.016.812 = 16 billion hypotheses. This is 
-```{r, eval = F}
-snp_chr1 <- snp_chr1 %>% slice(100)
-snp_chr2 <- snp_chr2 %>% slice(100)
+The full analysis has 15.725.016.812 = 16 billion hypotheses. This is too massive. To get some progress, we need to slice it.
+```{r, eval = T}
+snp_chr1 <- snp_chr1 %>% slice(50)
+snp_chr2 <- snp_chr2 %>% slice(50)
 
 peaks_chr1 <- peaks_chr1 %>% slice(100)
 peaks_chr2 <- peaks_chr2 %>% slice(100)
+
+range(snp_chr1$pos)
+range(snp_chr2$pos)
+
+c(min(peaks_chr1$start), min(peaks_chr1$end))
+c(min(peaks_chr2$start), min(peaks_chr2$end))
 ```
 
-
-We are aware, that the below sub-sampling is biased. `chr1_df` only contains only p-values <= 1e-4 are stored in these. We will revisit this later.
-
-The below sampling does the job, ensures that there are enough "real" hypotheses, but is biased
-```{r, eval = T}
+```{r, eval = F, include=F}
+#We are aware, that the below sub-sampling is biased. `chr1_df` only contains only p-values <= 1e-4 are stored in these. We will revisit this later.
+#The below sampling does the job, ensures that there are enough "real" hypotheses, but is biased
 chr1_df <- chr1_df %>% sample_n(1000)
 chr2_df <- chr2_df %>% sample_n(1000)
 
@@ -86,7 +83,7 @@ peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
 snp_chr1 <- snp_chr1 %>% filter(snp %in% chr1_df$SNP)
 snp_chr2 <- snp_chr2 %>% filter(snp %in% chr2_df$SNP)
 ```
-
+We now take all cross-combinations between the remaining SNPs and peaks with-in chromosmes.
 ```{r}
 full_comb_chr1 <- full_join(snp_chr1, peaks_chr1, by = character()) %>%
   transmute(snp, id,
@@ -96,31 +93,36 @@ full_comb_chr2 <- full_join(snp_chr1, peaks_chr2, by = character()) %>%
   transmute(snp, id,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
+nrow(full_comb_chr1) + nrow(full_comb_chr2)
+```
+We have pre-calculated the p-values for these hypotheses beforehand, we are going to load now.
+
+```{r}
+chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% select(SNP, gene, pvalue)
+chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% select(SNP, gene, pvalue)
+```
+Note that only p-values <= 1e-4 are stored in these. For details, how the pvalues are calculated, see [code](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R). 
+```{r}
+pval_threshold <- 10^(-4)
 ```
 
+We annotate the hypotheses with the pre-calculated p-values. For IHW-Forest and IHW-Quantile, all p-values need to be specified. Hence, we set all missing p-values (e.g. p-values >= 1e-4) to 1. This will not affect Benjamini-Hochberg, IHW-Quantile, IHW-Forest. Note that AdaPT, a competing multiple testing method based on covariates, depends on the precise large p-values to estimate the FDR and hence could not applied here.
 ```{r}
 chr1_df <- full_comb_chr1 %>%
   left_join(chr1_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  transmute(dist,
-    pvalue = replace_na(pvalue, 1)
-  )
+  transmute(dist, pvalue = replace_na(pvalue, 1))
 
 chr2_df <- full_comb_chr2 %>%
   left_join(chr2_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  transmute(dist,
-    pvalue = replace_na(pvalue, 1)
-  )
+  transmute(dist, pvalue = replace_na(pvalue, 1))
 rm(full_comb_chr1, full_comb_chr2)
 ```
 
-```{r}
-hist(chr1_df$pvalue[chr1_df$pvalue < 1])
-```
+We double check, that number of total hypotheses works out.
 
 ```{r}
-nrow(chr1_df) + nrow(chr2_df)
 m <- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2) * nrow(peaks_chr2)
-m
+m == nrow(chr1_df) + nrow(chr2_df)
 
 rm(snp_chr1, peaks_chr1, snp_chr1, peaks_chr2)
 ```
@@ -239,17 +241,13 @@ stratification_breaks(ihw_quantile)
 ```{r, eval = T}
 ihw_forest <- ihw(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha,
   folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 2, ntrees = 1 # , nodedepth = 5, nodesize = 1000
+  n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )
 ```
 run some diagnostics
 ```{r, eval = F}
 IHW::m_groups(ihw_forest)
 stratification_breaks(ihw_forest, fold = 1, tree = 1)
-```
-
-```{r, eval = F}
-adapt <- IHWStatsPaper::adapt_mtp(chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, formula_rhs = "~dist")
 ```
 
 Rejections of BY:
