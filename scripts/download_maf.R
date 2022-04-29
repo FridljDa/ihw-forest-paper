@@ -8,6 +8,9 @@ download_loc <- "data/downloaded_covariates"
 snppos_chr1 <- readRDS("data/hqtl_chrom1_chrom2/snppos_chr1.Rds")
 snppos_chr2 <- readRDS("data/hqtl_chrom1_chrom2/snppos_chr2.Rds")
 
+#TODO delete, run over subsets
+snppos_chr1 <- snppos_chr1[1:1000,]
+snppos_chr2 <- snppos_chr2[1:1000,]
 
 ensembl <- useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
 
