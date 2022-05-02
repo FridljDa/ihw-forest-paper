@@ -10,7 +10,7 @@ prop_alt <- function(cov_row) {
   # 1 / (1 + exp(-cov_row[1]))
   # ifelse(sum(cov_row^2)  <= 1, 0.02, 0.4)
   # ifelse(cov_row[1]^2+cov_row[2]^2  <= 1, 0.02, 0.4)
-  ifelse(cov_row[1] <= 0.1, 0.9, 0) #0.5
+  ifelse(cov_row[1] <= 0.5, 0.9, 0)
   # ifelse(r <= 0.1, 0.9, 0) #This works well
 }
 
