@@ -32,8 +32,9 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```{r hard_coding_path}
 # file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
 # file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
-root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
-# file_loc <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+#root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
+#root_dir <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+root_dir <- "/Volumes/huber/users/fridljand/R/ihw-forest-paper"
 options(bitmapType ="cairo")
 ```
 
@@ -70,8 +71,8 @@ paste(nrow(snp_chr1), "*", nrow(peaks_chr1), "+", nrow(snp_chr2), "*", nrow(peak
  
 The full analysis has 15.725.016.812 = 16 billion hypotheses. This is too massive. Simply evaluating `645452 * 12193 + 699343 * 11232` leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this later.
 ```{r, eval = F, include=F}
-snp_chr1 <- snp_chr1[1:50, ]
-snp_chr2 <- snp_chr2[1:50, ]
+snp_chr1 <- snp_chr1 %>% slice(1:50)
+snp_chr2 <- snp_chr2 %>% slice(1:50)
 
 peaks_chr1 <- peaks_chr1[1:100, ]
 peaks_chr2 <- peaks_chr2[1:100, ]
@@ -116,44 +117,54 @@ ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
 ```
 The below code is not very efficient so we have already pre-downloaded it. NA-values are not allowed for the covariates, so we set all MAFs missing in the database to 0. We download MAF for the first chromosome under study.
 ```{r, eval = F}
-chr1_maf <- data.frame(SNP = unique(full_comb_chr1$SNP),
-                       minor_allele_freq = NA)
+chr1_maf <- data.frame(snp = unique(snp_chr1$snp), minor_allele_freq = NA)
+chunk_chr1_maf <- split(seq_len(nrow(chr1_maf)), ceiling(seq_len(nrow(chr1_maf)) / 1000))
 
 pb = txtProgressBar(min = 0, max = nrow(chr1_maf), initial = 0) 
-for (i in seq_len(nrow(chr1_maf))){
-  setTxtProgressBar(pb,i)
-  refsnp_id <- chr1_maf$SNP[i]
+
+for (i in seq_along(chunk_chr1_maf)) {
+  setTxtProgressBar(pb, i)
+  indices_i <- chunk_chr1_maf[[i]]
+  refsnp_id_i <- chr1_maf$snp[indices_i]
   tmp <- biomaRt::getBM(
-    attributes=c("minor_allele_freq"),
-    filters="snp_filter", values= refsnp_id,
-    mart=ensembl, uniqueRows=TRUE)
-  chr1_maf$minor_allele_freq[i] <- ifelse(nrow(tmp) == 1,
-                                          tmp$minor_allele_freq,
-                                          0)
+    attributes = c("refsnp_id", "minor_allele_freq"),
+    filters = "snp_filter", values = refsnp_id_i,
+    mart = ensembl, uniqueRows = TRUE
+  )
+  tmp <- tmp %>% 
+    rename(snp = refsnp_id) %>%
+    mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+
+  chr1_maf <- merge(chr1_maf[, "snp", drop = FALSE], tmp, by = c("snp"), all.x = TRUE)
 }
 
-saveRDS(chr1_maf, file = "data/downloaded_covariates/chr1_maf.Rds")
-print("downloaded MAF for first chromosome")
+saveRDS(chr1_maf, file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 ```
 
 Now the same for the second chromosome.
-```{r, eval = F}
-chr2_maf <- data.frame(SNP = unique(full_comb_chr2$SNP),
-                       minor_allele_freq = NA)
+```{r, eval = T}
+chr2_maf <- data.frame(snp = unique(snp_chr2$snp), minor_allele_freq = NA)
+chunk_chr2_maf <- split(seq_len(nrow(chr2_maf)), ceiling(seq_len(nrow(chr2_maf)) / 1000))
 
 pb = txtProgressBar(min = 0, max = nrow(chr2_maf), initial = 0) 
-for (i in seq_len(nrow(chr2_maf))){
-  setTxtProgressBar(pb,i)
-  refsnp_id <- chr2_maf$SNP[i]
+
+for (i in seq_along(chunk_chr2_maf)) {
+  setTxtProgressBar(pb, i)
+  indices_i <- chunk_chr2_maf[[i]]
+  refsnp_id_i <- chr2_maf$snp[indices_i]
   tmp <- biomaRt::getBM(
-    attributes=c("minor_allele_freq"),
-    filters="snp_filter", values= refsnp_id,
-    mart=ensembl, uniqueRows=TRUE)
-  chr2_maf$minor_allele_freq[i] <- ifelse(nrow(tmp) == 1,
-                                          tmp$minor_allele_freq,
-                                          0)
+    attributes = c("refsnp_id", "minor_allele_freq"),
+    filters = "snp_filter", values = refsnp_id_i,
+    mart = ensembl, uniqueRows = TRUE
+  )
+  tmp <- tmp %>% 
+    rename(snp = refsnp_id) %>%
+    mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+
+  chr2_maf <- merge(chr2_maf[, "snp", drop = FALSE], tmp, by = c("snp"), all.x = TRUE)
 }
-saveRDS(chr2_maf, file = "data/downloaded_covariates/chr2_maf.Rds")
+
+saveRDS(chr2_maf, file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
 ```
 
 We load the pre-downloaded MAF file and annotate the hypotheses accordingly.
@@ -161,8 +172,8 @@ We load the pre-downloaded MAF file and annotate the hypotheses accordingly.
 chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
 
-full_comb_chr1 <- full_comb_chr1 %>% left_join(chr1_maf, by = (c("snp" = "refsnp_id")))
-full_comb_chr2 <- full_comb_chr2 %>% left_join(chr2_maf, by = (c("snp" = "refsnp_id")))
+full_comb_chr1 <- full_comb_chr1 %>% left_join(chr1_maf, by = c("snp" = "refsnp_id"))
+full_comb_chr2 <- full_comb_chr2 %>% left_join(chr2_maf, by = c("snp" = "refsnp_id"))
 ```
 
 We add the pre-calculated p-values to the hypotheses. For the internal parameter `m_groups` of IHW (used to optimize the weights for example) all p-values need to be specified. So we set all missing p-values (e.g. p-values >= 1e-4) to 1. This crude rounding will not affect Benjamini-Hochberg at all and ideally IHW not too much. Note that AdaPT, a competing multiple testing method based on covariates, depends on the precise large p-values to estimate the FDR and hence could not be applied here.
