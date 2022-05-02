@@ -68,10 +68,11 @@ pval_threshold <- 10^(-4)
 # Sub-sample
 In the hQTL analysis, we test all possible combinations between peaks and SNPs within a chromosome, e.g.
 ```{r}
-paste(nrow(snp_chr1), "*", nrow(peaks_chr1), "+", nrow(snp_chr2), "*", nrow(peaks_chr2))
+m_full <- 15725016812
+paste(nrow(snp_chr1), "*", nrow(peaks_chr1), "+", nrow(snp_chr2), "*", nrow(peaks_chr2), "=", m_full)
 ```
  
-The full analysis has 15.725.016.812 = 16 billion hypotheses. This is too massive. Simply evaluating `645452 * 12193 + 699343 * 11232` leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this later.
+The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating `645452 * 12193 + 699343 * 11232` leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this issue later.
 ```{r, eval = F, include=F}
 snp_chr1 <- snp_chr1 %>% slice(1:50)
 snp_chr2 <- snp_chr2 %>% slice(1:50)
@@ -81,8 +82,8 @@ peaks_chr2 <- peaks_chr2[1:100, ]
 ```
 
 ```{r, eval = T, include=T}
-chr1_df <- chr1_df %>% slice_sample(n = 2000) 
-chr2_df <- chr2_df %>% slice_sample(n = 2000) 
+chr1_df <- chr1_df %>% slice_sample(n = 1000) 
+chr2_df <- chr2_df %>% slice_sample(n = 1000) 
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -209,10 +210,10 @@ any(is.na(chr2_df))
 ```
 So compared to the full analysis, we are only considering a fraction:
 ```{r}
-paste(100*m/15725016812,"%")
+paste0(round(100*m/m_full, 5), "%")
 ```
 
-Again, the sub-sampling was biased. Let us put the data for the two chromosomes together:
+Again, we are aware that the sub-sampling was biased. Let us put the data for the two chromosomes together:
 
 ```{r}
 chr1_chr2_df <- rbind(chr1_df, chr2_df)
@@ -236,8 +237,9 @@ Now let us run the IHW procedure with the default `"quantiles"` stratification m
 ihw_quantile_dist <- ihw(pvalue ~dist, data = chr1_chr2_df, alpha, folds = folds_vec)
 ```
 
-Run some diagnostics on the `ihw_quantile_dist` object relevant when comparing the stratification methods.
-```{r, eval = T}
+
+```{r, eval = F, include=F}
+#Run some diagnostics on the `ihw_quantile_dist` object relevant when comparing the stratification methods.
 m_groups(ihw_quantile_dist)
 stratification_breaks(ihw_quantile_dist)
 ```
@@ -247,8 +249,9 @@ Using genomic distance and maf  as covariates:
 ihw_quantile_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
 ```
 
-Run some diagnostics on the `ihw_quantile_dist_maf` object
-```{r}
+
+```{r, eval = F, include=F}
+#Run some diagnostics on the `ihw_quantile_dist_maf` object
 weights(ihw_quantile_dist_maf)
 ```
 
@@ -256,11 +259,12 @@ Run IHW with the `"forest"` stratification method.
 ```{r, eval = T, warning= FALSE}
 ihw_forest_dist <- ihw(pvalue ~ dist, data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 5, ntrees = 5, nodedepth = 5, nodesize = 1000
+  n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )
 ```
-run some diagnostics on the `ihw_forest` object
-```{r, eval = T}
+
+```{r, eval = F, include=F}
+#run some diagnostics on the `ihw_forest` object
 IHW::m_groups(ihw_forest_dist)
 stratification_breaks(ihw_forest_dist, fold = 1, tree = 1)
 ```
@@ -268,7 +272,7 @@ stratification_breaks(ihw_forest_dist, fold = 1, tree = 1)
 ```{r, eval = T, warning= FALSE}
 ihw_forest_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 5, ntrees = 5, nodedepth = 5, nodesize = 1000
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1500
 )
 ```
 
