@@ -83,6 +83,18 @@ noise_sim_res <- noise_sim_res %>%
 noise_sim_res %>% 
   arrange(n_monte_carlo)
 ```
+```{r, eval = F, include=FALSE}
+df<- noise_sim_res %>% 
+  arrange(n_monte_carlo) %>%
+  select(method, dimension, n_monte_carlo) %>%
+  head
+
+# Plain latex output 
+knitr::kable(df, "latex")
+  #knitr::kbl(caption = "Example", # Adding caption  
+  #      format = "latex") #%>% # Output format = latex 
+   # knitr::kable_classic(html_font = "Cambria") # Font = Cambria 
+```
 
 ## Plot FDR
 ```{r}

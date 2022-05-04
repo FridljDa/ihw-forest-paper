@@ -73,18 +73,18 @@ paste(nrow(snp_chr1), "*", nrow(peaks_chr1), "+", nrow(snp_chr2), "*", nrow(peak
 ```
 
 The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating `645452 * 12193 + 699343 * 11232` leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. 
-```{r, eval = T, include=T}
-snp_chr1 <- snp_chr1 %>% slice(1:20)
-snp_chr2 <- snp_chr2 %>% slice(1:20)
+```{r, eval = F, include=F}
+snp_chr1 <- snp_chr1 %>% slice(1:1000)
+snp_chr2 <- snp_chr2 %>% slice(1:1000)
 
-peaks_chr1 <- peaks_chr1 %>% slice(1:20)
-peaks_chr2 <- peaks_chr2 %>% slice(1:20)
+peaks_chr1 <- peaks_chr1 %>% slice(1:10000)
+peaks_chr2 <- peaks_chr2 %>% slice(1:10000)
 ```
 
-```{r, eval = F, include=F}
-#Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this issue later.
-chr1_df <- chr1_df %>% slice_sample(n = 1000) 
-chr2_df <- chr2_df %>% slice_sample(n = 1000) 
+Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this issue later.
+```{r, eval = T, include=T}
+chr1_df <- chr1_df %>% slice_sample(n = 10000) 
+chr2_df <- chr2_df %>% slice_sample(n = 10000) 
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -123,8 +123,12 @@ In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHW
 chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
 
-full_comb_chr1 <- full_comb_chr1 %>% left_join(chr1_maf, by = "snp")
-full_comb_chr2 <- full_comb_chr2 %>% left_join(chr2_maf, by = "snp")
+full_comb_chr1 <- full_comb_chr1 %>% 
+  left_join(chr1_maf, by = c("snp" = "refsnp_id")) %>%
+  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+full_comb_chr2 <- full_comb_chr2 %>% 
+  left_join(chr2_maf, by = c("snp" = "refsnp_id")) %>%
+  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
 ```
 
 We add the pre-calculated p-values to the hypotheses. For the internal parameter `m_groups` of IHW (used to optimize the weights for example) all p-values need to be specified. So we set all missing p-values (e.g. p-values >= 1e-4) to 1. This crude rounding will not affect Benjamini-Hochberg at all and ideally IHW not too much. Note that AdaPT, a competing multiple testing method based on covariates, depends on the precise large p-values to estimate the FDR and hence could not be applied here.
@@ -176,10 +180,17 @@ alpha <- .01 / (log(m) + 1)
 ```
 
 Now let us run the IHW procedure with the default `"quantiles"` stratification method only using genomic distance as covariate:
-```{r}
+```{r ihw_quantile_dist, include=TRUE, eval=TRUE}
 ihw_quantile_dist <- ihw(pvalue ~dist, data = chr1_chr2_df, alpha, folds = folds_vec)
 ```
 
+```{r, include=FALSE, eval=TRUE}
+saveRDS(ihw_quantile_dist, file = file.path(root_dir, "precomputed_results/ihw_quantile_dist.Rds"))
+```
+
+```{r, include=FALSE, eval=TRUE}
+ihw_quantile_dist <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_dist.Rds"))
+```
 
 ```{r, eval = F, include=F}
 #Run some diagnostics on the `ihw_quantile_dist` object relevant when comparing the stratification methods.
@@ -188,10 +199,17 @@ stratification_breaks(ihw_quantile_dist)
 ```
 
 Using genomic distance and maf  as covariates:
-```{r}
+```{r ihw_quantile_dist_maf}
 ihw_quantile_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
 ```
 
+```{r, include=FALSE, eval=TRUE}
+saveRDS(ihw_quantile_dist_maf, file = file.path(root_dir, "precomputed_results/ihw_quantile_dist_maf.Rds"))
+```
+
+```{r, include=FALSE, eval=TRUE}
+ihw_quantile_dist_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_dist_maf.Rds"))
+```
 
 ```{r, eval = F, include=F}
 #Run some diagnostics on the `ihw_quantile_dist_maf` object
@@ -199,11 +217,19 @@ weights(ihw_quantile_dist_maf)
 ```
 
 Run IHW with the `"forest"` stratification method.
-```{r, eval = T, warning= FALSE}
+```{r ihw_forest_dist, eval = T, warning= FALSE}
 ihw_forest_dist <- ihw(pvalue ~ dist, data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
   n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )
+```
+
+```{r, include=FALSE, eval=TRUE}
+saveRDS(ihw_forest_dist, file = file.path(root_dir, "precomputed_results/ihw_forest_dist.Rds"))
+```
+
+```{r, include=FALSE, eval=TRUE}
+ihw_forest_dist <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest_dist.Rds"))
 ```
 
 ```{r, eval = F, include=F}
@@ -212,11 +238,19 @@ IHW::m_groups(ihw_forest_dist)
 stratification_breaks(ihw_forest_dist, fold = 1, tree = 1)
 ```
 
-```{r, eval = T, warning= FALSE}
+```{r ihw_forest_dist_maf, eval = T, warning= FALSE}
 ihw_forest_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
   n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1500
 )
+```
+
+```{r, include=FALSE, eval=TRUE}
+saveRDS(ihw_forest_dist_maf, file = file.path(root_dir, "precomputed_results/ihw_forest_dist_maf.Rds"))
+```
+
+```{r, include=FALSE, eval=TRUE}
+ihw_forest_dist_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest_dist_maf.Rds"))
 ```
 
 ## Evaluate number of rejections
