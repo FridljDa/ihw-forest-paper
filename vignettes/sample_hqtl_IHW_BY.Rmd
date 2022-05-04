@@ -71,17 +71,18 @@ In the hQTL analysis, we test all possible combinations between peaks and SNPs w
 m_full <- 15725016812
 paste(nrow(snp_chr1), "*", nrow(peaks_chr1), "+", nrow(snp_chr2), "*", nrow(peaks_chr2), "=", m_full)
 ```
- 
-The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating `645452 * 12193 + 699343 * 11232` leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this issue later.
-```{r, eval = F, include=F}
-snp_chr1 <- snp_chr1 %>% slice(1:50)
-snp_chr2 <- snp_chr2 %>% slice(1:50)
 
-peaks_chr1 <- peaks_chr1[1:100, ]
-peaks_chr2 <- peaks_chr2[1:100, ]
+The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating `645452 * 12193 + 699343 * 11232` leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. 
+```{r, eval = T, include=T}
+snp_chr1 <- snp_chr1 %>% slice(1:20)
+snp_chr2 <- snp_chr2 %>% slice(1:20)
+
+peaks_chr1 <- peaks_chr1 %>% slice(1:20)
+peaks_chr2 <- peaks_chr2 %>% slice(1:20)
 ```
 
-```{r, eval = T, include=T}
+```{r, eval = F, include=F}
+#Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this issue later.
 chr1_df <- chr1_df %>% slice_sample(n = 1000) 
 chr2_df <- chr2_df %>% slice_sample(n = 1000) 
 
@@ -118,11 +119,13 @@ nrow(full_comb_chr1) + nrow(full_comb_chr2)
 
 ## Minor Allele Frequency
 In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html) only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). So we are going to download them using `biomaRt`.
-```{r, eval = F}
+```{r, eval = T}
 ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
+#Sys.setenv(BIOMART_CACHE='/tmpdata/fridljan/biomaRt')
 ```
 The below code is not very efficient so we have already pre-downloaded it. NA-values are not allowed for the covariates, so we set all MAFs missing in the database to 0. We download MAF for the first chromosome under study.
-```{r, eval = F}
+
+```{r, eval = T}
 chr1_maf <- data.frame(snp = unique(snp_chr1$snp), minor_allele_freq = NA)
 chunk_chr1_maf <- split(seq_len(nrow(chr1_maf)), ceiling(seq_len(nrow(chr1_maf)) / 1000))
 
@@ -149,27 +152,12 @@ saveRDS(chr1_maf, file = file.path(root_dir, "data/downloaded_covariates/chr1_ma
 ```
 
 Now the same for the second chromosome.
-```{r, eval = F}
-chr2_maf <- data.frame(snp = unique(snp_chr2$snp), minor_allele_freq = NA)
-chunk_chr2_maf <- split(seq_len(nrow(chr2_maf)), ceiling(seq_len(nrow(chr2_maf)) / 1000))
-
-pb = txtProgressBar(min = 0, max = nrow(chr2_maf), initial = 0) 
-
-for (i in seq_along(chunk_chr2_maf)) {
-  setTxtProgressBar(pb, i)
-  indices_i <- chunk_chr2_maf[[i]]
-  refsnp_id_i <- chr2_maf$snp[indices_i]
-  tmp <- biomaRt::getBM(
+```{r, eval = T}
+chr2_maf <- biomaRt::getBM(
     attributes = c("refsnp_id", "minor_allele_freq"),
-    filters = "snp_filter", values = refsnp_id_i,
+    filters = "snp_filter", values = unique(snp_chr2$snp),
     mart = ensembl, uniqueRows = TRUE
   )
-  tmp <- tmp %>% 
-    rename(snp = refsnp_id) %>%
-    mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-
-  chr2_maf <- merge(chr2_maf[, "snp", drop = FALSE], tmp, by = c("snp"), all.x = TRUE)
-}
 
 chr2_maf <- chr2_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0)) #TODO
 saveRDS(chr2_maf, file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
