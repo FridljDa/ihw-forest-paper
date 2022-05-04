@@ -11,15 +11,18 @@ download_loc <- "data/downloaded_covariates"
 chr1_df <- readRDS("data/hqtl_chrom1_chrom2/chr1_subset.Rds")
 chr2_df <- readRDS("data/hqtl_chrom1_chrom2/chr2_subset.Rds")
 
-chr1_maf <- data.frame(
-  SNP = unique(chr1_df$SNP),
-  minor_allele_freq = NA
-)
+snp_chr1 <- readRDS("data/hqtl_chrom1_chrom2/snppos_chr1.Rds") 
+snp_chr2 <- readRDS("data/hqtl_chrom1_chrom2/snppos_chr2.Rds") 
 
-chr2_maf <- data.frame(
-  SNP = unique(chr2_df$SNP),
-  minor_allele_freq = NA
-)
+#chr1_maf <- data.frame(
+#  SNP = unique(chr1_df$SNP),
+#  minor_allele_freq = NA
+#)
+
+#chr2_maf <- data.frame(
+#  SNP = unique(chr2_df$SNP),
+#  minor_allele_freq = NA
+#)
 # rm(chr1_df, chr2_df)
 # snppos_chr1 <- snppos_chr1[1:1000,]
 # snppos_chr2 <- snppos_chr2[1:1000,]
@@ -28,6 +31,20 @@ chr2_maf <- data.frame(
 # chr2_df <- chr2_df %>% slice(1:1000) #nope!
 
 ensembl <- useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
+
+chr1_maf <- biomaRt::getBM(
+  attributes = c("refsnp_id", "minor_allele_freq"),
+  filters = "snp_filter", values = unique(snp_chr1$snp),
+  mart = ensembl, uniqueRows = TRUE
+)
+saveRDS(chr1_maf, file = "data/downloaded_covariates/chr1_maf.Rds")
+
+chr2_maf <- biomaRt::getBM(
+  attributes = c("refsnp_id", "minor_allele_freq"),
+  filters = "snp_filter", values = unique(snp_chr2$snp),
+  mart = ensembl, uniqueRows = TRUE
+)
+saveRDS(chr2_maf, file = "data/downloaded_covariates/chr2_maf.Rds")
 
 if(FALSE){
   
