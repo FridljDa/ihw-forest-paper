@@ -118,52 +118,7 @@ nrow(full_comb_chr1) + nrow(full_comb_chr2)
 ```
 
 ## Minor Allele Frequency
-In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html) only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). So we are going to download them using `biomaRt`.
-```{r, eval = T}
-ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
-#Sys.setenv(BIOMART_CACHE='/tmpdata/fridljan/biomaRt')
-```
-The below code is not very efficient so we have already pre-downloaded it. NA-values are not allowed for the covariates, so we set all MAFs missing in the database to 0. We download MAF for the first chromosome under study.
-
-```{r, eval = T}
-chr1_maf <- data.frame(snp = unique(snp_chr1$snp), minor_allele_freq = NA)
-chunk_chr1_maf <- split(seq_len(nrow(chr1_maf)), ceiling(seq_len(nrow(chr1_maf)) / 1000))
-
-pb = txtProgressBar(min = 0, max = nrow(chr1_maf), initial = 0) 
-
-for (i in seq_along(chunk_chr1_maf)) {
-  setTxtProgressBar(pb, i)
-  indices_i <- chunk_chr1_maf[[i]]
-  refsnp_id_i <- chr1_maf$snp[indices_i]
-  tmp <- biomaRt::getBM(
-    attributes = c("refsnp_id", "minor_allele_freq"),
-    filters = "snp_filter", values = refsnp_id_i,
-    mart = ensembl, uniqueRows = TRUE
-  )
-  tmp <- tmp %>% 
-    rename(snp = refsnp_id) %>%
-    mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-
-  chr1_maf <- merge(chr1_maf[, "snp", drop = FALSE], tmp, by = c("snp"), all.x = TRUE)
-}
-
-chr1_maf <- chr1_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0)) #TODO
-saveRDS(chr1_maf, file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
-```
-
-Now the same for the second chromosome.
-```{r, eval = T}
-chr2_maf <- biomaRt::getBM(
-    attributes = c("refsnp_id", "minor_allele_freq"),
-    filters = "snp_filter", values = unique(snp_chr2$snp),
-    mart = ensembl, uniqueRows = TRUE
-  )
-
-chr2_maf <- chr2_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0)) #TODO
-saveRDS(chr2_maf, file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
-```
-
-We load the pre-downloaded MAF file and annotate the hypotheses accordingly.
+In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html) only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file and annotate the hypotheses accordingly.
 ```{r, eval = T}
 chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
