@@ -56,7 +56,7 @@ library(parallel)
 #' @import doParallel
 #' @import parallel
 #' @export
-eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1){
+eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1, lfdr_only = FALSE){
   sim <- small_region_sim(m, r, lengths)
   
   n.cores <- parallel::detectCores()
@@ -74,7 +74,7 @@ eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1){
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = FALSE, forest_par)
+    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par)
     
     mutate(sim_res_i, length = length_i)
   }#)
