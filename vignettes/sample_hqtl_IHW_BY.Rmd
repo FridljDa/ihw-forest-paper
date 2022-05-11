@@ -33,25 +33,30 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 # file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
 # file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
-#root_dir <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
-#root_dir <- "/Volumes/huber/users/fridljand/R/ihw-forest-paper"
-options(bitmapType ="cairo")
+# root_dir <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
+# root_dir <- "/Volumes/huber/users/fridljand/R/ihw-forest-paper"
+options(bitmapType = "cairo")
 ```
 
 # Load data
 In this markdown, we apply several multiple testing procedures to the same hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. The corresponding vigniette of the old analysis can be found [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html). In this analysis, the p-values were plotted against the genomic distance and the user had to manually figure out stratification breaks for IHW. Here we want to use the data-driven, automated stratification_methods `"quantile"` and `"forest"`. A draw-back of this is, that we would need to load all 1.6 ⋅ 10^10 tests to run the same analysis. This is too massive, so we restrict ourselves to a sub-sample of the hypotheses for the time-being. We will eventually run it with on more computational resources. This is obviously a huge drawback. However, the new stratification breaks are "smarter" and we can incorporate more covariates. So overall, this we will make more discoveries.
 
 
-Recall that each hypothesis in an hQTL analysis corresponds to a peak of histone modification (which we call gene below) and a SNP. Hence let us the load files about each of the SNPs and peaks:
+Recall that each hypothesis in an hQTL analysis corresponds to a peak of histone modification (which we call gene below) and a SNP. Hence let us the load files about each of the SNPs 
 
 ```{r loading_snp_peak}
 snp_chr1 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr1.Rds")) %>% dplyr::select(snp, pos)
 snp_chr2 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr2.Rds")) %>% dplyr::select(snp, pos)
+head(snp_chr1)
+```
 
+and peaks:
+```{r}
 all_peaks <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/peak_locations.Rds"))
 peaks_chr1 <- dplyr::filter(all_peaks, chr == "chr1") %>% dplyr::select(id, start, end)
 peaks_chr2 <- dplyr::filter(all_peaks, chr == "chr2") %>% dplyr::select(id, start, end)
 rm(all_peaks)
+head(peaks_chr1)
 ```
 
 We have pre-calculated the p-values for these hypotheses beforehand, we are going to load now.
@@ -83,8 +88,8 @@ peaks_chr2 <- peaks_chr2 %>% slice(1:10000)
 
 Because `chr1_df` only contains p-values <= 1e-4, the below sub-sampling is biased. We will revisit this issue later.
 ```{r, eval = T, include=T}
-chr1_df <- chr1_df %>% slice_sample(n = 10000) 
-chr2_df <- chr2_df %>% slice_sample(n = 10000) 
+chr1_df <- chr1_df %>% slice_sample(n = 1000)
+chr2_df <- chr2_df %>% slice_sample(n = 1000)
 
 peaks_chr1 <- peaks_chr1 %>% filter(id %in% chr1_df$gene)
 peaks_chr2 <- peaks_chr2 %>% filter(id %in% chr2_df$gene)
@@ -106,12 +111,12 @@ c(min(peaks_chr2$start), min(peaks_chr2$end))
 We now take all cross-combinations between the remaining SNPs and peaks with-in chromosmes. We calculate the genomic distance between peaks and SNPs along the way. As [in the original analysis](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), they are going to serve as main covariates for the multiple testing procedure.
 ```{r}
 full_comb_chr1 <- full_join(snp_chr1, peaks_chr1, by = character()) %>%
-  transmute(snp, id, 
+  transmute(snp, id,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
 
 full_comb_chr2 <- full_join(snp_chr2, peaks_chr2, by = character()) %>%
-  transmute(snp, id, 
+  transmute(snp, id,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
 nrow(full_comb_chr1) + nrow(full_comb_chr2)
@@ -123,10 +128,10 @@ In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHW
 chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
 
-full_comb_chr1 <- full_comb_chr1 %>% 
+full_comb_chr1 <- full_comb_chr1 %>%
   left_join(chr1_maf, by = c("snp" = "refsnp_id")) %>%
   mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-full_comb_chr2 <- full_comb_chr2 %>% 
+full_comb_chr2 <- full_comb_chr2 %>%
   left_join(chr2_maf, by = c("snp" = "refsnp_id")) %>%
   mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
 ```
@@ -135,13 +140,15 @@ We add the pre-calculated p-values to the hypotheses. For the internal parameter
 ```{r}
 chr1_df <- full_comb_chr1 %>%
   left_join(chr1_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  transmute(dist, minor_allele_freq, 
-            pvalue = replace_na(pvalue, 1))
+  transmute(dist, minor_allele_freq,
+    pvalue = replace_na(pvalue, 1)
+  )
 
 chr2_df <- full_comb_chr2 %>%
   left_join(chr2_df, by = (c("snp" = "SNP", "id" = "gene"))) %>%
-  transmute(dist, minor_allele_freq, 
-            pvalue = replace_na(pvalue, 1))
+  transmute(dist, minor_allele_freq,
+    pvalue = replace_na(pvalue, 1)
+  )
 ```
 
 ## Checks
@@ -157,7 +164,7 @@ any(is.na(chr2_df))
 ```
 So compared to the full analysis, we are only considering a fraction:
 ```{r}
-paste0(round(100*m/m_full, 5), "%")
+paste0(round(100 * m / m_full, 5), "%")
 ```
 
 Again, we are aware that the sub-sampling was biased. Let us put the data for the two chromosomes together:
@@ -179,12 +186,18 @@ We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjam
 alpha <- .01 / (log(m) + 1)
 ```
 
-Now let us run the IHW procedure with the default `"quantiles"` stratification method only using genomic distance as covariate:
-```{r ihw_quantile_dist, include=TRUE, eval=TRUE}
-ihw_quantile_dist <- ihw(pvalue ~dist, data = chr1_chr2_df, alpha, folds = folds_vec)
+```{r, include=FALSE}
+#we do not actually want to calculate all the time
+run_write_ihw <- FALSE
 ```
 
-```{r, include=FALSE, eval=TRUE}
+Now let us run IHW with the `"forest"` stratification method using different subsets of the available covariates:
+
+```{r ihw_quantile_dist, include=TRUE, eval=run_write_ihw}
+ihw_quantile_dist <- ihw(pvalue ~ dist, data = chr1_chr2_df, alpha, folds = folds_vec)
+```
+
+```{r, include=FALSE, eval=run_write_ihw}
 saveRDS(ihw_quantile_dist, file = file.path(root_dir, "precomputed_results/ihw_quantile_dist.Rds"))
 ```
 
@@ -192,18 +205,29 @@ saveRDS(ihw_quantile_dist, file = file.path(root_dir, "precomputed_results/ihw_q
 ihw_quantile_dist <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_dist.Rds"))
 ```
 
-```{r, eval = F, include=F}
-#Run some diagnostics on the `ihw_quantile_dist` object relevant when comparing the stratification methods.
+```{r, eval=FALSE, include=F}
+# Run some diagnostics on the `ihw_quantile_dist` object relevant when comparing the stratification methods.
 m_groups(ihw_quantile_dist)
 stratification_breaks(ihw_quantile_dist)
 ```
 
-Using genomic distance and maf  as covariates:
-```{r ihw_quantile_dist_maf}
-ihw_quantile_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
+```{r ihw_quantile_maf, eval=run_write_ihw}
+ihw_quantile_maf <- ihw(pvalue ~ minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
+```
+
+```{r, include=FALSE, eval=run_write_ihw}
+saveRDS(ihw_quantile_maf, file = file.path(root_dir, "precomputed_results/ihw_quantile_maf.Rds"))
 ```
 
 ```{r, include=FALSE, eval=TRUE}
+ihw_quantile_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_maf.Rds"))
+```
+
+```{r ihw_quantile_dist_maf, eval=run_write_ihw}
+ihw_quantile_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
+```
+
+```{r, include=FALSE, eval=run_write_ihw}
 saveRDS(ihw_quantile_dist_maf, file = file.path(root_dir, "precomputed_results/ihw_quantile_dist_maf.Rds"))
 ```
 
@@ -212,19 +236,20 @@ ihw_quantile_dist_maf <- readRDS(file = file.path(root_dir, "precomputed_results
 ```
 
 ```{r, eval = F, include=F}
-#Run some diagnostics on the `ihw_quantile_dist_maf` object
+# Run some diagnostics on the `ihw_quantile_dist_maf` object
 weights(ihw_quantile_dist_maf)
 ```
 
-Run IHW with the `"forest"` stratification method.
-```{r ihw_forest_dist, eval = T, warning= FALSE}
-ihw_forest_dist <- ihw(pvalue ~ dist, data = chr1_chr2_df,
+Run IHW with the `"forest"` stratification method using different subsets of the available covariates:
+```{r ihw_forest_dist, eval = run_write_ihw, warning= FALSE}
+ihw_forest_dist <- ihw(pvalue ~ dist,
+  data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
   n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )
 ```
 
-```{r, include=FALSE, eval=TRUE}
+```{r, include=FALSE, eval=run_write_ihw}
 saveRDS(ihw_forest_dist, file = file.path(root_dir, "precomputed_results/ihw_forest_dist.Rds"))
 ```
 
@@ -233,19 +258,36 @@ ihw_forest_dist <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_f
 ```
 
 ```{r, eval = F, include=F}
-#run some diagnostics on the `ihw_forest` object
+# run some diagnostics on the `ihw_forest` object
 IHW::m_groups(ihw_forest_dist)
 stratification_breaks(ihw_forest_dist, fold = 1, tree = 1)
 ```
 
-```{r ihw_forest_dist_maf, eval = T, warning= FALSE}
-ihw_forest_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df,
+```{r ihw_forest_maf, eval = run_write_ihw, warning= FALSE}
+ihw_forest_maf <- ihw(pvalue ~ minor_allele_freq,
+  data = chr1_chr2_df,
+  alpha, folds = folds_vec, stratification_method = "forest",
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1000
+)
+```
+
+```{r, include=FALSE, eval=run_write_ihw}
+saveRDS(ihw_forest_maf, file = file.path(root_dir, "precomputed_results/ihw_forest_maf.Rds"))
+```
+
+```{r, include=FALSE, eval=TRUE}
+ihw_forest_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest_maf.Rds"))
+```
+
+```{r ihw_forest_dist_maf, eval = run_write_ihw, warning= FALSE}
+ihw_forest_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq,
+  data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
   n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1500
 )
 ```
 
-```{r, include=FALSE, eval=TRUE}
+```{r, include=FALSE, eval=run_write_ihw}
 saveRDS(ihw_forest_dist_maf, file = file.path(root_dir, "precomputed_results/ihw_forest_dist_maf.Rds"))
 ```
 
@@ -259,28 +301,17 @@ Rejections of BY:
 ```{r}
 sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method = "BH") <= alpha)
 ```
-Rejections of IHW-BY-quantile using genomic distance and maf:
+
+Rejections of IHW-BY using different stratification methods:
 
 ```{r}
-rejections(ihw_quantile_dist_maf)
-```
-
-Rejections of IHW-BY-quantile only using genomic distance:
-
-```{r}
-rejections(ihw_quantile_dist)
-```
-
-Rejections of IHW-BY-forest using genomic distance and maf:
-
-```{r}
-rejections(ihw_forest_dist_maf)
-```
-
-Rejections of IHW-BY-forest only using genomic distance:
-
-```{r}
-rejections(ihw_forest_dist)
+ihw_rejections <- tribble(
+  ~formula, ~quantiles, ~forest,
+  "pvalue ~ minor_allele_freq", rejections(ihw_quantile_dist), rejections(ihw_forest_maf),
+  "pvalue ~ dist", rejections(ihw_quantile_maf), rejections(ihw_forest_dist),
+  "pvalue ~ dist + minor_allele_freq", rejections(ihw_quantile_dist_maf), rejections(ihw_forest_dist_maf),
+)
+as.data.frame(ihw_rejections)
 ```
 
 So we see that the number of discoveries has increased. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.

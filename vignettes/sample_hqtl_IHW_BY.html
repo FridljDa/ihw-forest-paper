@@ -11,7 +11,7 @@
 
 <meta name="author" content="Danie Fridljand" />
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-05-11" />
 
 <title>hQTL analysis with IHW-Benjamini-Yekutieli</title>
 
@@ -172,7 +172,7 @@ function toggle_visibility(id1) {
 
 <h1 class="title toc-ignore">hQTL analysis with IHW-Benjamini-Yekutieli</h1>
 <p class="author-name">Danie Fridljand</p>
-<h4 class="date">2 May 2022</h4>
+<h4 class="date">11 May 2022</h4>
 
 </div>
 
@@ -210,20 +210,40 @@ set.seed(1)</code></pre>
 <pre class="r"><code># file_loc &lt;- system.file(&quot;extdata&quot;, &quot;real_data&quot;, &quot;hqtl_chrom1_chrom2&quot;, package = &quot;IHWpaper&quot;)
 # file_loc &lt;- &quot;/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/&quot;
 root_dir &lt;- &quot;/g/huber/users/fridljand/R/ihw-forest-paper/&quot;
-#root_dir &lt;- &quot;/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/&quot;
-#root_dir &lt;- &quot;/Volumes/huber/users/fridljand/R/ihw-forest-paper&quot;
-options(bitmapType =&quot;cairo&quot;)</code></pre>
+# root_dir &lt;- &quot;/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/&quot;
+# root_dir &lt;- &quot;/Volumes/huber/users/fridljand/R/ihw-forest-paper&quot;
+options(bitmapType = &quot;cairo&quot;)</code></pre>
 <div id="load-data" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Load data</h1>
 <p>In this markdown, we apply several multiple testing procedures to the same hQTL analysis as in <a href="https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R" class="uri">https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R</a>, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. The corresponding vigniette of the old analysis can be found <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">here</a>. In this analysis, the p-values were plotted against the genomic distance and the user had to manually figure out stratification breaks for IHW. Here we want to use the data-driven, automated stratification_methods <code>&quot;quantile&quot;</code> and <code>&quot;forest&quot;</code>. A draw-back of this is, that we would need to load all 1.6 ⋅ 10^10 tests to run the same analysis. This is too massive, so we restrict ourselves to a sub-sample of the hypotheses for the time-being. We will eventually run it with on more computational resources. This is obviously a huge drawback. However, the new stratification breaks are “smarter” and we can incorporate more covariates. So overall, this we will make more discoveries.</p>
-<p>Recall that each hypothesis in an hQTL analysis corresponds to a peak of histone modification (which we call gene below) and a SNP. Hence let us the load files about each of the SNPs and peaks:</p>
+<p>Recall that each hypothesis in an hQTL analysis corresponds to a peak of histone modification (which we call gene below) and a SNP. Hence let us the load files about each of the SNPs</p>
 <pre class="r"><code>snp_chr1 &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/snppos_chr1.Rds&quot;)) %&gt;% dplyr::select(snp, pos)
 snp_chr2 &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/snppos_chr2.Rds&quot;)) %&gt;% dplyr::select(snp, pos)
-
-all_peaks &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/peak_locations.Rds&quot;))
+head(snp_chr1)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##   snp           pos
+##   &lt;chr&gt;       &lt;int&gt;
+## 1 rs192328835 60726
+## 2 rs74970982  61442
+## 3 rs56992750  61462
+## 4 rs186063952 66331
+## 5 rs143773730 73841
+## 6 rs143777184 79137</code></pre>
+<p>and peaks:</p>
+<pre class="r"><code>all_peaks &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/peak_locations.Rds&quot;))
 peaks_chr1 &lt;- dplyr::filter(all_peaks, chr == &quot;chr1&quot;) %&gt;% dplyr::select(id, start, end)
 peaks_chr2 &lt;- dplyr::filter(all_peaks, chr == &quot;chr2&quot;) %&gt;% dplyr::select(id, start, end)
-rm(all_peaks)</code></pre>
+rm(all_peaks)
+head(peaks_chr1)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##      id     start       end
+##   &lt;int&gt;     &lt;int&gt;     &lt;int&gt;
+## 1  6599 100009438 100009822
+## 2  6600 100010292 100010704
+## 3  6601  10001905  10004427
+## 4  6602 100020885 100024188
+## 5  6603 100035339 100035723
+## 6  6604 100035756 100036596</code></pre>
 <p>We have pre-calculated the p-values for these hypotheses beforehand, we are going to load now.</p>
 <pre class="r"><code>chr1_df &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/chr1_subset.Rds&quot;)) %&gt;% dplyr::select(SNP, gene, pvalue)
 chr2_df &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/chr2_subset.Rds&quot;)) %&gt;% dplyr::select(SNP, gene, pvalue)</code></pre>
@@ -236,9 +256,10 @@ chr2_df &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/chr2_sub
 <pre class="r"><code>m_full &lt;- 15725016812
 paste(nrow(snp_chr1), &quot;*&quot;, nrow(peaks_chr1), &quot;+&quot;, nrow(snp_chr2), &quot;*&quot;, nrow(peaks_chr2), &quot;=&quot;, m_full)</code></pre>
 <pre><code>## [1] &quot;645452 * 12193 + 699343 * 11232 = 15725016812&quot;</code></pre>
-<p>The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating <code>645452 * 12193 + 699343 * 11232</code> leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it. Because <code>chr1_df</code> only contains p-values &lt;= 1e-4, the below sub-sampling is biased. We will revisit this issue later.</p>
-<pre class="r"><code>chr1_df &lt;- chr1_df %&gt;% slice_sample(n = 1000) 
-chr2_df &lt;- chr2_df %&gt;% slice_sample(n = 1000) 
+<p>The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating <code>645452 * 12193 + 699343 * 11232</code> leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it.</p>
+<p>Because <code>chr1_df</code> only contains p-values &lt;= 1e-4, the below sub-sampling is biased. We will revisit this issue later.</p>
+<pre class="r"><code>chr1_df &lt;- chr1_df %&gt;% slice_sample(n = 1000)
+chr2_df &lt;- chr2_df %&gt;% slice_sample(n = 1000)
 
 peaks_chr1 &lt;- peaks_chr1 %&gt;% filter(id %in% chr1_df$gene)
 peaks_chr2 &lt;- peaks_chr2 %&gt;% filter(id %in% chr2_df$gene)
@@ -252,12 +273,12 @@ snp_chr2 &lt;- snp_chr2 %&gt;% filter(snp %in% chr2_df$SNP)</code></pre>
 <h2><span class="header-section-number">3.1</span> genomic distance</h2>
 <p>We now take all cross-combinations between the remaining SNPs and peaks with-in chromosmes. We calculate the genomic distance between peaks and SNPs along the way. As <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">in the original analysis</a>, they are going to serve as main covariates for the multiple testing procedure.</p>
 <pre class="r"><code>full_comb_chr1 &lt;- full_join(snp_chr1, peaks_chr1, by = character()) %&gt;%
-  transmute(snp, id, 
+  transmute(snp, id,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
 
 full_comb_chr2 &lt;- full_join(snp_chr2, peaks_chr2, by = character()) %&gt;%
-  transmute(snp, id, 
+  transmute(snp, id,
     dist = pmin(abs(pos - start), abs(pos - end))
   )
 nrow(full_comb_chr1) + nrow(full_comb_chr2)</code></pre>
@@ -265,72 +286,28 @@ nrow(full_comb_chr1) + nrow(full_comb_chr2)</code></pre>
 </div>
 <div id="minor-allele-frequency" class="section level2" number="3.2">
 <h2><span class="header-section-number">3.2</span> Minor Allele Frequency</h2>
-<p>In <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">here</a> only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). So we are going to download them using <code>biomaRt</code>.</p>
-<pre class="r"><code>ensembl &lt;- biomaRt::useMart(&quot;ENSEMBL_MART_SNP&quot;, dataset = &quot;hsapiens_snp&quot;)</code></pre>
-<p>The below code is not very efficient so we have already pre-downloaded it. NA-values are not allowed for the covariates, so we set all MAFs missing in the database to 0. We download MAF for the first chromosome under study.</p>
-<pre class="r"><code>chr1_maf &lt;- data.frame(snp = unique(snp_chr1$snp), minor_allele_freq = NA)
-chunk_chr1_maf &lt;- split(seq_len(nrow(chr1_maf)), ceiling(seq_len(nrow(chr1_maf)) / 1000))
-
-pb = txtProgressBar(min = 0, max = nrow(chr1_maf), initial = 0) 
-
-for (i in seq_along(chunk_chr1_maf)) {
-  setTxtProgressBar(pb, i)
-  indices_i &lt;- chunk_chr1_maf[[i]]
-  refsnp_id_i &lt;- chr1_maf$snp[indices_i]
-  tmp &lt;- biomaRt::getBM(
-    attributes = c(&quot;refsnp_id&quot;, &quot;minor_allele_freq&quot;),
-    filters = &quot;snp_filter&quot;, values = refsnp_id_i,
-    mart = ensembl, uniqueRows = TRUE
-  )
-  tmp &lt;- tmp %&gt;% 
-    rename(snp = refsnp_id) %&gt;%
-    mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-
-  chr1_maf &lt;- merge(chr1_maf[, &quot;snp&quot;, drop = FALSE], tmp, by = c(&quot;snp&quot;), all.x = TRUE)
-}
-
-chr1_maf &lt;- chr1_maf %&gt;% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0)) #TODO
-saveRDS(chr1_maf, file = file.path(root_dir, &quot;data/downloaded_covariates/chr1_maf.Rds&quot;))</code></pre>
-<p>Now the same for the second chromosome.</p>
-<pre class="r"><code>chr2_maf &lt;- data.frame(snp = unique(snp_chr2$snp), minor_allele_freq = NA)
-chunk_chr2_maf &lt;- split(seq_len(nrow(chr2_maf)), ceiling(seq_len(nrow(chr2_maf)) / 1000))
-
-pb = txtProgressBar(min = 0, max = nrow(chr2_maf), initial = 0) 
-
-for (i in seq_along(chunk_chr2_maf)) {
-  setTxtProgressBar(pb, i)
-  indices_i &lt;- chunk_chr2_maf[[i]]
-  refsnp_id_i &lt;- chr2_maf$snp[indices_i]
-  tmp &lt;- biomaRt::getBM(
-    attributes = c(&quot;refsnp_id&quot;, &quot;minor_allele_freq&quot;),
-    filters = &quot;snp_filter&quot;, values = refsnp_id_i,
-    mart = ensembl, uniqueRows = TRUE
-  )
-  tmp &lt;- tmp %&gt;% 
-    rename(snp = refsnp_id) %&gt;%
-    mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-
-  chr2_maf &lt;- merge(chr2_maf[, &quot;snp&quot;, drop = FALSE], tmp, by = c(&quot;snp&quot;), all.x = TRUE)
-}
-
-chr2_maf &lt;- chr2_maf %&gt;% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0)) #TODO
-saveRDS(chr2_maf, file = file.path(root_dir, &quot;data/downloaded_covariates/chr2_maf.Rds&quot;))</code></pre>
-<p>We load the pre-downloaded MAF file and annotate the hypotheses accordingly.</p>
+<p>In <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">here</a> only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file and annotate the hypotheses accordingly.</p>
 <pre class="r"><code>chr1_maf &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr1_maf.Rds&quot;))
 chr2_maf &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr2_maf.Rds&quot;))
 
-full_comb_chr1 &lt;- full_comb_chr1 %&gt;% left_join(chr1_maf, by = &quot;snp&quot;)
-full_comb_chr2 &lt;- full_comb_chr2 %&gt;% left_join(chr2_maf, by = &quot;snp&quot;)</code></pre>
+full_comb_chr1 &lt;- full_comb_chr1 %&gt;%
+  left_join(chr1_maf, by = c(&quot;snp&quot; = &quot;refsnp_id&quot;)) %&gt;%
+  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+full_comb_chr2 &lt;- full_comb_chr2 %&gt;%
+  left_join(chr2_maf, by = c(&quot;snp&quot; = &quot;refsnp_id&quot;)) %&gt;%
+  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))</code></pre>
 <p>We add the pre-calculated p-values to the hypotheses. For the internal parameter <code>m_groups</code> of IHW (used to optimize the weights for example) all p-values need to be specified. So we set all missing p-values (e.g. p-values &gt;= 1e-4) to 1. This crude rounding will not affect Benjamini-Hochberg at all and ideally IHW not too much. Note that AdaPT, a competing multiple testing method based on covariates, depends on the precise large p-values to estimate the FDR and hence could not be applied here.</p>
 <pre class="r"><code>chr1_df &lt;- full_comb_chr1 %&gt;%
   left_join(chr1_df, by = (c(&quot;snp&quot; = &quot;SNP&quot;, &quot;id&quot; = &quot;gene&quot;))) %&gt;%
-  transmute(dist, minor_allele_freq, 
-            pvalue = replace_na(pvalue, 1))
+  transmute(dist, minor_allele_freq,
+    pvalue = replace_na(pvalue, 1)
+  )
 
 chr2_df &lt;- full_comb_chr2 %&gt;%
   left_join(chr2_df, by = (c(&quot;snp&quot; = &quot;SNP&quot;, &quot;id&quot; = &quot;gene&quot;))) %&gt;%
-  transmute(dist, minor_allele_freq, 
-            pvalue = replace_na(pvalue, 1))</code></pre>
+  transmute(dist, minor_allele_freq,
+    pvalue = replace_na(pvalue, 1)
+  )</code></pre>
 </div>
 <div id="checks" class="section level2" number="3.3">
 <h2><span class="header-section-number">3.3</span> Checks</h2>
@@ -347,7 +324,7 @@ m == nrow(chr1_df) + nrow(chr2_df)</code></pre>
 <pre class="r"><code>any(is.na(chr2_df))</code></pre>
 <pre><code>## [1] FALSE</code></pre>
 <p>So compared to the full analysis, we are only considering a fraction:</p>
-<pre class="r"><code>paste0(round(100*m/m_full, 5), &quot;%&quot;)</code></pre>
+<pre class="r"><code>paste0(round(100 * m / m_full, 5), &quot;%&quot;)</code></pre>
 <pre><code>## [1] &quot;0.01169%&quot;</code></pre>
 <p>Again, we are aware that the sub-sampling was biased. Let us put the data for the two chromosomes together:</p>
 <pre class="r"><code>chr1_chr2_df &lt;- rbind(chr1_df, chr2_df)
@@ -364,16 +341,23 @@ rm(chr1_maf, chr2_maf)</code></pre>
 <h2><span class="header-section-number">4.1</span> Run Multiple testing procedures</h2>
 <p>We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjamini-Hochberg at the corrected level:</p>
 <pre class="r"><code>alpha &lt;- .01 / (log(m) + 1)</code></pre>
-<p>Now let us run the IHW procedure with the default <code>&quot;quantiles&quot;</code> stratification method only using genomic distance as covariate:</p>
-<pre class="r"><code>ihw_quantile_dist &lt;- ihw(pvalue ~dist, data = chr1_chr2_df, alpha, folds = folds_vec)</code></pre>
-<p>Using genomic distance and maf as covariates:</p>
+<p>Now let us run IHW with the <code>&quot;forest&quot;</code> stratification method using different subsets of the available covariates:</p>
+<pre class="r"><code>ihw_quantile_dist &lt;- ihw(pvalue ~ dist, data = chr1_chr2_df, alpha, folds = folds_vec)</code></pre>
+<pre class="r"><code>ihw_quantile_maf &lt;- ihw(pvalue ~ minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)</code></pre>
 <pre class="r"><code>ihw_quantile_dist_maf &lt;- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)</code></pre>
-<p>Run IHW with the <code>&quot;forest&quot;</code> stratification method.</p>
-<pre class="r"><code>ihw_forest_dist &lt;- ihw(pvalue ~ dist, data = chr1_chr2_df,
+<p>Run IHW with the <code>&quot;forest&quot;</code> stratification method using different subsets of the available covariates:</p>
+<pre class="r"><code>ihw_forest_dist &lt;- ihw(pvalue ~ dist,
+  data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = &quot;forest&quot;,
   n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
 )</code></pre>
-<pre class="r"><code>ihw_forest_dist_maf &lt;- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df,
+<pre class="r"><code>ihw_forest_maf &lt;- ihw(pvalue ~ minor_allele_freq,
+  data = chr1_chr2_df,
+  alpha, folds = folds_vec, stratification_method = &quot;forest&quot;,
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1000
+)</code></pre>
+<pre class="r"><code>ihw_forest_dist_maf &lt;- ihw(pvalue ~ dist + minor_allele_freq,
+  data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = &quot;forest&quot;,
   n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1500
 )</code></pre>
@@ -383,18 +367,18 @@ rm(chr1_maf, chr2_maf)</code></pre>
 <p>Rejections of BY:</p>
 <pre class="r"><code>sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method = &quot;BH&quot;) &lt;= alpha)</code></pre>
 <pre><code>## [1] 12</code></pre>
-<p>Rejections of IHW-BY-quantile using genomic distance and maf:</p>
-<pre class="r"><code>rejections(ihw_quantile_dist_maf)</code></pre>
-<pre><code>## [1] 12</code></pre>
-<p>Rejections of IHW-BY-quantile only using genomic distance:</p>
-<pre class="r"><code>rejections(ihw_quantile_dist)</code></pre>
-<pre><code>## [1] 15</code></pre>
-<p>Rejections of IHW-BY-forest using genomic distance and maf:</p>
-<pre class="r"><code>rejections(ihw_forest_dist_maf)</code></pre>
-<pre><code>## [1] 24</code></pre>
-<p>Rejections of IHW-BY-forest only using genomic distance:</p>
-<pre class="r"><code>rejections(ihw_forest_dist)</code></pre>
-<pre><code>## [1] 26</code></pre>
+<p>Rejections of IHW-BY using different stratification methods:</p>
+<pre class="r"><code>ihw_rejections &lt;- tribble(
+  ~formula, ~quantiles, ~forest,
+  &quot;pvalue ~ minor_allele_freq&quot;, rejections(ihw_quantile_dist), rejections(ihw_forest_maf),
+  &quot;pvalue ~ dist&quot;, rejections(ihw_quantile_maf), rejections(ihw_forest_dist),
+  &quot;pvalue ~ dist + minor_allele_freq&quot;, rejections(ihw_quantile_dist_maf), rejections(ihw_forest_dist_maf),
+)
+as.data.frame(ihw_rejections)</code></pre>
+<pre><code>##                             formula quantiles forest
+## 1        pvalue ~ minor_allele_freq        15     12
+## 2                     pvalue ~ dist        12     26
+## 3 pvalue ~ dist + minor_allele_freq        12     24</code></pre>
 <p>So we see that the number of discoveries has increased. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.</p>
 </div>
 </div>
@@ -419,7 +403,7 @@ rm(chr1_maf, chr2_maf)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] biomaRt_2.51.3   dplyr_1.0.9      latex2exp_0.9.3  scales_1.2.0    
+##  [1] biomaRt_2.50.3   dplyr_1.0.9      latex2exp_0.9.3  scales_1.2.0    
 ##  [5] tidyr_1.2.0      cowplot_1.1.1    ggplot2_3.3.5    fdrtool_1.2.17  
 ##  [9] IHW_1.21.1       BiocStyle_2.22.0
 ## 
