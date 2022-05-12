@@ -7,7 +7,7 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha){
 ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par){
   ihw_forest <- IHW::ihw(Ps, Xs, .1, stratification_method = "forest", null_proportion = T,
                          ntrees = forest_par$ntrees, n_censor_thres = forest_par$n_censor_thres, nodedepth = forest_par$nodedepth, 
-                         nodesize = forest_par$nodesize, nsplit = forest_par$nsplit)
+                         nodesize = forest_par$nodesize)
   IHW::rejected_hypotheses(ihw_forest)
 }
 
