@@ -33,8 +33,8 @@ forest_par <- list(
 lengths <- seq(from = 1, to = 1001, by = 250)
 #lengths <- 2
 
-#eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
-#saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds")
+eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
+saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds")
 
 ## -----noise sim------
 

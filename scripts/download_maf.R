@@ -9,7 +9,6 @@ library(tidyr)
 snp_chr1 <- readRDS("data/hqtl_chrom1_chrom2/snppos_chr1.Rds") 
 snp_chr2 <- readRDS("data/hqtl_chrom1_chrom2/snppos_chr2.Rds") 
 
-
 ensembl <- useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
 
 chr1_maf <- biomaRt::getBM(

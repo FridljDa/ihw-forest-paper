@@ -123,17 +123,34 @@ nrow(full_comb_chr1) + nrow(full_comb_chr2)
 ```
 
 ## Minor Allele Frequency
-In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html) only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file and annotate the hypotheses accordingly.
+In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html) only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file. The data was pre-downloaded with `Biomart`.
 ```{r, eval = T}
 chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
+```
 
-full_comb_chr1 <- full_comb_chr1 %>%
-  left_join(chr1_maf, by = c("snp" = "refsnp_id")) %>%
-  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-full_comb_chr2 <- full_comb_chr2 %>%
-  left_join(chr2_maf, by = c("snp" = "refsnp_id")) %>%
-  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+Many MAFs are not available on `Biomart`. For IHW, missing covariates are not allowed. So we conservatively replace all `NA`s with 0. 
+```{r}
+chr1_maf_missing <- sum(is.na(chr1_maf$minor_allele_freq))/nrow(chr1_maf)
+chr2_maf_missing <- sum(is.na(chr2_maf$minor_allele_freq))/nrow(chr2_maf)
+
+paste0(round(chr1_maf_missing, 5), "%")
+paste0(round(chr2_maf_missing, 5), "%")
+
+chr1_maf <- chr1_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+chr2_maf <- chr2_maf %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+```
+
+We annotate the hypotheses with the MAF data.
+```{r}
+full_comb_chr1 <- full_comb_chr1 %>% left_join(chr1_maf, by = c("snp" = "refsnp_id")) 
+full_comb_chr2 <- full_comb_chr2 %>% left_join(chr2_maf, by = c("snp" = "refsnp_id"))
+```
+
+```{r cheating, include=FALSE}
+#check later
+full_comb_chr1 <- full_comb_chr1 %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+full_comb_chr2 <- full_comb_chr2 %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
 ```
 
 We add the pre-calculated p-values to the hypotheses. For the internal parameter `m_groups` of IHW (used to optimize the weights for example) all p-values need to be specified. So we set all missing p-values (e.g. p-values >= 1e-4) to 1. This crude rounding will not affect Benjamini-Hochberg at all and ideally IHW not too much. Note that AdaPT, a competing multiple testing method based on covariates, depends on the precise large p-values to estimate the FDR and hence could not be applied here.
@@ -188,7 +205,7 @@ alpha <- .01 / (log(m) + 1)
 
 ```{r, include=FALSE}
 #we do not actually want to calculate all the time
-run_write_ihw <- FALSE
+run_write_ihw <- TRUE
 ```
 
 Now let us run IHW with the `"forest"` stratification method using different subsets of the available covariates:
@@ -220,7 +237,7 @@ saveRDS(ihw_quantile_maf, file = file.path(root_dir, "precomputed_results/ihw_qu
 ```
 
 ```{r, include=FALSE, eval=TRUE}
-ihw_quantile_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_maf.Rds"))
+ ihw_quantile_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_maf.Rds"))
 ```
 
 ```{r ihw_quantile_dist_maf, eval=run_write_ihw}
@@ -245,7 +262,7 @@ Run IHW with the `"forest"` stratification method using different subsets of the
 ihw_forest_dist <- ihw(pvalue ~ dist,
   data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 5000
 )
 ```
 
@@ -283,7 +300,7 @@ ihw_forest_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_fo
 ihw_forest_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq,
   data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1500
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 5000
 )
 ```
 
@@ -314,7 +331,7 @@ ihw_rejections <- tribble(
 as.data.frame(ihw_rejections)
 ```
 
-So we see that the number of discoveries has increased. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
+So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
 
 # Session Info Details
 ```{r, echo=FALSE, eval=TRUE}
