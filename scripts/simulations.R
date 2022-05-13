@@ -10,7 +10,7 @@ library(dplyr)
 
 #library(IHWStatsPaper)
 # TODO
-# devtools::load_all("../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHW")
 # library("IHW")
 devtools::load_all("IHWForestPaper")
 
@@ -18,6 +18,7 @@ devtools::load_all("IHWForestPaper")
 m <- 5e4 #TODO more
 r <- 200
 r <- 40 # number of monte carlo replicates, increases run time immensely!
+
 alpha <- .1
 
 #folds_fdp_eval <- sample(1:3, m, replace = TRUE)
@@ -25,13 +26,11 @@ alpha <- .1
 forest_par <- list(
   ntrees = 3,
   n_censor_thres = 10,
-  nsplit = 3,
   nodedepth = 3,
-  nodesize = "auto"
+  nodesize = 1000
 )
 ## -----small region sim------
 lengths <- seq(from = 1, to = 1001, by = 250)
-#lengths <- 2
 
 eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
 saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds")
