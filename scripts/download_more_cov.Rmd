@@ -1,0 +1,167 @@
+---
+title: "download more covariates"
+output: html_notebook
+---
+
+```{r}
+library(rtracklayer)
+library(magrittr)
+library(dplyr)
+library(tidygenomics)
+```
+
+Loading SNP data.
+```{r}
+root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
+snp_chr1 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr1.Rds")) %>% dplyr::select(snp, chrsnp, pos)
+snp_chr2 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr2.Rds")) %>% dplyr::select(snp, chrsnp, pos)
+head(snp_chr1)
+```
+I want to annotate the data frame with additional side information for each SNP. Basically any biological variable works, the random forest is supposed supposed to automatically detect, if it is informative. It should however be available for every single SNP. 
+
+Get position range of the SNPs.
+```{r}
+range(snp_chr1$pos)
+range(snp_chr2$pos)
+```
+
+Set genomic range on chromosome 1 and 2 with some buffer.
+```{r}
+chr1_grange <- GRanges("chr1", IRanges(60726 - 5000, 249231445 + 5000))
+chr2_grange <- GRanges("chr2", IRanges(10133 - 5000, 243185846 + 5000))
+```
+
+Wolfgang suggested to use H3K4me3, H3K27ac, and CTCF, DNAse as covariates. Let's first focus on those. 
+
+```{r}
+mySession <- browserSession()
+# can also use hg38 the newer human genome
+genome(mySession) <- "hg19"
+```
+We can explore available data with `trackNames(ucscTableQuery(mySession))` or on
+http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. I picked some arbitrary `track_name` and `table_name` which sounded like they relate to what Wolfgang suggested. I can use this code, even if it later turns out to be wrong. 
+```{r}
+track_table <- tribble(
+  ~track, ~table,
+  # Layered H3K27Ac
+  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig",
+  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneH1hescH3k27acStdSig",
+  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneHsmmH3k27acStdSig",
+  
+  # Layered H3K4me3
+  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneGm12878H3k4me3StdSig",
+  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneH1hescH3k4me3StdSig",
+  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneHsmmH3k4me3StdSig",
+  
+  # Layered kH3k4me1
+  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneGm12878H3k4me1StdSig",
+  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneH1hescH3k4me1StdSig",
+  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneHsmmH3k4me1StdSig",
+
+  # UW CTCF Binding
+  #"wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1",
+  #"wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdPkRep1",
+  #"wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdRawRep1",
+
+  # = UW DNaseI HS = arbitrary track which contains "DNAse", many more would have been possible
+  #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878HotspotsRep1",
+  #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878PkRep1",
+  "wgEncodeUwDnase", "wgEncodeUwDnaseGm12878RawRep1"
+)
+saveRDS(track_table, file.path(root_dir, paste0("data/downloaded_covariates/meta_track_table.Rds")))
+```
+
+
+```{r}
+snp_chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
+#snp_chr1_cov_list <- lapply(seq_len(2), function(i){
+  print(paste("covariate", i, "on chr1:"))
+  print("downloading")
+  chr1_covi <- getTable(ucscTableQuery(mySession,
+    track = track_table$track[i],
+    table = track_table$table[i],
+    range = chr1_grange
+  ))
+
+  print("downloaded")
+  print("joining")
+  snp_chr1_covi <- genome_join_closest(snp_chr1 %>% mutate(chr = chrsnp, start = pos, end = pos),
+                                   chr1_covi %>% mutate(chr = "chr1"),
+                                   by=c("chr", "start", "end"), 
+                                   distance_column_name="distance",
+                                   mode="left",
+                                   select = "arbitrary")
+  
+  snp_chr1_covi <- snp_chr1_covi %>% dplyr::select(snp, value, cov_start = start.y, cov_end = end.y, distance)
+  print("joined")
+  #print("saving")
+
+  #saveRDS(snp_chr1_covi, file.path(root_dir, paste0("data/downloaded_covariates/snp_chr1_cov",i,".Rds")))
+  #print("saved")
+  snp_chr1_covi
+})
+```
+save as single data frame
+```{r}
+snp_chr1_cov_df <- lapply(seq_along(snp_chr1_cov_list), function(i){
+  variable_name <- paste0("cov",i)
+  snp_chr1_cov_list[[i]] %>% 
+    dplyr::transmute(!!variable_name := value) 
+})
+
+snp_chr1_cov_df <- do.call(cbind.data.frame, snp_chr1_cov_df)
+snp_chr1_cov_df$snp <- snp_chr1$snp
+saveRDS(snp_chr1_cov_df, file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
+```
+
+```{r}
+snp_chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
+#snp_chr2_cov_list <- lapply(seq_len(2), function(i){
+  print(paste("covariate", i, "on chr2:"))
+  print("downloading")
+  chr2_covi <- getTable(ucscTableQuery(mySession,
+    track = track_table$track[i],
+    table = track_table$table[i],
+    range = chr2_grange
+  ))
+
+  print("downloaded")
+  print("joining")
+  snp_chr2_covi <- genome_join_closest(snp_chr2 %>% mutate(chr = chrsnp, start = pos, end = pos),
+                                   chr2_covi %>% mutate(chr = "chr2"),
+                                   by=c("chr", "start", "end"), 
+                                   distance_column_name="distance",
+                                   mode="left",
+                                   select = "arbitrary")
+  
+  snp_chr2_covi <- snp_chr2_covi %>% dplyr::select(snp, value, cov_start = start.y, cov_end = end.y, distance)
+  print("joined")
+  #print("saving")
+
+  #saveRDS(snp_chr2_covi, file.path(root_dir, paste0("data/downloaded_covariates/snp_chr2_cov",i,".Rds")))
+  #print("saved")
+  snp_chr2_covi
+})
+```
+
+save as single data frame
+```{r}
+snp_chr2_cov_df <- lapply(seq_along(snp_chr2_cov_list), function(i){
+  variable_name <- paste0("cov",i)
+  snp_chr2_cov_list[[i]] %>% 
+    dplyr::transmute(!!variable_name := value) 
+})
+
+snp_chr2_cov_df <- do.call(cbind.data.frame, snp_chr2_cov_df)
+snp_chr2_cov_df$snp <- snp_chr2$snp
+saveRDS(snp_chr2_cov_df, file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
+```
+
+the chosen tracks do not quite have the genomic ranges I would like, even though I specified them. Could I solve this by choosing a different track/table, is there I biological reason for data, or is it simply a problem of availability? Is there any smarter way of picking a table? Looping over all tables seems cumbersome.
+```{r, eval = F}
+formatC(base::range(snp_chr1$pos), format = "e", digits = 2)
+formatC(range(chr1_cov1$end), format = "e", digits = 2)
+formatC(range(chr1_cov2$end), format = "e", digits = 2)
+formatC(range(chr1_cov3$chromEnd), format = "e", digits = 2)
+formatC(range(chr1_cov4$chromEnd), format = "e", digits = 2)
+```

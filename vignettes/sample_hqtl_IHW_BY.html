@@ -11,7 +11,7 @@
 
 <meta name="author" content="Danie Fridljand" />
 
-<meta name="date" content="2022-05-11" />
+<meta name="date" content="2022-05-13" />
 
 <title>hQTL analysis with IHW-Benjamini-Yekutieli</title>
 
@@ -172,7 +172,7 @@ function toggle_visibility(id1) {
 
 <h1 class="title toc-ignore">hQTL analysis with IHW-Benjamini-Yekutieli</h1>
 <p class="author-name">Danie Fridljand</p>
-<h4 class="date">11 May 2022</h4>
+<h4 class="date">13 May 2022</h4>
 
 </div>
 
@@ -252,86 +252,56 @@ chr2_df &lt;- readRDS(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/chr2_sub
 </div>
 <div id="sub-sample" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Sub-sample</h1>
-<p>In the hQTL analysis, we test all possible combinations between peaks and SNPs within a chromosome, e.g.</p>
-<pre class="r"><code>m_full &lt;- 15725016812
-paste(nrow(snp_chr1), &quot;*&quot;, nrow(peaks_chr1), &quot;+&quot;, nrow(snp_chr2), &quot;*&quot;, nrow(peaks_chr2), &quot;=&quot;, m_full)</code></pre>
-<pre><code>## [1] &quot;645452 * 12193 + 699343 * 11232 = 15725016812&quot;</code></pre>
-<p>The full analysis has approximatly 16 billion hypotheses. This is too massive. Simply evaluating <code>645452 * 12193 + 699343 * 11232</code> leads to an Integer overflow in R, not to speak of a data.frame with that many rows. To get some progress, we need to sub-sample it.</p>
-<p>Because <code>chr1_df</code> only contains p-values &lt;= 1e-4, the below sub-sampling is biased. We will revisit this issue later.</p>
-<pre class="r"><code>chr1_df &lt;- chr1_df %&gt;% slice_sample(n = 1000)
-chr2_df &lt;- chr2_df %&gt;% slice_sample(n = 1000)
+<p>TODO</p>
+<pre class="r"><code>chr1_df &lt;- chr1_df %&gt;% mutate(pvalue = pvalue / pval_threshold)
+chr2_df &lt;- chr2_df %&gt;% mutate(pvalue = pvalue / pval_threshold)</code></pre>
+<pre class="r"><code>chr1_df &lt;- left_join(chr1_df, snp_chr1, by=(c(&quot;SNP&quot;=&quot;snp&quot;))) %&gt;%
+       left_join(peaks_chr1, by=(c(&quot;gene&quot;=&quot;id&quot;))) %&gt;%
+       mutate( dist = pmin( abs(pos-start), abs(pos-end)))
+#expression level, MAF
 
-peaks_chr1 &lt;- peaks_chr1 %&gt;% filter(id %in% chr1_df$gene)
-peaks_chr2 &lt;- peaks_chr2 %&gt;% filter(id %in% chr2_df$gene)
-
-snp_chr1 &lt;- snp_chr1 %&gt;% filter(snp %in% chr1_df$SNP)
-snp_chr2 &lt;- snp_chr2 %&gt;% filter(snp %in% chr2_df$SNP)</code></pre>
+chr2_df &lt;- left_join(chr2_df, snp_chr2, by=(c(&quot;SNP&quot;=&quot;snp&quot;))) %&gt;%
+       left_join(peaks_chr2, by=(c(&quot;gene&quot;=&quot;id&quot;))) %&gt;%
+       mutate( dist = pmin( abs(pos-start), abs(pos-end)))</code></pre>
 </div>
 <div id="covariates" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Covariates</h1>
 <div id="genomic-distance" class="section level2" number="3.1">
 <h2><span class="header-section-number">3.1</span> genomic distance</h2>
 <p>We now take all cross-combinations between the remaining SNPs and peaks with-in chromosmes. We calculate the genomic distance between peaks and SNPs along the way. As <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">in the original analysis</a>, they are going to serve as main covariates for the multiple testing procedure.</p>
-<pre class="r"><code>full_comb_chr1 &lt;- full_join(snp_chr1, peaks_chr1, by = character()) %&gt;%
-  transmute(snp, id,
-    dist = pmin(abs(pos - start), abs(pos - end))
-  )
-
-full_comb_chr2 &lt;- full_join(snp_chr2, peaks_chr2, by = character()) %&gt;%
-  transmute(snp, id,
-    dist = pmin(abs(pos - start), abs(pos - end))
-  )
-nrow(full_comb_chr1) + nrow(full_comb_chr2)</code></pre>
-<pre><code>## [1] 1838328</code></pre>
 </div>
 <div id="minor-allele-frequency" class="section level2" number="3.2">
 <h2><span class="header-section-number">3.2</span> Minor Allele Frequency</h2>
-<p>In <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">here</a> only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file and annotate the hypotheses accordingly.</p>
+<p>In <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">here</a> only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file. The data was pre-downloaded with <code>Biomart</code>.</p>
 <pre class="r"><code>chr1_maf &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr1_maf.Rds&quot;))
-chr2_maf &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr2_maf.Rds&quot;))
+chr2_maf &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr2_maf.Rds&quot;))</code></pre>
+<p>Many MAFs are not available on <code>Biomart</code>. For IHW, missing covariates are not allowed. So we conservatively replace all <code>NA</code>s with 0.</p>
+<pre class="r"><code>chr1_maf_missing &lt;- sum(is.na(chr1_maf$minor_allele_freq))/nrow(chr1_maf)
+chr2_maf_missing &lt;- sum(is.na(chr2_maf$minor_allele_freq))/nrow(chr2_maf)
 
-full_comb_chr1 &lt;- full_comb_chr1 %&gt;%
-  left_join(chr1_maf, by = c(&quot;snp&quot; = &quot;refsnp_id&quot;)) %&gt;%
-  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
-full_comb_chr2 &lt;- full_comb_chr2 %&gt;%
-  left_join(chr2_maf, by = c(&quot;snp&quot; = &quot;refsnp_id&quot;)) %&gt;%
-  mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))</code></pre>
-<p>We add the pre-calculated p-values to the hypotheses. For the internal parameter <code>m_groups</code> of IHW (used to optimize the weights for example) all p-values need to be specified. So we set all missing p-values (e.g. p-values &gt;= 1e-4) to 1. This crude rounding will not affect Benjamini-Hochberg at all and ideally IHW not too much. Note that AdaPT, a competing multiple testing method based on covariates, depends on the precise large p-values to estimate the FDR and hence could not be applied here.</p>
-<pre class="r"><code>chr1_df &lt;- full_comb_chr1 %&gt;%
-  left_join(chr1_df, by = (c(&quot;snp&quot; = &quot;SNP&quot;, &quot;id&quot; = &quot;gene&quot;))) %&gt;%
-  transmute(dist, minor_allele_freq,
-    pvalue = replace_na(pvalue, 1)
-  )
-
-chr2_df &lt;- full_comb_chr2 %&gt;%
-  left_join(chr2_df, by = (c(&quot;snp&quot; = &quot;SNP&quot;, &quot;id&quot; = &quot;gene&quot;))) %&gt;%
-  transmute(dist, minor_allele_freq,
-    pvalue = replace_na(pvalue, 1)
-  )</code></pre>
+paste0(round(chr1_maf_missing, 5), &quot;%&quot;)</code></pre>
+<pre><code>## [1] &quot;0.0185%&quot;</code></pre>
+<pre class="r"><code>paste0(round(chr2_maf_missing, 5), &quot;%&quot;)</code></pre>
+<pre><code>## [1] &quot;0.01534%&quot;</code></pre>
+<pre class="r"><code>chr1_maf &lt;- chr1_maf %&gt;% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))
+chr2_maf &lt;- chr2_maf %&gt;% mutate(minor_allele_freq = replace_na(minor_allele_freq, 0))</code></pre>
+<p>We annotate the hypotheses with the MAF data.</p>
+<pre class="r"><code>chr1_df &lt;- chr1_df %&gt;% left_join(chr1_maf, by = c(&quot;SNP&quot; = &quot;refsnp_id&quot;)) 
+chr2_df &lt;- chr2_df %&gt;% left_join(chr2_maf, by = c(&quot;SNP&quot; = &quot;refsnp_id&quot;))</code></pre>
 </div>
 <div id="checks" class="section level2" number="3.3">
 <h2><span class="header-section-number">3.3</span> Checks</h2>
 <p>We double check, that number of total hypotheses works out.</p>
-<pre class="r"><code>m &lt;- nrow(peaks_chr1) * nrow(snp_chr1) + nrow(snp_chr2) * nrow(peaks_chr2)
-m == nrow(chr1_df) + nrow(chr2_df)</code></pre>
-<pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code>m == nrow(full_comb_chr1) + nrow(full_comb_chr2)</code></pre>
-<pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code>m</code></pre>
-<pre><code>## [1] 1838328</code></pre>
 <pre class="r"><code>any(is.na(chr1_df))</code></pre>
 <pre><code>## [1] FALSE</code></pre>
 <pre class="r"><code>any(is.na(chr2_df))</code></pre>
 <pre><code>## [1] FALSE</code></pre>
-<p>So compared to the full analysis, we are only considering a fraction:</p>
-<pre class="r"><code>paste0(round(100 * m / m_full, 5), &quot;%&quot;)</code></pre>
-<pre><code>## [1] &quot;0.01169%&quot;</code></pre>
 <p>Again, we are aware that the sub-sampling was biased. Let us put the data for the two chromosomes together:</p>
 <pre class="r"><code>chr1_chr2_df &lt;- rbind(chr1_df, chr2_df)
 # folds_vec &lt;- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 folds_vec &lt;- c(rep(factor(1), nrow(chr1_df)), rep(factor(2), nrow(chr2_df)))
 rm(chr1_df, chr2_df)
-rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2, full_comb_chr1, full_comb_chr2)
+rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2)
 rm(chr1_maf, chr2_maf)</code></pre>
 </div>
 </div>
@@ -340,7 +310,8 @@ rm(chr1_maf, chr2_maf)</code></pre>
 <div id="run-multiple-testing-procedures" class="section level2" number="4.1">
 <h2><span class="header-section-number">4.1</span> Run Multiple testing procedures</h2>
 <p>We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjamini-Hochberg at the corrected level:</p>
-<pre class="r"><code>alpha &lt;- .01 / (log(m) + 1)</code></pre>
+<pre class="r"><code>m &lt;- nrow(chr1_chr2_df)
+alpha &lt;- .01 / (log(m) + 1)</code></pre>
 <p>Now let us run IHW with the <code>&quot;forest&quot;</code> stratification method using different subsets of the available covariates:</p>
 <pre class="r"><code>ihw_quantile_dist &lt;- ihw(pvalue ~ dist, data = chr1_chr2_df, alpha, folds = folds_vec)</code></pre>
 <pre class="r"><code>ihw_quantile_maf &lt;- ihw(pvalue ~ minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)</code></pre>
@@ -349,7 +320,7 @@ rm(chr1_maf, chr2_maf)</code></pre>
 <pre class="r"><code>ihw_forest_dist &lt;- ihw(pvalue ~ dist,
   data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = &quot;forest&quot;,
-  n_censor_thres = 2, ntrees = 1, nodedepth = 5, nodesize = 1000
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 5000
 )</code></pre>
 <pre class="r"><code>ihw_forest_maf &lt;- ihw(pvalue ~ minor_allele_freq,
   data = chr1_chr2_df,
@@ -359,27 +330,27 @@ rm(chr1_maf, chr2_maf)</code></pre>
 <pre class="r"><code>ihw_forest_dist_maf &lt;- ihw(pvalue ~ dist + minor_allele_freq,
   data = chr1_chr2_df,
   alpha, folds = folds_vec, stratification_method = &quot;forest&quot;,
-  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 1500
+  n_censor_thres = 2, ntrees = 1, nodedepth = 4, nodesize = 5000
 )</code></pre>
 </div>
 <div id="evaluate-number-of-rejections" class="section level2" number="4.2">
 <h2><span class="header-section-number">4.2</span> Evaluate number of rejections</h2>
 <p>Rejections of BY:</p>
-<pre class="r"><code>sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), n = m, method = &quot;BH&quot;) &lt;= alpha)</code></pre>
-<pre><code>## [1] 12</code></pre>
+<pre class="r"><code>sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = &quot;BH&quot;) &lt;= alpha)</code></pre>
+<pre><code>## [1] 9144</code></pre>
 <p>Rejections of IHW-BY using different stratification methods:</p>
 <pre class="r"><code>ihw_rejections &lt;- tribble(
   ~formula, ~quantiles, ~forest,
-  &quot;pvalue ~ minor_allele_freq&quot;, rejections(ihw_quantile_dist), rejections(ihw_forest_maf),
-  &quot;pvalue ~ dist&quot;, rejections(ihw_quantile_maf), rejections(ihw_forest_dist),
+  &quot;pvalue ~ minor_allele_freq&quot;, rejections(ihw_quantile_maf), rejections(ihw_forest_maf),
+  &quot;pvalue ~ dist&quot;, rejections(ihw_quantile_dist), rejections(ihw_forest_dist),
   &quot;pvalue ~ dist + minor_allele_freq&quot;, rejections(ihw_quantile_dist_maf), rejections(ihw_forest_dist_maf),
 )
 as.data.frame(ihw_rejections)</code></pre>
 <pre><code>##                             formula quantiles forest
-## 1        pvalue ~ minor_allele_freq        15     12
-## 2                     pvalue ~ dist        12     26
-## 3 pvalue ~ dist + minor_allele_freq        12     24</code></pre>
-<p>So we see that the number of discoveries has increased. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.</p>
+## 1        pvalue ~ minor_allele_freq      8781   8993
+## 2                     pvalue ~ dist     12379  12866
+## 3 pvalue ~ dist + minor_allele_freq      9861  12769</code></pre>
+<p>So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.</p>
 </div>
 </div>
 <div id="session-info-details" class="section level1" number="5">
