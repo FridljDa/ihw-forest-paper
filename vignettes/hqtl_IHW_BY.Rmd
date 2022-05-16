@@ -96,11 +96,11 @@ We now take all cross-combinations between the remaining SNPs and peaks with-in 
 ```{r}
 chr1_df <- left_join(chr1_df, snp_chr1, by=(c("SNP"="snp"))) %>%
        left_join(peaks_chr1, by=(c("gene"="id"))) %>%
-       mutate( dist = pmin(abs(pos-start), abs(pos-end)))
+       transmute(SNP, pvalue, dist = pmin(abs(pos-start), abs(pos-end)))
 
 chr2_df <- left_join(chr2_df, snp_chr2, by=(c("SNP"="snp"))) %>%
        left_join(peaks_chr2, by=(c("gene"="id"))) %>%
-       mutate( dist = pmin( abs(pos-start), abs(pos-end)))
+       transmute(SNP, pvalue, dist = pmin( abs(pos-start), abs(pos-end)))
 ```
 
 ## Minor Allele Frequency
@@ -132,12 +132,12 @@ chr2_df <- chr2_df %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 
 ```
 
 ## H3K27Ac, H3K4me3, kH3k4me1, DNAse
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 chr1_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
 chr2_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
 
-chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP" = "SNP")) 
-chr2_df <- chr2_df %>% left_join(chr2_more_cov, by = c("SNP" = "SNP"))
+chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP" = "snp")) 
+chr2_df <- chr2_df %>% left_join(chr2_more_cov, by = c("SNP" = "snp"))
 ```
 
 ## Checks
@@ -154,6 +154,10 @@ folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 rm(chr1_df, chr2_df)
 rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2)
 rm(chr1_maf, chr2_maf)
+rm(chr1_more_covm, chr2_more_cov)
+
+chr1_chr2_df <- chr1_chr2_df %>% 
+  dplyr::select(-one_of(c("SNP","gene", "pos", "start","end"))) 
 ```
 
 # Apply IHW-BY and BY
@@ -170,112 +174,54 @@ alpha <- .01 / (log(m) + 1)
 run_write_ihw <- FALSE
 ```
 
-Now let us run IHW with the `"forest"` stratification method using different subsets of the available covariates:
+```{r}
+formulas_mt <- c("dist",
+  "minor_allele_freq",
+  "dist + minor_allele_freq",
+  paste(c("dist","minor_allele_freq",paste0("cov",1:10)), collapse = " + "))
+formulas_mt <- paste0("pvalue ~ ", formulas_mt)
+formulas_mt <- sapply(formulas_mt, as.formula)
+formulas_mt
+```
+Now let us run IHW with the `"quantile"` stratification method using different subsets of the available covariates:
+```{r}
+error_handler <- function(x) {
+  if (inherits(x, "try-error")){
+    x <- NA
+  }
+  x
+}
+```
 
 ```{r ihw_quantile_dist, include=TRUE, eval=run_write_ihw}
-ihw_quantile_dist <- ihw(pvalue ~ dist, data = chr1_chr2_df, alpha, folds = folds_vec)
+ihw_quantile <- lapply(formulas_mt, function(formulas_mt_i){
+  error_handler(try(ihw(formulas_mt_i, data = chr1_chr2_df, alpha, folds = folds_vec)))
+})
 ```
 
 ```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_quantile_dist, file = file.path(root_dir, "precomputed_results/ihw_quantile_dist.Rds"))
+saveRDS(ihw_quantile, file = file.path(root_dir, "precomputed_results/ihw_quantile.Rds"))
 ```
 
 ```{r, include=FALSE, eval=TRUE}
-ihw_quantile_dist <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_dist.Rds"))
-```
-
-```{r, eval=FALSE, include=F}
-# Run some diagnostics on the `ihw_quantile_dist` object relevant when comparing the stratification methods.
-m_groups(ihw_quantile_dist)
-stratification_breaks(ihw_quantile_dist)
-```
-
-```{r ihw_quantile_maf, eval=run_write_ihw}
-ihw_quantile_maf <- ihw(pvalue ~ minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
-```
-
-```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_quantile_maf, file = file.path(root_dir, "precomputed_results/ihw_quantile_maf.Rds"))
-```
-
-```{r, include=FALSE, eval=TRUE}
- ihw_quantile_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_maf.Rds"))
-```
-
-```{r ihw_quantile_dist_maf, eval=run_write_ihw}
-ihw_quantile_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq, data = chr1_chr2_df, alpha, folds = folds_vec)
-```
-
-```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_quantile_dist_maf, file = file.path(root_dir, "precomputed_results/ihw_quantile_dist_maf.Rds"))
-```
-
-```{r, include=FALSE, eval=TRUE}
-ihw_quantile_dist_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile_dist_maf.Rds"))
-```
-
-```{r, eval = F, include=F}
-# Run some diagnostics on the `ihw_quantile_dist_maf` object
-weights(ihw_quantile_dist_maf)
+ihw_quantile <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile.Rds"))
 ```
 
 Run IHW with the `"forest"` stratification method using different subsets of the available covariates:
 ```{r ihw_forest_dist, eval = run_write_ihw, warning= FALSE}
-ihw_forest_dist <- ihw(pvalue ~ dist,
-  data = chr1_chr2_df,
-  alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000
-)
+ihw_forest <- lapply(formulas_mt, function(formulas_mt_i){
+  ihw_forest_i <- ihw(formulas_mt_i, data = chr1_chr2_df, alpha, folds = folds_vec,
+                        stratification_method = "forest",
+  n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000)
+})
 ```
 
 ```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_forest_dist, file = file.path(root_dir, "precomputed_results/ihw_forest_dist.Rds"))
+saveRDS(ihw_forest, file = file.path(root_dir, "precomputed_results/ihw_forest.Rds"))
 ```
 
 ```{r, include=FALSE, eval=TRUE}
-ihw_forest_dist <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest_dist.Rds"))
-```
-
-```{r, eval = F, include=F}
-# run some diagnostics on the `ihw_forest` object
-IHW::m_groups(ihw_forest_dist)
-stratification_breaks(ihw_forest_dist, fold = 1, tree = 1)
-```
-
-```{r ihw_forest_maf, eval = run_write_ihw, warning= FALSE}
-ihw_forest_maf <- ihw(pvalue ~ minor_allele_freq,
-  data = chr1_chr2_df,
-  alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000
-)
-```
-
-```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_forest_maf, file = file.path(root_dir, "precomputed_results/ihw_forest_maf.Rds"))
-```
-
-```{r, include=FALSE, eval=TRUE}
-ihw_forest_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest_maf.Rds"))
-```
-
-```{r, eval = F, include = F}
-list(formula(pvalue ~ dist + minor_allele_freq))
-```
-
-```{r ihw_forest_dist_maf, eval = run_write_ihw, warning= FALSE}
-ihw_forest_dist_maf <- ihw(pvalue ~ dist + minor_allele_freq,
-  data = chr1_chr2_df,
-  alpha, folds = folds_vec, stratification_method = "forest",
-  n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000
-)
-```
-
-```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_forest_dist_maf, file = file.path(root_dir, "precomputed_results/ihw_forest_dist_maf.Rds"))
-```
-
-```{r, include=FALSE, eval=TRUE}
-ihw_forest_dist_maf <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest_dist_maf.Rds"))
+ihw_forest <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest.Rds"))
 ```
 
 ## Evaluate number of rejections
@@ -288,13 +234,9 @@ sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha)
 Rejections of IHW-BY using different stratification methods:
 
 ```{r}
-ihw_rejections <- tribble(
-  ~formula, ~quantiles, ~forest,
-  "pvalue ~ minor_allele_freq", rejections(ihw_quantile_maf), rejections(ihw_forest_maf),
-  "pvalue ~ dist", rejections(ihw_quantile_dist), rejections(ihw_forest_dist),
-  "pvalue ~ dist + minor_allele_freq", rejections(ihw_quantile_dist_maf), rejections(ihw_forest_dist_maf),
-)
-as.data.frame(ihw_rejections)
+data.frame(formula = formulas_mt,
+           quantile_rej = sapply(ihw_quantile, rejections),
+           forest_rej = sapply(ihw_forest, rejections))
 ```
 
 So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
