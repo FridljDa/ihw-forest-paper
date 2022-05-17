@@ -7,7 +7,6 @@ output: html_notebook
 library(rtracklayer)
 library(magrittr)
 library(dplyr)
-library(tidygenomics)
 ```
 
 Loading SNP data.
@@ -68,7 +67,7 @@ track_table <- tribble(
   #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878PkRep1",
   "DNaseI","wgEncodeUwDnase", "wgEncodeUwDnaseGm12878RawRep1"
 )
-saveRDS(track_table, file.path(root_dir, paste0("data/downloaded_covariates/meta_track_table.Rds")))
+saveRDS(track_table, file.path(root_dir, "data/downloaded_covariates/meta_track_table.Rds"))
 ```
 
 
@@ -85,7 +84,7 @@ snp_chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
 
   print("downloaded")
   print("joining")
-  snp_chr1_covi <- genome_join_closest(snp_chr1 %>% mutate(chr = chrsnp, start = pos, end = pos),
+  snp_chr1_covi <- tidygenomics::genome_join_closest(snp_chr1 %>% mutate(chr = chrsnp, start = pos, end = pos),
                                    chr1_covi %>% mutate(chr = "chr1"),
                                    by=c("chr", "start", "end"), 
                                    distance_column_name="distance",
@@ -127,7 +126,7 @@ snp_chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
 
   print("downloaded")
   print("joining")
-  snp_chr2_covi <- genome_join_closest(snp_chr2 %>% mutate(chr = chrsnp, start = pos, end = pos),
+  snp_chr2_covi <- tidygenomics::genome_join_closest(snp_chr2 %>% mutate(chr = chrsnp, start = pos, end = pos),
                                    chr2_covi %>% mutate(chr = "chr2"),
                                    by=c("chr", "start", "end"), 
                                    distance_column_name="distance",
