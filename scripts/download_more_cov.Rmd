@@ -42,21 +42,21 @@ We can explore available data with `trackNames(ucscTableQuery(mySession))` or on
 http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. I picked some arbitrary `track_name` and `table_name` which sounded like they relate to what Wolfgang suggested. I can use this code, even if it later turns out to be wrong. 
 ```{r}
 track_table <- tribble(
-  ~track, ~table,
+  ~name, ~track, ~table,
   # Layered H3K27Ac
-  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig",
-  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneH1hescH3k27acStdSig",
-  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneHsmmH3k27acStdSig",
+  "H3K27Ac_1","wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig",
+  "H3K27Ac_2", "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneH1hescH3k27acStdSig",
+  "H3K27Ac_3", "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneHsmmH3k27acStdSig",
   
   # Layered H3K4me3
-  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneGm12878H3k4me3StdSig",
-  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneH1hescH3k4me3StdSig",
-  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneHsmmH3k4me3StdSig",
+  "H3K4me3_1","wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneGm12878H3k4me3StdSig",
+  "H3K4me3_2","wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneH1hescH3k4me3StdSig",
+  "H3K4me3_3","wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneHsmmH3k4me3StdSig",
   
   # Layered kH3k4me1
-  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneGm12878H3k4me1StdSig",
-  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneH1hescH3k4me1StdSig",
-  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneHsmmH3k4me1StdSig",
+  "kH3k4me1_1","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneGm12878H3k4me1StdSig",
+  "kH3k4me1_2","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneH1hescH3k4me1StdSig",
+  "kH3k4me1_3","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneHsmmH3k4me1StdSig",
 
   # UW CTCF Binding
   #"wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1",
@@ -66,7 +66,7 @@ track_table <- tribble(
   # = UW DNaseI HS = arbitrary track which contains "DNAse", many more would have been possible
   #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878HotspotsRep1",
   #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878PkRep1",
-  "wgEncodeUwDnase", "wgEncodeUwDnaseGm12878RawRep1"
+  "DNaseI","wgEncodeUwDnase", "wgEncodeUwDnaseGm12878RawRep1"
 )
 saveRDS(track_table, file.path(root_dir, paste0("data/downloaded_covariates/meta_track_table.Rds")))
 ```
@@ -104,7 +104,7 @@ snp_chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
 save as single data frame
 ```{r}
 snp_chr1_cov_df <- lapply(seq_along(snp_chr1_cov_list), function(i){
-  variable_name <- paste0("cov",i)
+  variable_name <- track_table$name[i]
   snp_chr1_cov_list[[i]] %>% 
     dplyr::transmute(!!variable_name := value) 
 })
@@ -147,7 +147,7 @@ snp_chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
 save as single data frame
 ```{r}
 snp_chr2_cov_df <- lapply(seq_along(snp_chr2_cov_list), function(i){
-  variable_name <- paste0("cov",i)
+  variable_name <- track_table$name[i]
   snp_chr2_cov_list[[i]] %>% 
     dplyr::transmute(!!variable_name := value) 
 })

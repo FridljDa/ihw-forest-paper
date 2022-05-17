@@ -136,6 +136,7 @@ chr2_df <- chr2_df %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 
 chr1_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
 chr2_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
 
+names_more_cov <- setdiff(names(chr1_more_cov), "snp")
 chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP" = "snp")) 
 chr2_df <- chr2_df %>% left_join(chr2_more_cov, by = c("SNP" = "snp"))
 ```
@@ -178,7 +179,7 @@ run_write_ihw <- FALSE
 formulas_mt <- c("dist",
   "minor_allele_freq",
   "dist + minor_allele_freq",
-  paste(c("dist","minor_allele_freq",paste0("cov",1:10)), collapse = " + "))
+  paste(c("dist","minor_allele_freq", names_more_cov), collapse = " + "))
 formulas_mt <- paste0("pvalue ~ ", formulas_mt)
 formulas_mt <- sapply(formulas_mt, as.formula)
 formulas_mt
@@ -234,9 +235,19 @@ sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha)
 Rejections of IHW-BY using different stratification methods:
 
 ```{r}
-data.frame(formula = formulas_mt,
-           quantile_rej = sapply(ihw_quantile, rejections),
-           forest_rej = sapply(ihw_forest, rejections))
+rejections_na <- function(ihw){
+  if(is.na(ihw)){
+    return(NA)
+  }else{
+    rejections(ihw)
+  }
+}
+```
+
+```{r}
+test <-data.frame(
+           quantile_rej = sapply(ihw_quantile, rejections_na),
+           forest_rej = sapply(ihw_forest, rejections_na))
 ```
 
 So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
