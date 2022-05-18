@@ -335,7 +335,7 @@ rm(chr1_maf, chr2_maf)
 rm(chr1_more_cov, chr2_more_cov)
 
 chr1_chr2_df &lt;- chr1_chr2_df %&gt;% 
-  dplyr::select(-one_of(c(&quot;SNP&quot;,&quot;gene&quot;, &quot;pos&quot;, &quot;start&quot;,&quot;end&quot;))) #TODO check </code></pre>
+  dplyr::select(-one_of(c(&quot;SNP&quot;))) </code></pre>
 </div>
 </div>
 <div id="apply-ihw-by-and-by" class="section level1" number="3">
@@ -354,21 +354,21 @@ formulas_mt &lt;- sapply(formulas_mt, as.formula)
 formulas_mt</code></pre>
 <pre><code>## $`pvalue ~ dist`
 ## pvalue ~ dist
-## &lt;environment: 0x139b3298&gt;
+## &lt;environment: 0x13c87200&gt;
 ## 
 ## $`pvalue ~ minor_allele_freq`
 ## pvalue ~ minor_allele_freq
-## &lt;environment: 0x139b3298&gt;
+## &lt;environment: 0x13c87200&gt;
 ## 
 ## $`pvalue ~ dist + minor_allele_freq`
 ## pvalue ~ dist + minor_allele_freq
-## &lt;environment: 0x139b3298&gt;
+## &lt;environment: 0x13c87200&gt;
 ## 
 ## $`pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI`
 ## pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + 
 ##     H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + 
 ##     kH3k4me1_3 + DNaseI
-## &lt;environment: 0x139b3298&gt;</code></pre>
+## &lt;environment: 0x13c87200&gt;</code></pre>
 <p>Now let us run IHW with the <code>&quot;quantile&quot;</code> stratification method using different subsets of the available covariates:</p>
 <pre class="r"><code>error_handler &lt;- function(x) {
   if (inherits(x, &quot;try-error&quot;)){
@@ -379,8 +379,6 @@ formulas_mt</code></pre>
 <pre class="r"><code>ihw_quantile &lt;- lapply(formulas_mt, function(formulas_mt_i){
   error_handler(try(ihw(formulas_mt_i, data = chr1_chr2_df, alpha, folds = folds_vec)))
 })</code></pre>
-<pre><code>## Error in slam::simple_triplet_matrix(i_fi, j_fi, v_fi) : 
-##   Duplicate (i, j) pairs are not allowed.</code></pre>
 <p>Run IHW with the <code>&quot;forest&quot;</code> stratification method using different subsets of the available covariates:</p>
 <pre class="r"><code>ihw_forest &lt;- lapply(formulas_mt, function(formulas_mt_i){
   ihw_forest_i &lt;- ihw(formulas_mt_i, data = chr1_chr2_df, alpha, folds = folds_vec,
@@ -393,6 +391,7 @@ formulas_mt</code></pre>
 <p>Rejections of BY:</p>
 <pre class="r"><code>sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = &quot;BH&quot;) &lt;= alpha)</code></pre>
 <pre><code>## [1] 9144</code></pre>
+<p>In the <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">original analysis</a>, where we did not inflate the <code>pvalue</code> by the <code>p_value_threshold</code>, we had 9110 rejections with BY, so this is very similar.</p>
 <p>Rejections of IHW-BY using different stratification methods:</p>
 <pre class="r"><code>rejections_na &lt;- function(ihw){
   if(is.na(ihw)){
@@ -401,19 +400,22 @@ formulas_mt</code></pre>
     rejections(ihw)
   }
 }</code></pre>
-<pre class="r"><code>data.frame(
+<pre class="r"><code>result &lt;- data.frame(
            quantile_rej = sapply(ihw_quantile, rejections_na),
-           forest_rej = sapply(ihw_forest, rejections_na))</code></pre>
-<pre><code>##                                                                                                                                                           quantile_rej
-## pvalue ~ dist                                                                                                                                                    12379
-## pvalue ~ minor_allele_freq                                                                                                                                        8781
-## pvalue ~ dist + minor_allele_freq                                                                                                                                 9861
-## pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI           NA
-##                                                                                                                                                           forest_rej
-## pvalue ~ dist                                                                                                                                                  12903
-## pvalue ~ minor_allele_freq                                                                                                                                      9048
-## pvalue ~ dist + minor_allele_freq                                                                                                                              13249
-## pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI      13149</code></pre>
+           forest_rej = sapply(ihw_forest, rejections_na)
+           )
+result &lt;- tibble::rownames_to_column(result, &quot;formula&quot;)
+result[,c(2,3,1)]</code></pre>
+<pre><code>##   quantile_rej forest_rej
+## 1        12379      12903
+## 2         8781       9048
+## 3         9861      13249
+## 4           NA      13149
+##                                                                                                                                                     formula
+## 1                                                                                                                                             pvalue ~ dist
+## 2                                                                                                                                pvalue ~ minor_allele_freq
+## 3                                                                                                                         pvalue ~ dist + minor_allele_freq
+## 4 pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI</code></pre>
 <p>So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.</p>
 </div>
 </div>

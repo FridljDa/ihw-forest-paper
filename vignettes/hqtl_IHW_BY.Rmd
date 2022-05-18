@@ -165,7 +165,7 @@ rm(chr1_maf, chr2_maf)
 rm(chr1_more_cov, chr2_more_cov)
 
 chr1_chr2_df <- chr1_chr2_df %>% 
-  dplyr::select(-one_of(c("SNP","gene", "pos", "start","end"))) #TODO check 
+  dplyr::select(-one_of(c("SNP"))) 
 ```
 
 # Apply IHW-BY and BY
@@ -179,7 +179,7 @@ alpha <- .01 / (log(m) + 1)
 
 ```{r, include=FALSE}
 #we do not actually want to calculate all the time
-run_write_ihw <- TRUE
+run_write_ihw <- FALSE
 ```
 
 ```{r}
@@ -238,6 +238,7 @@ Rejections of BY:
 ```{r}
 sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha)
 ```
+In the [original analysis](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), where we did not inflate the `pvalue` by the `p_value_threshold`, we had 9110 rejections with BY, so this is very similar.
 
 Rejections of IHW-BY using different stratification methods:
 
@@ -252,9 +253,12 @@ rejections_na <- function(ihw){
 ```
 
 ```{r}
-data.frame(
+result <- data.frame(
            quantile_rej = sapply(ihw_quantile, rejections_na),
-           forest_rej = sapply(ihw_forest, rejections_na))
+           forest_rej = sapply(ihw_forest, rejections_na)
+           )
+result <- tibble::rownames_to_column(result, "formula")
+result[,c(2,3,1)]
 ```
 
 So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
