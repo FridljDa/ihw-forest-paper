@@ -1,3 +1,7 @@
+library(doRNG)
+library(doParallel)
+library(parallel)
+
 ## ------Simulation------
 prop_alt <- function(cov_row) {
   r <- sum(cov_row^2)
@@ -51,9 +55,6 @@ noise_sim <- function(m, r, dimensions){
 #library(doRNG) #TODO
 #library(doParallel)
 
-library(doRNG)
-library(doParallel)
-library(parallel)
 #' @import doRNG
 #' @import doParallel
 #' @import parallel
@@ -62,7 +63,7 @@ eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
   sim <- noise_sim(m, r, dimensions)
   
   n.cores <- parallel::detectCores()
-  doParallel::registerDoParallel(cores = min(5, n.cores - 1))
+  doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
   #eval <- lapply(seq_along(sim), function(i){
   eval <- foreach(i = seq_along(sim)) %dorng% {
