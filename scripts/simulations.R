@@ -38,6 +38,6 @@ saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds"
 ## -----noise sim------
 dimensions <- seq(from = 1, to = 11, by = 2)
 
-eval_noise_sim <- IHWForestPaper::eval_noise_sim(m, r, dimensions, forest_par)
-saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
+#eval_noise_sim <- IHWForestPaper::eval_noise_sim(m, r, dimensions, forest_par)
+#saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
 

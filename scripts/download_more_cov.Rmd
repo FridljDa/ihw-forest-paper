@@ -43,7 +43,7 @@ http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. I picked some arbitra
 track_table <- tribble(
   ~name, ~track, ~table,
   # Layered H3K27Ac
-  "H3K27Ac_1","wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig",
+  "H3K27Ac_1","wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig", #http://genome.ucsc.edu/cgi-bin/hgTrackUi?hgsid=1357099741_Q352XNTJ2bL7xVIkc6XmiqL5vSjP&db=hg19&g=wgEncodeBroadHistoneGm12878H3k27acStdSig
   "H3K27Ac_2", "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneH1hescH3k27acStdSig",
   "H3K27Ac_3", "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneHsmmH3k27acStdSig",
   
