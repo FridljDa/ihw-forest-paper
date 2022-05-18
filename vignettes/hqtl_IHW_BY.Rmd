@@ -40,7 +40,7 @@ root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
 options(bitmapType = "cairo")
 ```
 
-# Load data
+# Load SNPs and peaks
 In this markdown, we apply several multiple testing procedures to the same hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. The corresponding vigniette of the old analysis can be found [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html). In this analysis, the p-values were plotted against the genomic distance and the user had to manually figure out stratification breaks for IHW. Here we want to use the data-driven, automated stratification_methods `"quantile"` and `"forest"`. 
 
 
@@ -67,7 +67,7 @@ We have pre-calculated the p-values for these hypotheses beforehand, we are goin
 chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
 chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
 ```
-Note that only p-values <= 1e-4 are stored in these. For details, how the pvalues are calculated, see [code](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R). 
+Note that only p-values <= 1e-4 are stored in these files to save data storage. For details, how the pvalues are calculated, see [code](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R#L96). 
 ```{r}
 pval_threshold <- 10^(-4)
 ```
@@ -87,11 +87,11 @@ chr1_df <- chr1_df %>% mutate(pvalue = pvalue / pval_threshold)
 chr2_df <- chr2_df %>% mutate(pvalue = pvalue / pval_threshold)
 ```
 
-# Covariates
+# Load covariates
 The IHW multiple testing procedure can incorporate additional side information to gain statistical power.
 
 ## genomic distance
-We now take all cross-combinations between the remaining SNPs and peaks with-in chromosmes. We calculate the genomic distance between peaks and SNPs along the way. As [in the original analysis](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), they are going to serve as main covariates for the multiple testing procedure.
+We calculate the genomic distance between peaks and SNPs for all hypotheses. As [in the original analysis](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), they are going to serve as main covariates for the multiple testing procedure.
 
 ```{r}
 chr1_df <- left_join(chr1_df, snp_chr1, by=(c("SNP"="snp"))) %>%
@@ -132,6 +132,13 @@ chr2_df <- chr2_df %>% mutate(minor_allele_freq = replace_na(minor_allele_freq, 
 ```
 
 ## H3K27Ac, H3K4me3, kH3k4me1, DNAse
+Additionally, we source some covariates from the genome browser. For more information on each covariate, please lookup the corresponding track and table on `rtracklayer::trackNames` or on
+http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. 
+```{r}
+readRDS(file.path(root_dir, "data/downloaded_covariates/meta_track_table.Rds"))
+```
+
+We mapped the the information to the covariate by taking the closest genomic region.
 ```{r, eval=TRUE}
 chr1_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
 chr2_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
@@ -155,10 +162,10 @@ folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
 rm(chr1_df, chr2_df)
 rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2)
 rm(chr1_maf, chr2_maf)
-rm(chr1_more_covm, chr2_more_cov)
+rm(chr1_more_cov, chr2_more_cov)
 
 chr1_chr2_df <- chr1_chr2_df %>% 
-  dplyr::select(-one_of(c("SNP","gene", "pos", "start","end"))) 
+  dplyr::select(-one_of(c("SNP","gene", "pos", "start","end"))) #TODO check 
 ```
 
 # Apply IHW-BY and BY
@@ -172,7 +179,7 @@ alpha <- .01 / (log(m) + 1)
 
 ```{r, include=FALSE}
 #we do not actually want to calculate all the time
-run_write_ihw <- FALSE
+run_write_ihw <- TRUE
 ```
 
 ```{r}
@@ -245,7 +252,7 @@ rejections_na <- function(ihw){
 ```
 
 ```{r}
-test <-data.frame(
+data.frame(
            quantile_rej = sapply(ihw_quantile, rejections_na),
            forest_rej = sapply(ihw_forest, rejections_na))
 ```
