@@ -93,10 +93,11 @@ snp_chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
   
   snp_chr1_covi <- snp_chr1_covi %>% dplyr::select(snp, value, cov_start = start.y, cov_end = end.y, distance)
   print("joined")
-  #print("saving")
-
-  #saveRDS(snp_chr1_covi, file.path(root_dir, paste0("data/downloaded_covariates/snp_chr1_cov",i,".Rds")))
-  #print("saved")
+  
+  print("saving")
+  saveRDS(snp_chr1_covi, file.path(root_dir, paste0("data/downloaded_covariates/more_cov_sep/snp_chr1_cov",i,".Rds")))
+  print("saved")
+  
   snp_chr1_covi
 })
 ```
@@ -135,10 +136,11 @@ snp_chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
   
   snp_chr2_covi <- snp_chr2_covi %>% dplyr::select(snp, value, cov_start = start.y, cov_end = end.y, distance)
   print("joined")
-  #print("saving")
-
-  #saveRDS(snp_chr2_covi, file.path(root_dir, paste0("data/downloaded_covariates/snp_chr2_cov",i,".Rds")))
-  #print("saved")
+  
+  print("saving")
+  saveRDS(snp_chr2_covi, file.path(root_dir, paste0("data/downloaded_covariates//more_cov_sep/snp_chr2_cov",i,".Rds")))
+  print("saved")
+  
   snp_chr2_covi
 })
 ```

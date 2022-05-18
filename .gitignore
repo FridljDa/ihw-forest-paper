@@ -6,6 +6,12 @@ ihw-forest-paper.Rproj
 IHWForestPaper/IHWForestPaper.Rproj
 session.RData
 */Icon
+
+data/downloaded_covariates/more_cov_sep
+
+precomputed_results/ihw_forest.Rds
+precomputed_results/ihw_quantile.Rds
+
 precomputed_results/ihw_quantile_dist_maf.Rds
 precomputed_results/ihw_quantile_dist.Rds
 precomputed_results/ihw_quantile_maf.Rds
@@ -13,6 +19,3 @@ precomputed_results/ihw_quantile_maf.Rds
 precomputed_results/ihw_forest_dist_maf.Rds
 precomputed_results/ihw_forest_dist.Rds
 precomputed_results/ihw_forest_maf.Rds
-
-precomputed_results/ihw_forest.Rds
-precomputed_results/ihw_quantile.Rds
