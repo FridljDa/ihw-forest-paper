@@ -61,6 +61,23 @@ rm(all_peaks)
 head(peaks_chr1)
 ```
 
+```{r, eval = F, include = F}
+range_dist <- c()
+pb = txtProgressBar(min = 0, max = nrow(peaks_chr2), initial = 0) 
+
+for (i in 1:nrow(peaks_chr2)){
+ # i <- 1
+  setTxtProgressBar(pb,i)
+  start_pos <- peaks_chr2$start[i]
+  end_pos <- peaks_chr2$end[i]
+  dist_vec <- pmin( abs(snp_chr2$pos - start_pos), abs(snp_chr2$pos - end_pos) )
+  range_dist <- c(range_dist, dist_vec)
+  range_dist <- range(range_dist)
+}
+
+formatC(range_dist, format = "e", digits = 2)
+```
+
 We have pre-calculated the p-values for these hypotheses beforehand, we are going to load now.
 
 ```{r loading_pvalues}
