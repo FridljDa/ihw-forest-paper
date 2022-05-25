@@ -280,6 +280,13 @@ result[,c(2,3,1)]
 
 So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
 
+```{r, eval = T, include=T}
+# Plain latex output 
+knitr::kable(result[,c(2,3,1)], "latex")
+  #knitr::kbl(caption = "Example", # Adding caption  
+  #      format = "latex") #%>% # Output format = latex 
+   # knitr::kable_classic(html_font = "Cambria") # Font = Cambria 
+```
 # Session Info Details
 ```{r, echo=FALSE, eval=TRUE}
 sessionInfo()

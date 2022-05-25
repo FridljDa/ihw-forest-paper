@@ -11,7 +11,7 @@
 
 <meta name="author" content="Danie Fridljand" />
 
-<meta name="date" content="2022-05-18" />
+<meta name="date" content="2022-05-23" />
 
 <title>hQTL analysis with IHW-Benjamini-Yekutieli</title>
 
@@ -172,7 +172,7 @@ function toggle_visibility(id1) {
 
 <h1 class="title toc-ignore">hQTL analysis with IHW-Benjamini-Yekutieli</h1>
 <p class="author-name">Danie Fridljand</p>
-<h4 class="date">18 May 2022</h4>
+<h4 class="date">23 May 2022</h4>
 
 </div>
 
@@ -354,21 +354,21 @@ formulas_mt &lt;- sapply(formulas_mt, as.formula)
 formulas_mt</code></pre>
 <pre><code>## $`pvalue ~ dist`
 ## pvalue ~ dist
-## &lt;environment: 0x13c87200&gt;
+## &lt;environment: 0x1330d1a8&gt;
 ## 
 ## $`pvalue ~ minor_allele_freq`
 ## pvalue ~ minor_allele_freq
-## &lt;environment: 0x13c87200&gt;
+## &lt;environment: 0x1330d1a8&gt;
 ## 
 ## $`pvalue ~ dist + minor_allele_freq`
 ## pvalue ~ dist + minor_allele_freq
-## &lt;environment: 0x13c87200&gt;
+## &lt;environment: 0x1330d1a8&gt;
 ## 
 ## $`pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI`
 ## pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + 
 ##     H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + 
 ##     kH3k4me1_3 + DNaseI
-## &lt;environment: 0x13c87200&gt;</code></pre>
+## &lt;environment: 0x1330d1a8&gt;</code></pre>
 <p>Now let us run IHW with the <code>&quot;quantile&quot;</code> stratification method using different subsets of the available covariates:</p>
 <pre class="r"><code>error_handler &lt;- function(x) {
   if (inherits(x, &quot;try-error&quot;)){
@@ -417,6 +417,11 @@ result[,c(2,3,1)]</code></pre>
 ## 3                                                                                                                         pvalue ~ dist + minor_allele_freq
 ## 4 pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI</code></pre>
 <p>So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.</p>
+<pre class="r"><code># Plain latex output 
+knitr::kable(result[,c(2,3,1)], &quot;latex&quot;)</code></pre>
+<pre class="r"><code>  #knitr::kbl(caption = &quot;Example&quot;, # Adding caption  
+  #      format = &quot;latex&quot;) #%&gt;% # Output format = latex 
+   # knitr::kable_classic(html_font = &quot;Cambria&quot;) # Font = Cambria </code></pre>
 </div>
 </div>
 <div id="session-info-details" class="section level1" number="4">
