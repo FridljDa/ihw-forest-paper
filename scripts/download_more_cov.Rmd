@@ -12,6 +12,14 @@ library(dplyr)
 Loading SNP data.
 ```{r}
 root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
+
+chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
+chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
+
+all_peaks <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/peak_locations.Rds"))
+peaks_chr1 <- dplyr::filter(all_peaks, chr == "chr1") %>% dplyr::select(id, start, end)
+peaks_chr2 <- dplyr::filter(all_peaks, chr == "chr2") %>% dplyr::select(id, start, end)
+
 snp_chr1 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr1.Rds")) %>% dplyr::select(snp, chrsnp, pos)
 snp_chr2 <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/snppos_chr2.Rds")) %>% dplyr::select(snp, chrsnp, pos)
 head(snp_chr1)
@@ -20,8 +28,10 @@ I want to annotate the data frame with additional side information for each SNP.
 
 Get position range of the SNPs.
 ```{r}
-range(snp_chr1$pos)
-range(snp_chr2$pos)
+range_chr1 <- range(c(snp_chr1$pos, peaks_chr1$start, peaks_chr1$end))
+range_chr2 <- range(c(snp_chr2$pos, peaks_chr2$start, peaks_chr2$end))
+range_chr1
+range_chr2
 ```
 
 Set genomic range on chromosome 1 and 2 with some buffer.
@@ -57,7 +67,7 @@ track_table <- tribble(
   # Layered kH3k4me1
   "kH3k4me1_1","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneGm12878H3k4me1StdSig",
   "kH3k4me1_2","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneH1hescH3k4me1StdSig",
-  "kH3k4me1_3","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneHsmmH3k4me1StdSig",
+  "kH3k4me1_3","wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneHsmmH3k4me1StdSig"#,
 
   # UW CTCF Binding
   #"wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1",
@@ -67,14 +77,14 @@ track_table <- tribble(
   # = UW DNaseI HS = arbitrary track which contains "DNAse", many more would have been possible
   #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878HotspotsRep1",
   #"wgEncodeUwDnase", "wgEncodeUwDnaseGm12878PkRep1",
-  "DNaseI","wgEncodeUwDnase", "wgEncodeUwDnaseGm12878RawRep1"
+  #"DNaseI","wgEncodeUwDnase", "wgEncodeUwDnaseGm12878RawRep1"
 )
 saveRDS(track_table, file.path(root_dir, "data/downloaded_covariates/meta_track_table.Rds"))
 ```
 
 
 ```{r}
-snp_chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
+chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
 #snp_chr1_cov_list <- lapply(seq_len(2), function(i){
   print(paste("covariate", i, "on chr1:"))
   print("downloading")
@@ -85,39 +95,54 @@ snp_chr1_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
   ))
 
   print("downloaded")
-  print("joining")
-  snp_chr1_covi <- tidygenomics::genome_join_closest(snp_chr1 %>% mutate(chr = chrsnp, start = pos, end = pos),
+  
+  print("saving")
+  saveRDS(chr1_covi, file.path(root_dir, paste0("data/downloaded_covariates/more_cov_sep_raw/chr1_cov",i,".Rds")))
+  print("saved")
+  
+  chr1_covi
+})
+```
+
+```{r}
+chr1_df <- left_join(chr1_df, snp_chr1, by=(c("SNP"="snp"))) %>%
+       left_join(peaks_chr1, by=(c("gene"="id")))
+
+snp_peak_chr1_cov <- lapply(seq_len(nrow(track_table)), function(i){
+  variable_name <- track_table$name[i]
+  chr1_covi <- readRDS(file.path(root_dir, paste0("data/downloaded_covariates/more_cov_sep_raw/chr1_cov",i,".Rds")))
+  
+  snp_chr1_covi <- tidygenomics::genome_join_closest(chr1_df %>% mutate(chr = chrsnp, start = pos, end = pos),
                                    chr1_covi %>% mutate(chr = "chr1"),
                                    by=c("chr", "start", "end"), 
                                    distance_column_name="distance",
                                    mode="left",
                                    select = "arbitrary")
   
-  snp_chr1_covi <- snp_chr1_covi %>% dplyr::select(snp, value, cov_start = start.y, cov_end = end.y, distance)
-  print("joined")
+  peak_chr1_covi <- tidygenomics::genome_join_closest(chr1_df %>% mutate(chr = chrsnp),
+                                   chr1_covi %>% mutate(chr = "chr1"),
+                                   by=c("chr", "start", "end"), 
+                                   distance_column_name="distance",
+                                   mode="left",
+                                   select = "arbitrary")
   
-  print("saving")
-  saveRDS(snp_chr1_covi, file.path(root_dir, paste0("data/downloaded_covariates/more_cov_sep/snp_chr1_cov",i,".Rds")))
-  print("saved")
-  
-  snp_chr1_covi
+
+    
+    snp_peak_chr1_covi <- data.frame(snp_chr1_covi$value, peak_chr1_covi$value)
+    names(snp_peak_chr1_covi) <- paste0(variable_name, c("_snp","_peak"))
+    snp_peak_chr1_covi
 })
 ```
-save as single data frame
-```{r}
-snp_chr1_cov_df <- lapply(seq_along(snp_chr1_cov_list), function(i){
-  variable_name <- track_table$name[i]
-  snp_chr1_cov_list[[i]] %>% 
-    dplyr::transmute(!!variable_name := value) 
-})
 
-snp_chr1_cov_df <- do.call(cbind.data.frame, snp_chr1_cov_df)
-snp_chr1_cov_df$snp <- snp_chr1$snp
-saveRDS(snp_chr1_cov_df, file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
+save as single dataframe
+```{r}
+snp_peak_chr1_cov <- do.call(cbind.data.frame, snp_peak_chr1_cov)
+snp_peak_chr1_cov <- cbind(SNP = chr1_df$SNP, gene = chr1_df$gene, snp_peak_chr1_cov)
+saveRDS(snp_peak_chr1_cov, file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
 ```
 
 ```{r}
-snp_chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
+chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
 #snp_chr2_cov_list <- lapply(seq_len(2), function(i){
   print(paste("covariate", i, "on chr2:"))
   print("downloading")
@@ -128,36 +153,48 @@ snp_chr2_cov_list <- lapply(seq_len(nrow(track_table)), function(i) {
   ))
 
   print("downloaded")
-  print("joining")
-  snp_chr2_covi <- tidygenomics::genome_join_closest(snp_chr2 %>% mutate(chr = chrsnp, start = pos, end = pos),
+  
+  print("saving")
+  saveRDS(chr2_covi, file.path(root_dir, paste0("data/downloaded_covariates/more_cov_sep_raw/chr2_cov",i,".Rds")))
+  print("saved")
+  
+  chr2_covi
+})
+```
+
+```{r}
+chr2_df <- left_join(chr2_df, snp_chr2, by=(c("SNP"="snp"))) %>%
+       left_join(peaks_chr2, by=(c("gene"="id")))
+
+snp_peak_chr2_cov <- lapply(seq_len(nrow(track_table)), function(i){
+  variable_name <- track_table$name[i]
+  chr2_covi <- readRDS(file.path(root_dir, paste0("data/downloaded_covariates/more_cov_sep_raw/chr2_cov",i,".Rds")))
+  
+  snp_chr2_covi <- tidygenomics::genome_join_closest(chr2_df %>% mutate(chr = chrsnp, start = pos, end = pos),
                                    chr2_covi %>% mutate(chr = "chr2"),
                                    by=c("chr", "start", "end"), 
                                    distance_column_name="distance",
                                    mode="left",
                                    select = "arbitrary")
   
-  snp_chr2_covi <- snp_chr2_covi %>% dplyr::select(snp, value, cov_start = start.y, cov_end = end.y, distance)
-  print("joined")
-  
-  print("saving")
-  saveRDS(snp_chr2_covi, file.path(root_dir, paste0("data/downloaded_covariates//more_cov_sep/snp_chr2_cov",i,".Rds")))
-  print("saved")
-  
-  snp_chr2_covi
+  peak_chr2_covi <- tidygenomics::genome_join_closest(chr2_df %>% mutate(chr = chrsnp),
+                                   chr2_covi %>% mutate(chr = "chr2"),
+                                   by=c("chr", "start", "end"), 
+                                   distance_column_name="distance",
+                                   mode="left",
+                                   select = "arbitrary")
+    
+    snp_peak_chr2_covi <- data.frame(snp_chr2_covi$value, peak_chr2_covi$value)
+    names(snp_peak_chr2_covi) <- paste0(variable_name, c("_snp","_peak"))
+    snp_peak_chr2_covi
 })
 ```
 
-save as single data frame
+save as single dataframe
 ```{r}
-snp_chr2_cov_df <- lapply(seq_along(snp_chr2_cov_list), function(i){
-  variable_name <- track_table$name[i]
-  snp_chr2_cov_list[[i]] %>% 
-    dplyr::transmute(!!variable_name := value) 
-})
-
-snp_chr2_cov_df <- do.call(cbind.data.frame, snp_chr2_cov_df)
-snp_chr2_cov_df$snp <- snp_chr2$snp
-saveRDS(snp_chr2_cov_df, file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
+snp_peak_chr2_cov <- do.call(cbind.data.frame, snp_peak_chr2_cov)
+snp_peak_chr2_cov <- cbind(SNP = chr2_df$SNP, gene = chr2_df$gene, snp_peak_chr2_cov)
+saveRDS(snp_peak_chr2_cov, file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
 ```
 
 the chosen tracks do not quite have the genomic ranges I would like, even though I specified them. Could I solve this by choosing a different track/table, is there I biological reason for data, or is it simply a problem of availability? Is there any smarter way of picking a table? Looping over all tables seems cumbersome.

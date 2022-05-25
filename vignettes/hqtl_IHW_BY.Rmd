@@ -113,11 +113,11 @@ We calculate the genomic distance between peaks and SNPs for all hypotheses. As 
 ```{r}
 chr1_df <- left_join(chr1_df, snp_chr1, by=(c("SNP"="snp"))) %>%
        left_join(peaks_chr1, by=(c("gene"="id"))) %>%
-       transmute(SNP, pvalue, dist = pmin(abs(pos-start), abs(pos-end)))
+       transmute(SNP, gene, pvalue, dist = pmin(abs(pos-start), abs(pos-end)))
 
 chr2_df <- left_join(chr2_df, snp_chr2, by=(c("SNP"="snp"))) %>%
        left_join(peaks_chr2, by=(c("gene"="id"))) %>%
-       transmute(SNP, pvalue, dist = pmin( abs(pos-start), abs(pos-end)))
+       transmute(SNP, gene, pvalue, dist = pmin( abs(pos-start), abs(pos-end)))
 ```
 
 ## Minor Allele Frequency
@@ -160,9 +160,9 @@ We mapped the the information to the covariate by taking the closest genomic reg
 chr1_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr1_cov_df.Rds"))
 chr2_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
 
-names_more_cov <- setdiff(names(chr1_more_cov), "snp")
-chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP" = "snp")) 
-chr2_df <- chr2_df %>% left_join(chr2_more_cov, by = c("SNP" = "snp"))
+names_more_cov <- setdiff(names(chr1_more_cov), c("SNP", "gene"))
+chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP", "gene")) 
+chr2_df <- chr2_df %>% left_join(chr2_more_cov, by = c("SNP", "gene"))
 ```
 
 ## Checks
@@ -203,7 +203,9 @@ run_write_ihw <- FALSE
 formulas_mt <- c("dist",
   "minor_allele_freq",
   "dist + minor_allele_freq",
-  paste(c("dist","minor_allele_freq", names_more_cov), collapse = " + "))
+  paste(c("dist","minor_allele_freq", names_more_cov), collapse = " + "),
+  paste(c("dist","minor_allele_freq", names_more_cov[endsWith(names_more_cov, 'snp')]), collapse = " + "))
+
 formulas_mt <- paste0("pvalue ~ ", formulas_mt)
 formulas_mt <- sapply(formulas_mt, as.formula)
 formulas_mt

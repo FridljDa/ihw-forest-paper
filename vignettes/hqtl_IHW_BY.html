@@ -11,7 +11,7 @@
 
 <meta name="author" content="Danie Fridljand" />
 
-<meta name="date" content="2022-05-23" />
+<meta name="date" content="2022-05-25" />
 
 <title>hQTL analysis with IHW-Benjamini-Yekutieli</title>
 
@@ -172,7 +172,7 @@ function toggle_visibility(id1) {
 
 <h1 class="title toc-ignore">hQTL analysis with IHW-Benjamini-Yekutieli</h1>
 <p class="author-name">Danie Fridljand</p>
-<h4 class="date">23 May 2022</h4>
+<h4 class="date">25 May 2022</h4>
 
 </div>
 
@@ -269,11 +269,11 @@ chr2_df &lt;- chr2_df %&gt;% mutate(pvalue = pvalue / pval_threshold)</code></pr
 <p>We calculate the genomic distance between peaks and SNPs for all hypotheses. As <a href="http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html">in the original analysis</a>, they are going to serve as main covariates for the multiple testing procedure.</p>
 <pre class="r"><code>chr1_df &lt;- left_join(chr1_df, snp_chr1, by=(c(&quot;SNP&quot;=&quot;snp&quot;))) %&gt;%
        left_join(peaks_chr1, by=(c(&quot;gene&quot;=&quot;id&quot;))) %&gt;%
-       transmute(SNP, pvalue, dist = pmin(abs(pos-start), abs(pos-end)))
+       transmute(SNP, gene, pvalue, dist = pmin(abs(pos-start), abs(pos-end)))
 
 chr2_df &lt;- left_join(chr2_df, snp_chr2, by=(c(&quot;SNP&quot;=&quot;snp&quot;))) %&gt;%
        left_join(peaks_chr2, by=(c(&quot;gene&quot;=&quot;id&quot;))) %&gt;%
-       transmute(SNP, pvalue, dist = pmin( abs(pos-start), abs(pos-end)))</code></pre>
+       transmute(SNP, gene, pvalue, dist = pmin( abs(pos-start), abs(pos-end)))</code></pre>
 </div>
 <div id="minor-allele-frequency" class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> Minor Allele Frequency</h2>
@@ -300,26 +300,25 @@ chr2_df &lt;- chr2_df %&gt;% mutate(minor_allele_freq = replace_na(minor_allele_
 <p>Additionally, we source some covariates from the genome browser. For more information on each covariate, please lookup the corresponding track and table on <code>rtracklayer::trackNames</code> or on
 <a href="http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&amp;db=hg19" class="uri">http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&amp;db=hg19</a>.</p>
 <pre class="r"><code>readRDS(file.path(root_dir, &quot;data/downloaded_covariates/meta_track_table.Rds&quot;))</code></pre>
-<pre><code>## # A tibble: 10 × 3
-##    name       track                  table                                   
-##    &lt;chr&gt;      &lt;chr&gt;                  &lt;chr&gt;                                   
-##  1 H3K27Ac_1  wgEncodeRegMarkH3k27ac wgEncodeBroadHistoneGm12878H3k27acStdSig
-##  2 H3K27Ac_2  wgEncodeRegMarkH3k27ac wgEncodeBroadHistoneH1hescH3k27acStdSig 
-##  3 H3K27Ac_3  wgEncodeRegMarkH3k27ac wgEncodeBroadHistoneHsmmH3k27acStdSig   
-##  4 H3K4me3_1  wgEncodeRegMarkH3k4me3 wgEncodeBroadHistoneGm12878H3k4me3StdSig
-##  5 H3K4me3_2  wgEncodeRegMarkH3k4me3 wgEncodeBroadHistoneH1hescH3k4me3StdSig 
-##  6 H3K4me3_3  wgEncodeRegMarkH3k4me3 wgEncodeBroadHistoneHsmmH3k4me3StdSig   
-##  7 kH3k4me1_1 wgEncodeRegMarkH3k4me1 wgEncodeBroadHistoneGm12878H3k4me1StdSig
-##  8 kH3k4me1_2 wgEncodeRegMarkH3k4me1 wgEncodeBroadHistoneH1hescH3k4me1StdSig 
-##  9 kH3k4me1_3 wgEncodeRegMarkH3k4me1 wgEncodeBroadHistoneHsmmH3k4me1StdSig   
-## 10 DNaseI     wgEncodeUwDnase        wgEncodeUwDnaseGm12878RawRep1</code></pre>
+<pre><code>## # A tibble: 9 × 3
+##   name       track                  table                                   
+##   &lt;chr&gt;      &lt;chr&gt;                  &lt;chr&gt;                                   
+## 1 H3K27Ac_1  wgEncodeRegMarkH3k27ac wgEncodeBroadHistoneGm12878H3k27acStdSig
+## 2 H3K27Ac_2  wgEncodeRegMarkH3k27ac wgEncodeBroadHistoneH1hescH3k27acStdSig 
+## 3 H3K27Ac_3  wgEncodeRegMarkH3k27ac wgEncodeBroadHistoneHsmmH3k27acStdSig   
+## 4 H3K4me3_1  wgEncodeRegMarkH3k4me3 wgEncodeBroadHistoneGm12878H3k4me3StdSig
+## 5 H3K4me3_2  wgEncodeRegMarkH3k4me3 wgEncodeBroadHistoneH1hescH3k4me3StdSig 
+## 6 H3K4me3_3  wgEncodeRegMarkH3k4me3 wgEncodeBroadHistoneHsmmH3k4me3StdSig   
+## 7 kH3k4me1_1 wgEncodeRegMarkH3k4me1 wgEncodeBroadHistoneGm12878H3k4me1StdSig
+## 8 kH3k4me1_2 wgEncodeRegMarkH3k4me1 wgEncodeBroadHistoneH1hescH3k4me1StdSig 
+## 9 kH3k4me1_3 wgEncodeRegMarkH3k4me1 wgEncodeBroadHistoneHsmmH3k4me1StdSig</code></pre>
 <p>We mapped the the information to the covariate by taking the closest genomic region.</p>
 <pre class="r"><code>chr1_more_cov &lt;- readRDS(file.path(root_dir, &quot;data/downloaded_covariates/snp_chr1_cov_df.Rds&quot;))
 chr2_more_cov &lt;- readRDS(file.path(root_dir, &quot;data/downloaded_covariates/snp_chr2_cov_df.Rds&quot;))
 
-names_more_cov &lt;- setdiff(names(chr1_more_cov), &quot;snp&quot;)
-chr1_df &lt;- chr1_df %&gt;% left_join(chr1_more_cov, by = c(&quot;SNP&quot; = &quot;snp&quot;)) 
-chr2_df &lt;- chr2_df %&gt;% left_join(chr2_more_cov, by = c(&quot;SNP&quot; = &quot;snp&quot;))</code></pre>
+names_more_cov &lt;- setdiff(names(chr1_more_cov), c(&quot;SNP&quot;, &quot;gene&quot;))
+chr1_df &lt;- chr1_df %&gt;% left_join(chr1_more_cov, by = c(&quot;SNP&quot;, &quot;gene&quot;)) 
+chr2_df &lt;- chr2_df %&gt;% left_join(chr2_more_cov, by = c(&quot;SNP&quot;, &quot;gene&quot;))</code></pre>
 </div>
 <div id="checks" class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Checks</h2>
@@ -348,27 +347,37 @@ alpha &lt;- .01 / (log(m) + 1)</code></pre>
 <pre class="r"><code>formulas_mt &lt;- c(&quot;dist&quot;,
   &quot;minor_allele_freq&quot;,
   &quot;dist + minor_allele_freq&quot;,
-  paste(c(&quot;dist&quot;,&quot;minor_allele_freq&quot;, names_more_cov), collapse = &quot; + &quot;))
+  paste(c(&quot;dist&quot;,&quot;minor_allele_freq&quot;, names_more_cov), collapse = &quot; + &quot;),
+  paste(c(&quot;dist&quot;,&quot;minor_allele_freq&quot;, names_more_cov[endsWith(names_more_cov, &#39;snp&#39;)]), collapse = &quot; + &quot;))
+
 formulas_mt &lt;- paste0(&quot;pvalue ~ &quot;, formulas_mt)
 formulas_mt &lt;- sapply(formulas_mt, as.formula)
 formulas_mt</code></pre>
 <pre><code>## $`pvalue ~ dist`
 ## pvalue ~ dist
-## &lt;environment: 0x1330d1a8&gt;
+## &lt;environment: 0x15064c78&gt;
 ## 
 ## $`pvalue ~ minor_allele_freq`
 ## pvalue ~ minor_allele_freq
-## &lt;environment: 0x1330d1a8&gt;
+## &lt;environment: 0x15064c78&gt;
 ## 
 ## $`pvalue ~ dist + minor_allele_freq`
 ## pvalue ~ dist + minor_allele_freq
-## &lt;environment: 0x1330d1a8&gt;
+## &lt;environment: 0x15064c78&gt;
 ## 
-## $`pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI`
-## pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + 
-##     H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + 
-##     kH3k4me1_3 + DNaseI
-## &lt;environment: 0x1330d1a8&gt;</code></pre>
+## $...
+## pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_1_peak + 
+##     H3K27Ac_2_snp + H3K27Ac_2_peak + H3K27Ac_3_snp + H3K27Ac_3_peak + 
+##     H3K4me3_1_snp + H3K4me3_1_peak + H3K4me3_2_snp + H3K4me3_2_peak + 
+##     H3K4me3_3_snp + H3K4me3_3_peak + kH3k4me1_1_snp + kH3k4me1_1_peak + 
+##     kH3k4me1_2_snp + kH3k4me1_2_peak + kH3k4me1_3_snp + kH3k4me1_3_peak
+## &lt;environment: 0x15064c78&gt;
+## 
+## $`pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_2_snp + H3K27Ac_3_snp + H3K4me3_1_snp + H3K4me3_2_snp + H3K4me3_3_snp + kH3k4me1_1_snp + kH3k4me1_2_snp + kH3k4me1_3_snp`
+## pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_2_snp + 
+##     H3K27Ac_3_snp + H3K4me3_1_snp + H3K4me3_2_snp + H3K4me3_3_snp + 
+##     kH3k4me1_1_snp + kH3k4me1_2_snp + kH3k4me1_3_snp
+## &lt;environment: 0x15064c78&gt;</code></pre>
 <p>Now let us run IHW with the <code>&quot;quantile&quot;</code> stratification method using different subsets of the available covariates:</p>
 <pre class="r"><code>error_handler &lt;- function(x) {
   if (inherits(x, &quot;try-error&quot;)){
@@ -410,12 +419,14 @@ result[,c(2,3,1)]</code></pre>
 ## 1        12379      12903
 ## 2         8781       9048
 ## 3         9861      13249
-## 4           NA      13149
-##                                                                                                                                                     formula
-## 1                                                                                                                                             pvalue ~ dist
-## 2                                                                                                                                pvalue ~ minor_allele_freq
-## 3                                                                                                                         pvalue ~ dist + minor_allele_freq
-## 4 pvalue ~ dist + minor_allele_freq + H3K27Ac_1 + H3K27Ac_2 + H3K27Ac_3 + H3K4me3_1 + H3K4me3_2 + H3K4me3_3 + kH3k4me1_1 + kH3k4me1_2 + kH3k4me1_3 + DNaseI</code></pre>
+## 4           NA      13051
+## 5           NA      12965
+##                                                                                                                                                                                                                                                                                                                                            formula
+## 1                                                                                                                                                                                                                                                                                                                                    pvalue ~ dist
+## 2                                                                                                                                                                                                                                                                                                                       pvalue ~ minor_allele_freq
+## 3                                                                                                                                                                                                                                                                                                                pvalue ~ dist + minor_allele_freq
+## 4 pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_1_peak + H3K27Ac_2_snp + H3K27Ac_2_peak + H3K27Ac_3_snp + H3K27Ac_3_peak + H3K4me3_1_snp + H3K4me3_1_peak + H3K4me3_2_snp + H3K4me3_2_peak + H3K4me3_3_snp + H3K4me3_3_peak + kH3k4me1_1_snp + kH3k4me1_1_peak + kH3k4me1_2_snp + kH3k4me1_2_peak + kH3k4me1_3_snp + kH3k4me1_3_peak
+## 5                                                                                                                                                             pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_2_snp + H3K27Ac_3_snp + H3K4me3_1_snp + H3K4me3_2_snp + H3K4me3_3_snp + kH3k4me1_1_snp + kH3k4me1_2_snp + kH3k4me1_3_snp</code></pre>
 <p>So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.</p>
 <pre class="r"><code># Plain latex output 
 knitr::kable(result[,c(2,3,1)], &quot;latex&quot;)</code></pre>

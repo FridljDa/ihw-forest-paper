@@ -8,6 +8,7 @@ session.RData
 */Icon
 
 data/downloaded_covariates/more_cov_sep
+data/downloaded_covariates/more_cov_sep_raw
 
 precomputed_results/ihw_forest.Rds
 precomputed_results/ihw_quantile.Rds
