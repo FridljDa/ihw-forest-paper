@@ -108,6 +108,7 @@ noise_sim_res_FDR <- ggplot(noise_sim_res, aes(x = dimension, y = FDR, shape = m
     nrow=2
   ) +
   scale_x_continuous(breaks = scales::pretty_breaks())
+
 #+ xlab(expression(bar(beta)))
 #+ #scale_y_log10(breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4))
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))# fill=guide_legend(nrow=2,byrow=TRUE)
@@ -189,7 +190,7 @@ small_region_sim_res_FDR <- ggplot(small_region_sim_res, aes(x = length, y = FDR
     shape = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
     nrow=2
   ) +
-  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
   scale_y_log10()
 #+ xlab(expression(bar(beta)))
 #+ #scale_y_log10(breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4))
@@ -208,7 +209,7 @@ small_region_sim_res_power <- ggplot(small_region_sim_res, aes(x = length, y = P
     color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
     shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
   ) +
-  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
   scale_y_log10()
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
