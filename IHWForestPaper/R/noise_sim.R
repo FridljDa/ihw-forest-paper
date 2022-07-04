@@ -4,7 +4,7 @@ library(parallel)
 
 ## ------Simulation------
 prop_alt <- function(cov_row) {
-  r <- sum(cov_row^2)
+  #r <- sum(cov_row^2)
   # exp(-5*r)
   # 1 / (1 + exp(-cov1))
   # 1 / (1 + exp(-1 * (3 * cov_row[1]+cov_row[2] - 5)))
@@ -61,7 +61,6 @@ noise_sim <- function(m, r, dimensions){
 #' @export
 eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1){
   sim <- noise_sim(m, r, dimensions)
-  
   n.cores <- parallel::detectCores()
   doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   

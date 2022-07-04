@@ -4,7 +4,7 @@ library(parallel)
 
 ## ------Simulation------
 prop_alt2 <- function(cov_row) {
-  r <- sum(cov_row^2)
+  #r <- sum(cov_row^2)
   # exp(-5*r)
   # 1 / (1 + exp(-cov1))
   # 1 / (1 + exp(-1 * (3 * cov_row[1]+cov_row[2] - 5)))

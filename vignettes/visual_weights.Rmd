@@ -7,9 +7,9 @@ output: html_document
 Loading packages.
 ```{r setup, message = F}
 library(magrittr)
-library(dplyr)
 library(ggplot2)
 library(IHW)
+library(dplyr)
 knitr::opts_chunk$set(echo = TRUE)
 set.seed(1234)
 theme_set(theme_bw())
@@ -90,7 +90,7 @@ nbins <- 9
 
 Quantile slicing:
 ```{r, eval = T}
-covariate_train <- as.matrix(select(data_train, starts_with("cov")))
+covariate_train <- as.matrix(dplyr::select(data_train, starts_with("cov")))
 
 set.seed(0)
 ihw_quantile <- ihw(data_train$pvalue, covariate_train, alpha = 0.1, nbins = nbins)
