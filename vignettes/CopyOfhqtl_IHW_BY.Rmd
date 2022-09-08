@@ -14,20 +14,42 @@ vignette: >
 
 ```{r warning=FALSE, message=FALSE}
 library(IHW)
+library(doRNG)
+library(doParallel)
+library(parallel)
 library(fdrtool)
 library(ggplot2)
 library(cowplot)
 theme_set(theme_cowplot())
 library(tidyr)
 library(scales)
-library(latex2exp)
+#library(latex2exp)
 library(dplyr)
-require(biomaRt)
+#require(biomaRt)
 set.seed(1)
 ```
 
+```{r}
+error_handler <- function(x) { # TODO
+  if (inherits(x, "try-error")) {
+    x <- NA
+  }
+  x
+}
+```
+
+```{r}
+rejections_na <- function(ihw) { # TODO
+  if (is.na(ihw)) {
+    return(NA)
+  } else {
+    rejections(ihw)
+  }
+}
+```
+
 ```{r setup, include=FALSE, cache = FALSE}
-knitr::opts_knit$set(root_dir = "/g/huber/users/fridljand/R/ihw-forest-paper/")
+knitr::opts_knit$set(root_dir = "/g/huber/users/fridljand/R/ihw-forest-paper/") # TODO
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -63,14 +85,14 @@ head(peaks_chr1)
 
 ```{r, eval = F, include = F}
 range_dist <- c()
-pb = txtProgressBar(min = 0, max = nrow(peaks_chr2), initial = 0) 
+pb <- txtProgressBar(min = 0, max = nrow(peaks_chr2), initial = 0)
 
-for (i in 1:nrow(peaks_chr2)){
- # i <- 1
-  setTxtProgressBar(pb,i)
+for (i in 1:nrow(peaks_chr2)) {
+  # i <- 1
+  setTxtProgressBar(pb, i)
   start_pos <- peaks_chr2$start[i]
   end_pos <- peaks_chr2$end[i]
-  dist_vec <- pmin( abs(snp_chr2$pos - start_pos), abs(snp_chr2$pos - end_pos) )
+  dist_vec <- pmin(abs(snp_chr2$pos - start_pos), abs(snp_chr2$pos - end_pos))
   range_dist <- c(range_dist, dist_vec)
   range_dist <- range(range_dist)
 }
@@ -111,13 +133,13 @@ The IHW multiple testing procedure can incorporate additional side information t
 We calculate the genomic distance between peaks and SNPs for all hypotheses. As [in the original analysis](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), they are going to serve as main covariates for the multiple testing procedure.
 
 ```{r}
-chr1_df <- left_join(chr1_df, snp_chr1, by=(c("SNP"="snp"))) %>%
-       left_join(peaks_chr1, by=(c("gene"="id"))) %>%
-       transmute(SNP, gene, pvalue, dist = pmin(abs(pos-start), abs(pos-end)))
+chr1_df <- left_join(chr1_df, snp_chr1, by = (c("SNP" = "snp"))) %>%
+  left_join(peaks_chr1, by = (c("gene" = "id"))) %>%
+  transmute(SNP, gene, pvalue, dist = pmin(abs(pos - start), abs(pos - end)))
 
-chr2_df <- left_join(chr2_df, snp_chr2, by=(c("SNP"="snp"))) %>%
-       left_join(peaks_chr2, by=(c("gene"="id"))) %>%
-       transmute(SNP, gene, pvalue, dist = pmin( abs(pos-start), abs(pos-end)))
+chr2_df <- left_join(chr2_df, snp_chr2, by = (c("SNP" = "snp"))) %>%
+  left_join(peaks_chr2, by = (c("gene" = "id"))) %>%
+  transmute(SNP, gene, pvalue, dist = pmin(abs(pos - start), abs(pos - end)))
 ```
 
 ## Minor Allele Frequency
@@ -129,17 +151,17 @@ chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_
 
 We annotate the hypotheses with the MAF data.
 ```{r}
-chr1_df <- chr1_df %>% left_join(chr1_maf, by = c("SNP" = "refsnp_id")) 
+chr1_df <- chr1_df %>% left_join(chr1_maf, by = c("SNP" = "refsnp_id"))
 chr2_df <- chr2_df %>% left_join(chr2_maf, by = c("SNP" = "refsnp_id"))
 ```
 
 Many MAFs are not available on `Biomart`. 
 ```{r}
-chr1_maf_missing <- sum(is.na(chr1_df$minor_allele_freq))/nrow(chr1_maf)
-chr2_maf_missing <- sum(is.na(chr2_df$minor_allele_freq))/nrow(chr2_maf)
+chr1_maf_missing <- sum(is.na(chr1_df$minor_allele_freq)) / nrow(chr1_maf)
+chr2_maf_missing <- sum(is.na(chr2_df$minor_allele_freq)) / nrow(chr2_maf)
 
-paste0(round(100* chr1_maf_missing, 2), "%")
-paste0(round(100* chr2_maf_missing, 2), "%")
+paste0(round(100 * chr1_maf_missing, 2), "%")
+paste0(round(100 * chr2_maf_missing, 2), "%")
 ```
 
 For IHW, missing covariates are not allowed. So we conservatively replace all `NA`s with 0. 
@@ -161,7 +183,7 @@ chr1_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr
 chr2_more_cov <- readRDS(file.path(root_dir, "data/downloaded_covariates/snp_chr2_cov_df.Rds"))
 
 names_more_cov <- setdiff(names(chr1_more_cov), c("SNP", "gene"))
-chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP", "gene")) 
+chr1_df <- chr1_df %>% left_join(chr1_more_cov, by = c("SNP", "gene"))
 chr2_df <- chr2_df %>% left_join(chr2_more_cov, by = c("SNP", "gene"))
 ```
 
@@ -181,8 +203,8 @@ rm(snp_chr1, peaks_chr1, snp_chr2, peaks_chr2)
 rm(chr1_maf, chr2_maf)
 rm(chr1_more_cov, chr2_more_cov)
 
-chr1_chr2_df <- chr1_chr2_df %>% 
-  dplyr::select(-one_of(c("SNP"))) 
+chr1_chr2_df <- chr1_chr2_df %>%
+  dplyr::select(-one_of(c("SNP")))
 ```
 
 # Apply IHW-BY and BY
@@ -195,16 +217,18 @@ alpha <- .01 / (log(m) + 1)
 ```
 
 ```{r, include=FALSE}
-#we do not actually want to calculate all the time
+# we do not actually want to calculate all the time
 run_write_ihw <- FALSE
 ```
 
 ```{r}
-formulas_mt <- c("dist",
+formulas_mt <- c(
+  "dist",
   "minor_allele_freq",
   "dist + minor_allele_freq",
-  paste(c("dist","minor_allele_freq", names_more_cov), collapse = " + "),
-  paste(c("dist","minor_allele_freq", names_more_cov[endsWith(names_more_cov, 'snp')]), collapse = " + "))
+  paste(c("dist", "minor_allele_freq", names_more_cov), collapse = " + "),
+  paste(c("dist", "minor_allele_freq", names_more_cov[endsWith(names_more_cov, "snp")]), collapse = " + ")
+)
 
 formulas_mt <- paste0("pvalue ~ ", formulas_mt)
 formulas_mt <- sapply(formulas_mt, as.formula)
@@ -212,104 +236,153 @@ formulas_mt
 ```
 
 ```{r}
-alpha_levels <- seq(0.01,0.5, length.out = 4)/(log(m) + 1)
+alphas <- seq(0.01, 0.1, length.out = 4)
+alphas_by <- alphas / (log(m) + 1)
 ```
 
 ```{r}
-formulas_alpha_levels <- expand.grid(formulas_mt,
-                                 alpha_levels)
+formulas_alpha_levels <- expand.grid(
+  formulas = formulas_mt,
+  alphas = alphas,
+  alphas_by = alphas_by
+)
+formulas_alpha_levels <- formulas_alpha_levels[1:2, ] # TODO
 ```
 
 Now let us run IHW with the `"quantile"` stratification method using different subsets of the available covariates:
-```{r}
-error_handler <- function(x) {
-  if (inherits(x, "try-error")){
-    x <- NA
-  }
-  x
-}
-```
 
 
-```{r}
-ihw_quantile <- foreach(i=1:nrow(formulas_alpha_levels)) %dorng% {
-  print(paste0("simulation run:",i));
-  error_handler(try(ihw(as.formula(formulas_alpha_levels$formulas_mt[i]), 
-                        data = chr1_chr2_df, 
-                        alpha = formulas_alpha_levels$alpha_levels[i],
-                        folds = folds_vec)))
-}
-```
+```{r quantile_rej}
+# only rerun, if changes to global variables or code
+quantile_rej <- xfun::cache_rds(
+  {
+    # run for all alpha-formula combinations (in parallel)
+    quantile_rej <- foreach(i = 1:nrow(formulas_alpha_levels)) %dorng% {
+      print(paste0("simulation run:", i))
 
-```{r ihw_quantile_dist, include=TRUE, eval=run_write_ihw}
-ihw_quantile <- lapply(formulas_mt, function(formulas_mt_i){
-  error_handler(try(ihw(formulas_mt_i, data = chr1_chr2_df, alpha, folds = folds_vec)))
-})
-```
+      formula_i <- formulas_alpha_levels$formulas[[i]]
+      alpha_i <- formulas_alpha_levels$alphas[[i]]
+      alphas_by_i <- formulas_alpha_levels$alphas_by[[i]]
 
-```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_quantile, file = file.path(root_dir, "precomputed_results/ihw_quantile.Rds"))
-```
+      ihw_quantile_i <- error_handler(try(
+        ihw(
+          formula_i,
+          data = chr1_chr2_df,
+          alpha = alphas_by_i,
+          folds = folds_vec
+        )
+      ))
 
-```{r, include=FALSE, eval=TRUE}
-ihw_quantile <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_quantile.Rds"))
+      # evaluate number of rejections
+      data.frame(
+        method = "IHW-Quantile",
+        formula = format(formula_i),
+        alpha = alpha_i,
+        alphas_by = alphas_by_i,
+        rejections = rejections_na(ihw_quantile_i)
+      )
+    }
+    quantile_rej <- bind_rows(quantile_rej)
+  },
+  hash = list(formulas_alpha_levels, chr1_chr2_df)
+)
 ```
 
 Run IHW with the `"forest"` stratification method using different subsets of the available covariates:
-```{r ihw_forest_dist, eval = run_write_ihw, warning= FALSE}
-ihw_forest <- lapply(formulas_mt, function(formulas_mt_i){
-  ihw_forest_i <- ihw(formulas_mt_i, data = chr1_chr2_df, alpha, folds = folds_vec,
-                        stratification_method = "forest",
-  n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000)
-})
+```{r forest_rej}
+# only rerun, if changes to global variables or code
+forest_rej <- xfun::cache_rds(
+  {
+    # run for all alpha-formula combinations (in parallel)
+    forest_rej <- foreach(i = 1:nrow(formulas_alpha_levels)) %dorng% {
+      i<-1
+      print(paste0("simulation run:", i))
+
+      formula_i <- formulas_alpha_levels$formulas[[i]]
+      alpha_i <- formulas_alpha_levels$alphas[[i]]
+      alphas_by_i <- formulas_alpha_levels$alphas_by[[i]]
+
+      print(formula_i)
+      print(class(formula_i))
+      
+      ihw_forest_i <- error_handler(try(
+        ihw(
+          formula_i,
+          data = chr1_chr2_df,
+          alpha = alphas_by_i,
+          folds = folds_vec,
+          stratification_method = "forest",
+          n_censor_thres = 1, ntrees = 1, nodedepth = 6, nodesize = 5000 # TODO
+        )
+      ))
+      
+      # evaluate number of rejections
+      data.frame(
+        method = "IHW-Forest",
+        formula = format(formula_i),
+        alpha = alpha_i,
+        alphas_by = alphas_by_i,
+        rejections = rejections_na(ihw_forest_i)
+      )
+    }
+    forest_rej <- bind_rows(forest_rej)
+  },
+  hash = list(formulas_alpha_levels, chr1_chr2_df)
+)
 ```
 
-```{r, include=FALSE, eval=run_write_ihw}
-saveRDS(ihw_forest, file = file.path(root_dir, "precomputed_results/ihw_forest.Rds"))
-```
+Rejections of BY:
+```{r by_rej}
+    # run for all alpha-formula combinations (in parallel)
+    by_rejections <- foreach(i = seq_along(alphas)) %dorng% {
+      print(paste0("simulation run:", i))
 
-```{r, include=FALSE, eval=TRUE}
-ihw_forest <- readRDS(file = file.path(root_dir, "precomputed_results/ihw_forest.Rds"))
+      alpha_i <- alphas[[i]]
+      alphas_by_i <- alphas_by[[i]]
+      
+      #TODO BH or BY?
+      by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alphas_by_i)
+      # evaluate number of rejections
+      data.frame(
+        method = "BY",
+        formula = "pvalue ~ 1",
+        alpha = alpha_i,
+        alphas_by = alphas_by_i,
+        rejections = by_rejections_i
+      )
+    }
+by_rejections <- bind_rows(by_rejections)
 ```
 
 ## Evaluate number of rejections
-Rejections of BY:
 
-```{r}
-sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha)
-```
 In the [original analysis](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html), where we did not inflate the `pvalue` by the `p_value_threshold`, we had 9110 rejections with BY, so this is very similar.
 
 Rejections of IHW-BY using different stratification methods:
 
-```{r}
-rejections_na <- function(ihw){
-  if(is.na(ihw)){
-    return(NA)
-  }else{
-    rejections(ihw)
-  }
-}
+```{r, eval = FALSE}
+result <- bind_rows(by_rejections, quantile_rej)
+
+hqtl_rejections<- ggplot(result, aes(x = alpha, y = rejections, shape = interaction(method, formula), col = interaction(method, formula))) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("Target FDR")# +
+guides(colour = guide_legend(override.aes = list(shape = 15, size = 4, linetype = 0)),
+         shape = guide_legend(override.aes = list(size = 4)))
+  #guides(
+  #  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  #  shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
+  #) #+
+  #scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
+  #scale_y_log10()
+# breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
+# scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
+hqtl_rejections
 ```
 
-```{r}
-result <- data.frame(
-           quantile_rej = sapply(ihw_quantile, rejections_na),
-           forest_rej = sapply(ihw_forest, rejections_na)
-           )
-result <- tibble::rownames_to_column(result, "formula")
-result[,c(2,3,1)]
-```
+So we see that the number of discoveries has increased in most cases compared to BY. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
 
-So we see that the number of discoveries has increased in most cases compared to BH. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
-
-```{r, eval = T, include=T}
-# Plain latex output 
-knitr::kable(result[,c(2,3,1)], "latex")
-  #knitr::kbl(caption = "Example", # Adding caption  
-  #      format = "latex") #%>% # Output format = latex 
-   # knitr::kable_classic(html_font = "Cambria") # Font = Cambria 
-```
 # Session Info Details
 ```{r, echo=FALSE, eval=TRUE}
 sessionInfo()
