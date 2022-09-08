@@ -210,6 +210,16 @@ formulas_mt <- paste0("pvalue ~ ", formulas_mt)
 formulas_mt <- sapply(formulas_mt, as.formula)
 formulas_mt
 ```
+
+```{r}
+alpha_levels <- seq(0.01,0.5, length.out = 4)/(log(m) + 1)
+```
+
+```{r}
+formulas_alpha_levels <- expand.grid(formulas_mt,
+                                 alpha_levels)
+```
+
 Now let us run IHW with the `"quantile"` stratification method using different subsets of the available covariates:
 ```{r}
 error_handler <- function(x) {
@@ -217,6 +227,17 @@ error_handler <- function(x) {
     x <- NA
   }
   x
+}
+```
+
+
+```{r}
+ihw_quantile <- foreach(i=1:nrow(formulas_alpha_levels)) %dorng% {
+  print(paste0("simulation run:",i));
+  error_handler(try(ihw(as.formula(formulas_alpha_levels$formulas_mt[i]), 
+                        data = chr1_chr2_df, 
+                        alpha = formulas_alpha_levels$alpha_levels[i],
+                        folds = folds_vec)))
 }
 ```
 

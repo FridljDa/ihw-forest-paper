@@ -23,7 +23,6 @@ ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par) {
   IHW::rejected_hypotheses(ihw_forest)
 }
 
-
 # install.packages("devtools")
 # devtools::install_github("ryurko/adaptMT")
 ## adaptMT::adapt_xgboost,
