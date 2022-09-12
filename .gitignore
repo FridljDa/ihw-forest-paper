@@ -20,3 +20,5 @@ precomputed_results/ihw_quantile_maf.Rds
 precomputed_results/ihw_forest_dist_maf.Rds
 precomputed_results/ihw_forest_dist.Rds
 precomputed_results/ihw_forest_maf.Rds
+
+vigniettes/cache/

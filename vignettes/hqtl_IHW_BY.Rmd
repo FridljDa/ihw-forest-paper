@@ -23,9 +23,9 @@ library(cowplot)
 theme_set(theme_cowplot())
 library(tidyr)
 library(scales)
-#library(latex2exp)
+# library(latex2exp)
 library(dplyr)
-#require(biomaRt)
+# require(biomaRt)
 set.seed(1)
 ```
 
@@ -213,14 +213,9 @@ We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjam
 
 ```{r}
 m <- nrow(chr1_chr2_df)
-alpha <- .01 / (log(m) + 1)
 ```
 
-```{r, include=FALSE}
-# we do not actually want to calculate all the time
-run_write_ihw <- FALSE
-```
-
+Define formulas
 ```{r}
 formulas_mt <- c(
   "dist",
@@ -232,21 +227,32 @@ formulas_mt <- c(
 
 formulas_mt <- paste0("pvalue ~ ", formulas_mt)
 formulas_mt <- sapply(formulas_mt, as.formula)
-formulas_mt
 ```
 
+Set effective target FDR (before BY adjustment)
 ```{r}
 alphas <- seq(0.01, 0.1, length.out = 4)
-alphas_by <- alphas / (log(m) + 1)
 ```
 
 ```{r}
 formulas_alpha_levels <- expand.grid(
   formulas = formulas_mt,
-  alphas = alphas,
-  alphas_by = alphas_by
+  alphas = alphas
 )
-formulas_alpha_levels <- formulas_alpha_levels[1:2, ] # TODO
+
+formulas_alpha_levels <- formulas_alpha_levels %>%
+  mutate(
+    alphas_by = alphas / (log(m) + 1),
+    number_covariates = 1 + stringr::str_count(formulas, "\\+"),
+    formula_string = format(formulas)
+  )
+sapply(formulas_alpha_levels, class)
+```
+
+```{r sanity_check}
+#formulas_alpha_levels <- formulas_alpha_levels[19:20, ]
+head(formulas_alpha_levels)
+length(formulas_mt) * length(alphas) == nrow(formulas_alpha_levels)
 ```
 
 Now let us run IHW with the `"quantile"` stratification method using different subsets of the available covariates:
@@ -269,14 +275,16 @@ quantile_rej <- xfun::cache_rds(
           formula_i,
           data = chr1_chr2_df,
           alpha = alphas_by_i,
-          folds = folds_vec
+          folds = folds_vec,
+          stratification_method = "quantiles"
         )
       ))
 
       # evaluate number of rejections
-      data.frame(
+      quantile_rej_i <- data.frame(
         method = "IHW-Quantile",
-        formula = format(formula_i),
+        formula = formulas_alpha_levels$formula_string[i],
+        number_covariates = formulas_alpha_levels$number_covariates[i],
         alpha = alpha_i,
         alphas_by = alphas_by_i,
         rejections = rejections_na(ihw_quantile_i)
@@ -286,6 +294,9 @@ quantile_rej <- xfun::cache_rds(
   },
   hash = list(formulas_alpha_levels, chr1_chr2_df)
 )
+
+unique(quantile_rej$formula)
+nrow(quantile_rej) == nrow(formulas_alpha_levels)
 ```
 
 Run IHW with the `"forest"` stratification method using different subsets of the available covariates:
@@ -295,16 +306,12 @@ forest_rej <- xfun::cache_rds(
   {
     # run for all alpha-formula combinations (in parallel)
     forest_rej <- foreach(i = 1:nrow(formulas_alpha_levels)) %dorng% {
-      i<-1
       print(paste0("simulation run:", i))
 
       formula_i <- formulas_alpha_levels$formulas[[i]]
       alpha_i <- formulas_alpha_levels$alphas[[i]]
       alphas_by_i <- formulas_alpha_levels$alphas_by[[i]]
 
-      print(formula_i)
-      print(class(formula_i))
-      
       ihw_forest_i <- error_handler(try(
         ihw(
           formula_i,
@@ -312,14 +319,16 @@ forest_rej <- xfun::cache_rds(
           alpha = alphas_by_i,
           folds = folds_vec,
           stratification_method = "forest",
-          n_censor_thres = 1, ntrees = 1, nodedepth = 6, nodesize = 5000 # TODO
+          n_censor_thres = 1, ntrees = 1, nodedepth = 6, nodesize = 5000
+          # n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000 # TODO
         )
       ))
       
       # evaluate number of rejections
-      data.frame(
+      forest_rej_i <- data.frame(
         method = "IHW-Forest",
-        formula = format(formula_i),
+        formula = formulas_alpha_levels$formula_string[i],
+        number_covariates = formulas_alpha_levels$number_covariates[i],
         alpha = alpha_i,
         alphas_by = alphas_by_i,
         rejections = rejections_na(ihw_forest_i)
@@ -333,24 +342,25 @@ forest_rej <- xfun::cache_rds(
 
 Rejections of BY:
 ```{r by_rej}
-    # run for all alpha-formula combinations (in parallel)
-    by_rejections <- foreach(i = seq_along(alphas)) %dorng% {
-      print(paste0("simulation run:", i))
+# run for all alpha-formula combinations (in parallel)
+by_rejections <- foreach(i = seq_along(alphas)) %dorng% {
+  print(paste0("simulation run:", i))
 
-      alpha_i <- alphas[[i]]
-      alphas_by_i <- alphas_by[[i]]
-      
-      #TODO BH or BY?
-      by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alphas_by_i)
-      # evaluate number of rejections
-      data.frame(
-        method = "BY",
-        formula = "pvalue ~ 1",
-        alpha = alpha_i,
-        alphas_by = alphas_by_i,
-        rejections = by_rejections_i
-      )
-    }
+  alpha_i <- alphas[[i]]
+  alphas_by_i <- alphas_by[[i]]
+
+  # TODO BH or BY?
+  by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alphas_by_i)
+  # evaluate number of rejections
+  data.frame(
+    method = "BY",
+    formula = "pvalue ~ 1",
+    number_covariates = 0,
+    alpha = alpha_i,
+    alphas_by = alphas_by_i,
+    rejections = by_rejections_i
+  )
+}
 by_rejections <- bind_rows(by_rejections)
 ```
 
@@ -360,26 +370,49 @@ In the [original analysis](http://bioconductor.org/packages/release/data/experim
 
 Rejections of IHW-BY using different stratification methods:
 
-```{r, eval = FALSE}
-result <- bind_rows(by_rejections, quantile_rej)
+```{r}
+result <- bind_rows(by_rejections, quantile_rej, forest_rej)
 
-hqtl_rejections<- ggplot(result, aes(x = alpha, y = rejections, shape = interaction(method, formula), col = interaction(method, formula))) +
+result <- result %>%
+  filter(!is.na(rejections)) %>%
+  mutate(method_covariates = ifelse(number_covariates == 1,
+                                    paste(method, formula),
+                                    paste(method, number_covariates, "cov")))
+  #unite("method_covariates", method:number_covariates, remove = FALSE)
+# concat
+```
+
+```{r}
+result %>% count(method, alpha, formula)
+```
+
+
+```{r}
+hqtl_rejections <- ggplot(result, aes(x = alpha, y = rejections, col = method_covariates
+                                      )) +
   geom_line() +
   geom_point(size = 2) +
   ylab("Number of rejections") +
-  xlab("Target FDR")# +
-guides(colour = guide_legend(override.aes = list(shape = 15, size = 4, linetype = 0)),
-         shape = guide_legend(override.aes = list(size = 4)))
-  #guides(
-  #  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
-  #  shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
-  #) #+
-  #scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
-  #scale_y_log10()
+  xlab("Target FDR") + # +
+  #theme(legend.position = "bottom")+
+# guides(
+#  colour = "none",
+#  shape = "none"
+# )
+ guides(
+  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  shape = "none"
+ ) +
+# scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
+ scale_y_log10()
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 hqtl_rejections
 ```
+
+
+
+
 
 So we see that the number of discoveries has increased in most cases compared to BY. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
 
