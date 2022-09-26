@@ -1,5 +1,5 @@
-ihw_quantile_wrapper <- function(Ps, Xs, alpha) {
-  ihw_quantile <- IHW::ihw(Ps, Xs, alpha, stratification_method = "quantiles", null_proportion = T)
+ihw_quantile_wrapper <- function(Ps, Xs, alpha, null_proportion = T) {
+  ihw_quantile <- IHW::ihw(Ps, Xs, alpha, stratification_method = "quantiles", null_proportion = null_proportion)
   IHW::rejected_hypotheses(ihw_quantile)
 }
 
@@ -14,9 +14,9 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha) {
 #' @return         Binary vector of rejected/non-rejected hypotheses.
 #'
 #' @export
-ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par) {
+ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T) {
   ihw_forest <- IHW::ihw(Ps, Xs, alpha,
-    stratification_method = "forest", null_proportion = T,
+    stratification_method = "forest", null_proportion = null_proportion,
     ntrees = forest_par$ntrees, n_censor_thres = forest_par$n_censor_thres, nodedepth = forest_par$nodedepth,
     nodesize = forest_par$nodesize
   )

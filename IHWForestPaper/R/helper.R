@@ -13,15 +13,17 @@ library(IHWStatsPaper) #TODO
 #' @param alpha Numeric (default: 0.1), nominal significance level at which to apply methods
 #' @param m Number of hypotheses (default: m=10000)
 #' @param lfdr_only Bool (default:FALSE), whether to run all methods (if FALSE) or only lfdr based methods (if TRUE)
+#' @param forest_par TODO
+#' @param null_proportion TODO
 #'
 #' @import IHWStatsPaper 
 #' @import dplyr 
 #' @return Data frame with FDP and Power of different methods on this simulation.
 #' @export
-run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par){
-  ihw_quantile_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_quantile_wrapper(Ps, Xs, alpha))))
+run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par, null_proportion = T){
+  ihw_quantile_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_quantile_wrapper(Ps, Xs, alpha, null_proportion = null_proportion))))
   
-  ihw_forest_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par)))) 
+  ihw_forest_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion)))) 
   
   bh_res <- fdp_eval(Hs,  p.adjust(Ps, method="BH") <= alpha)
   
@@ -31,19 +33,15 @@ run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, fores
 
   if (!lfdr_only){
     adapt_res <-  error_fdp_table(try(fdp_eval(Hs, adapt_mtp(Ps, Xs, alpha, formula_rhs = "~."))))
-    #lfdr_oracle_res <- fdp_eval(Hs,  oracle_local_fdr_test(Ps, oracle_lfdrs, alpha))
+    adapt_xgboost_res <- error_fdp_table(try(fdp_eval(Hs, adapt_xgboost_cv_wrapper(Ps, Xs, alpha))))
+    
     #see https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/betamix_simulations_functions.R#L32
     lfdr_em_res <- error_fdp_table(try(fdp_eval(Hs,  betamix_datadriven_lfdr(Ps, as.data.frame(Xs), alpha, formula_rhs = "~."))))
     
-    #sabha_res <-fdp_eval(Hs,  groupwise_sabha(Ps, Xs, alpha)) #needs already binned groups
-    #sbh_res <- fdp_eval(Hs,  stratified_bhq(Ps, groups, alpha)) #needs already binned groups
-    #TODO 
     sim_res <- bind_rows(sim_res,
                          mutate(adapt_res, method="AdaPT"),
-                         #mutate(lfdr_oracle_res, method="Clfdr-oracle"),
-                         mutate(lfdr_em_res, method="Clfdr-EM"),
-                         #mutate(sabha_res , method="SABHA"),
-                         #mutate(sbh_res , method="SBH")
+                         mutate(adapt_xgboost_res, method="AdaPT-xgboost"),
+                         mutate(lfdr_em_res, method="Clfdr-EM")
                          )
   }
   mutate(sim_res,

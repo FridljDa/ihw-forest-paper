@@ -13,6 +13,7 @@ vignette: >
 
 
 ```{r warning=FALSE, message=FALSE}
+library(tidyr)
 library(IHW)
 library(doRNG)
 library(doParallel)
@@ -21,7 +22,6 @@ library(fdrtool)
 library(ggplot2)
 library(cowplot)
 theme_set(theme_cowplot())
-library(tidyr)
 library(scales)
 # library(latex2exp)
 library(dplyr)
@@ -221,8 +221,8 @@ formulas_mt <- c(
   "dist",
   "minor_allele_freq",
   "dist + minor_allele_freq",
-  paste(c("dist", "minor_allele_freq", names_more_cov), collapse = " + "),
-  paste(c("dist", "minor_allele_freq", names_more_cov[endsWith(names_more_cov, "snp")]), collapse = " + ")
+  paste(c("dist", "minor_allele_freq", names_more_cov), collapse = " + ")#,
+  #paste(c("dist", "minor_allele_freq", names_more_cov[endsWith(names_more_cov, "snp")]), collapse = " + ")
 )
 
 formulas_mt <- paste0("pvalue ~ ", formulas_mt)
@@ -231,7 +231,7 @@ formulas_mt <- sapply(formulas_mt, as.formula)
 
 Set effective target FDR (before BY adjustment)
 ```{r}
-alphas <- seq(0.01, 0.1, length.out = 4)
+alphas <- seq(0.01, 0.1, length.out = 2)#5
 ```
 
 ```{r}
@@ -305,8 +305,8 @@ Run IHW with the `"forest"` stratification method using different subsets of the
 forest_rej <- xfun::cache_rds(
   {
     # run for all alpha-formula combinations (in parallel)
-    forest_rej <- foreach(i = 1:nrow(formulas_alpha_levels)) %dorng% {
-      print(paste0("simulation run:", i))
+    forest_rej <- foreach(i = seq_len(nrow(formulas_alpha_levels))) %dorng% {
+      print(paste0("run:", i))
 
       formula_i <- formulas_alpha_levels$formulas[[i]]
       alpha_i <- formulas_alpha_levels$alphas[[i]]
@@ -343,11 +343,14 @@ forest_rej <- xfun::cache_rds(
 Rejections of BY:
 ```{r by_rej}
 # run for all alpha-formula combinations (in parallel)
-by_rejections <- foreach(i = seq_along(alphas)) %dorng% {
-  print(paste0("simulation run:", i))
+alpha_levels <- formulas_alpha_levels %>%
+  select(alphas, alphas_by) %>%
+  distinct()
+by_rejections <- foreach(i = seq_len(nrow(alpha_levels))) %dorng% { 
+  print(paste0("run:", i))
 
-  alpha_i <- alphas[[i]]
-  alphas_by_i <- alphas_by[[i]]
+  alpha_i <- alpha_levels$alphas[[i]]
+  alphas_by_i <- alpha_levels$alphas_by[[i]]
 
   # TODO BH or BY?
   by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alphas_by_i)
@@ -375,43 +378,83 @@ result <- bind_rows(by_rejections, quantile_rej, forest_rej)
 
 result <- result %>%
   filter(!is.na(rejections)) %>%
-  mutate(method_covariates = ifelse(number_covariates == 1,
-                                    paste(method, formula),
-                                    paste(method, number_covariates, "cov")))
-  #unite("method_covariates", method:number_covariates, remove = FALSE)
-# concat
+  arrange(alpha, number_covariates, formula, method) #%>% 
+  #mutate(method_covariates = ifelse(number_covariates == 1,
+  #                                  paste(method, formula),
+  #                                  paste(method, number_covariates, "cov")))
+```
+
+```{r, eval = FALSE}
+formulas_mt[c(1,4)]
+result %>% filter(formula %in% formulas_mt[3])
 ```
 
 ```{r}
-result %>% count(method, alpha, formula)
+result$formula
+formula_abbreviation <- list("pvalue ~ 1",
+                             "pvalue ~ dist",
+                             "pvalue ~ minor_allele_freq",
+                             "pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_1_peak + ,     H3K27Ac_2_snp + H3K27Ac_2_peak + H3K27Ac_3_snp + H3K27Ac_3_peak + ,     H3K4me3_1_snp + H3K4me3_1_peak + H3K4me3_2_snp + H3K4me3_2_peak + ,     H3K4me3_3_snp + H3K4me3_3_peak + kH3k4me1_1_snp + kH3k4me1_1_peak + ,     kH3k4me1_2_snp + kH3k4me1_2_peak + kH3k4me1_3_snp + kH3k4me1_3_peak")
+
+names(formula_abbreviation) <- list("pvalue ~ 1",
+                             "pvalue ~ dist",
+                             "pvalue ~ minor_allele_freq",
+                             "pvalue ~ dist + minor_allele_freq",
+     "pvalue ~ 20 covariates")
+
+formula_abbreviation2 <- setNames(names(formula_abbreviation), formula_abbreviation)
+
+x[names(y)] <- y
+
+replace(results2$formula_str, names(formula_abbreviation2), formula_abbreviation2)
+
+results2$formula_str[names(formula_abbreviation2)] <- formula_abbreviation2
 ```
 
+```{r}
+str_replace 
+
+result <- result %>%
+  mutate(formula_str = ifelse(number_covariates < 20,
+                              format(formula),
+                              "pvalue ~ 20 covariates"),
+         formula_str = sapply(formula_str, stringr::str_trim)
+         )
+
+
+```
 
 ```{r}
-hqtl_rejections <- ggplot(result, aes(x = alpha, y = rejections, col = method_covariates
-                                      )) +
+hqtl_rejections <- ggplot(result, aes(x = alpha, y = rejections, col = method)) +
+  geom_line() +
+  facet_wrap(vars(formula_str))
+hqtl_rejections
+```
+
+```{r}
+hqtl_rejections <- ggplot(result, aes(x = alpha, y = rejections, col = method)) +
   geom_line() +
   geom_point(size = 2) +
   ylab("Number of rejections") +
-  xlab("Target FDR") + # +
-  #theme(legend.position = "bottom")+
-# guides(
-#  colour = "none",
-#  shape = "none"
-# )
+  xlab("Target FDR") +
+  theme(legend.position="bottom")+
  guides(
   color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
   shape = "none"
  ) +
 # scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
- scale_y_log10()
+ scale_y_log10() +
+  facet_wrap(vars(formula), labeller=formula_abbreviation)
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 hqtl_rejections
 ```
 
-
-
+```{r}
+ggplot2::ggsave("../figures/hqtl_rejections.png", hqtl_rejections,
+  width = 6, height = 3.25
+)
+```
 
 
 So we see that the number of discoveries has increased in most cases compared to BY. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
