@@ -292,15 +292,14 @@ quantile_rej <- xfun::cache_rds(
     }
     quantile_rej <- bind_rows(quantile_rej)
   },
+  file = "hqtl_ihw_quantile_rej.rds",
   hash = list(formulas_alpha_levels, chr1_chr2_df)
 )
 
-unique(quantile_rej$formula)
-nrow(quantile_rej) == nrow(formulas_alpha_levels)
 ```
 
 Run IHW with the `"forest"` stratification method using different subsets of the available covariates:
-```{r forest_rej}
+```{r hqtl_ihw_forest_rej}
 # only rerun, if changes to global variables or code
 forest_rej <- xfun::cache_rds(
   {
@@ -336,6 +335,7 @@ forest_rej <- xfun::cache_rds(
     }
     forest_rej <- bind_rows(forest_rej)
   },
+  file = "hqtl_ihw_forest_rej.rds",
   hash = list(formulas_alpha_levels, chr1_chr2_df)
 )
 ```
@@ -378,57 +378,22 @@ result <- bind_rows(by_rejections, quantile_rej, forest_rej)
 
 result <- result %>%
   filter(!is.na(rejections)) %>%
-  arrange(alpha, number_covariates, formula, method) #%>% 
-  #mutate(method_covariates = ifelse(number_covariates == 1,
-  #                                  paste(method, formula),
-  #                                  paste(method, number_covariates, "cov")))
+  arrange(alpha, number_covariates, formula, method) 
 ```
 
-```{r, eval = FALSE}
-formulas_mt[c(1,4)]
-result %>% filter(formula %in% formulas_mt[3])
-```
+
 
 ```{r}
-result$formula
-formula_abbreviation <- list("pvalue ~ 1",
-                             "pvalue ~ dist",
-                             "pvalue ~ minor_allele_freq",
-                             "pvalue ~ dist + minor_allele_freq + H3K27Ac_1_snp + H3K27Ac_1_peak + ,     H3K27Ac_2_snp + H3K27Ac_2_peak + H3K27Ac_3_snp + H3K27Ac_3_peak + ,     H3K4me3_1_snp + H3K4me3_1_peak + H3K4me3_2_snp + H3K4me3_2_peak + ,     H3K4me3_3_snp + H3K4me3_3_peak + kH3k4me1_1_snp + kH3k4me1_1_peak + ,     kH3k4me1_2_snp + kH3k4me1_2_peak + kH3k4me1_3_snp + kH3k4me1_3_peak")
-
-names(formula_abbreviation) <- list("pvalue ~ 1",
-                             "pvalue ~ dist",
-                             "pvalue ~ minor_allele_freq",
-                             "pvalue ~ dist + minor_allele_freq",
-     "pvalue ~ 20 covariates")
-
-formula_abbreviation2 <- setNames(names(formula_abbreviation), formula_abbreviation)
-
-x[names(y)] <- y
-
-replace(results2$formula_str, names(formula_abbreviation2), formula_abbreviation2)
-
-results2$formula_str[names(formula_abbreviation2)] <- formula_abbreviation2
-```
-
-```{r}
-str_replace 
-
 result <- result %>%
-  mutate(formula_str = ifelse(number_covariates < 20,
+  mutate(formula_str = ifelse(number_covariates < 4,
                               format(formula),
-                              "pvalue ~ 20 covariates"),
-         formula_str = sapply(formula_str, stringr::str_trim)
+                              paste("pvalue ~", number_covariates, "covariates")
+                              ),
+         formula_str = sapply(formula_str, stringr::str_trim),
+         formula_str = sapply(formula_str, function(formula_str_i){
+           stringr::str_replace(formula_str_i, "minor_allele_freq", "maf")
+         }),
          )
-
-
-```
-
-```{r}
-hqtl_rejections <- ggplot(result, aes(x = alpha, y = rejections, col = method)) +
-  geom_line() +
-  facet_wrap(vars(formula_str))
-hqtl_rejections
 ```
 
 ```{r}
@@ -444,7 +409,8 @@ hqtl_rejections <- ggplot(result, aes(x = alpha, y = rejections, col = method)) 
  ) +
 # scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
  scale_y_log10() +
-  facet_wrap(vars(formula), labeller=formula_abbreviation)
+  facet_wrap(vars(formula_str))+
+  scale_x_continuous(breaks = unique(result$alpha)) 
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 hqtl_rejections
@@ -456,6 +422,53 @@ ggplot2::ggsave("../figures/hqtl_rejections.png", hqtl_rejections,
 )
 ```
 
+```{r}
+hqtl_rejections_by_forest <- result %>% 
+  filter(method %in% c("BY", "IHW-Forest")) %>%
+ggplot(aes(x = alpha, y = rejections, col = paste(method, formula_str))) +
+  geom_line() +
+  #geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("Target FDR") +
+  theme(legend.position="bottom")+
+  #ggrepel::geom_label_repel(aes(label = paste(method, formula_str)),
+  #                nudge_x = 1,
+  #                na.rm = TRUE)+
+ scale_x_continuous(breaks = unique(result$alpha)) +
+ guides(col=guide_legend(nrow=4,byrow=TRUE))+
+ scale_y_log10() 
+hqtl_rejections_by_forest
+```
+
+```{r}
+#result$formula_str
+hqtl_rejections_quantile_forest <- result %>% 
+  filter(method %in% c("IHW-Quantile", "IHW-Forest") &
+           formula_str %in% c("pvalue ~ dist", "pvalue ~ 20 covariates")
+           #number_covariates <= 2
+         ) %>%
+ggplot(aes(x = alpha, y = rejections, col = paste(method, formula_str))) +
+  geom_line() +
+  #geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("Target FDR") +
+  theme(legend.position="bottom")+
+  #ggrepel::geom_label_repel(aes(label = paste(method, formula_str)),
+  #                nudge_x = 1,
+  #                na.rm = TRUE)+
+ scale_x_continuous(breaks = unique(result$alpha)) +
+ guides(col=guide_legend(nrow=4,byrow=TRUE))+
+ scale_y_log10() 
+hqtl_rejections_quantile_forest
+```
+
+```{r}
+ggpubr::ggarrange(hqtl_rejections_by_forest, hqtl_rejections_quantile_forest)
+
+ggplot2::ggsave("../figures/hqtl_rejections_by_forest.png", hqtl_rejections_by_forest,
+  width = 6, height = 3.25
+)
+```
 
 So we see that the number of discoveries has increased in most cases compared to BY. MAF turned out to be not informative, but decreased number of rejections for all stratification methods. However, while IHW-quantile was completely thrown of by an this extra dimension and reduced to classical BY with uniform weights, IHW-Forest was able to handle it.
 
