@@ -1,0 +1,77 @@
+---
+title: "calculate_maf_from_hqtl"
+author: "Daniel Fridljand"
+date: "2022-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+```{r}
+root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
+load(file.path(root_dir, "data/hqtl_chrom1_chrom2/snps1.filtered.allGT.txt.rda"))
+snps1 <- snps
+load(file.path(root_dir, "data/hqtl_chrom1_chrom2/snps2.filtered.allGT.txt.rda"))
+snps2 <- snps
+
+chr1_maf_download <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
+chr2_maf_download <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
+snps1
+```
+
+```{r}
+#http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html
+maf.list = vector('list', length(snps1))
+for(sl in 1:length(snps1)) {
+  slice = snps1[[sl]];
+  maf.list[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
+  maf.list[[sl]] = pmin(maf.list[[sl]],1-maf.list[[sl]]);
+}
+chr1_maf_sample <- data.frame(
+  refsnp_id = MatrixEQTL::rownames(snps1),
+  minor_allele_freq =  unlist(maf.list)
+)
+hist(chr1_maf_sample$minor_allele_freq)
+```
+
+```{r}
+saveRDS(chr1_maf_sample, file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_maf_sample.rds"))
+```
+
+```{r}
+#http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html
+maf.list2 = vector('list', length(snps2))
+for(sl in 1:length(snps2)) {
+  slice = snps2[[sl]];
+  maf.list2[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
+  maf.list2[[sl]] = pmin(maf.list2[[sl]],1-maf.list2[[sl]]);
+}
+chr2_maf_sample <- data.frame(
+  refsnp_id = MatrixEQTL::rownames(snps2),
+  minor_allele_freq =  unlist(maf.list2)
+)
+hist(chr2_maf_sample$minor_allele_freq)
+```
+
+```{r}
+saveRDS(chr2_maf_sample, file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_maf_sample.rds"))
+```
+
+Plot downloaded maf against sample
+```{r}
+colnames(chr1_maf_download)
+chr1_maf_sample_download <- inner_join(chr1_maf_sample %>% rename(minor_allele_freq_sample = minor_allele_freq),
+                                       chr1_maf_download %>% rename(minor_allele_freq_download = minor_allele_freq),
+                                       by = "refsnp_id")
+chr1_maf_sample_download <- chr1_maf_sample_download %>% drop_na(minor_allele_freq_download)
+#cor(chr1_maf_sample_download$minor_allele_freq_sample,chr1_maf_sample_download$minor_allele_freq_download)
+plot(chr1_maf_sample_download$minor_allele_freq_sample, 
+     chr1_maf_sample_download$minor_allele_freq_download,
+     col = alpha("black", 0.3), pch=16)
+```
+Does not look very corraleted. 

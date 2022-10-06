@@ -36,11 +36,10 @@ load(covariates_file_used)
 
 
 # pick smallest chromosome...
-snpchr <- 21
+snpchr <- 2
 mod    <- 'H3K27AC'
 
 fileAnnoDF_sub = fileAnnoDF[fileAnnoDF$Chr==snpchr,]
-fileAnnoDF_sub = fileAnnoDF[fileAnnoDF$Chr==snpchr  & fileAnnoDF$Mark==mod,]
 fileAnnoDF_sub[1,]
 # SNP genotype information
 
