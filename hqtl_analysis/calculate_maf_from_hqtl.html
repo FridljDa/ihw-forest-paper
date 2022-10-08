@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Daniel Fridljand" />
+
+<meta name="date" content="2022-10-06" />
+
+<title>calculate_maf_from_hqtl</title>
+
+<script src="calculate_maf_from_hqtl_files/header-attrs-2.11/header-attrs.js"></script>
+<script src="calculate_maf_from_hqtl_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="calculate_maf_from_hqtl_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="calculate_maf_from_hqtl_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="calculate_maf_from_hqtl_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="calculate_maf_from_hqtl_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="calculate_maf_from_hqtl_files/navigation-1.1/tabsets.js"></script>
+<link href="calculate_maf_from_hqtl_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="calculate_maf_from_hqtl_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">calculate_maf_from_hqtl</h1>
+<h4 class="author">Daniel Fridljand</h4>
+<h4 class="date">2022-10-06</h4>
+
+</div>
+
+
+<pre class="r"><code>root_dir &lt;- &quot;/g/huber/users/fridljand/R/ihw-forest-paper/&quot;
+load(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/snps1.filtered.allGT.txt.rda&quot;))
+snps1 &lt;- snps
+load(file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/snps2.filtered.allGT.txt.rda&quot;))
+snps2 &lt;- snps
+
+chr1_maf_download &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr1_maf.Rds&quot;))
+chr2_maf_download &lt;- readRDS(file = file.path(root_dir, &quot;data/downloaded_covariates/chr2_maf.Rds&quot;))
+snps1</code></pre>
+<pre><code>## SlicedData object. For more information type: ?SlicedData
+## Number of columns: 76 
+## Number of rows: 645452 
+## Data is stored in 323 slices
+## Top left corner of the first slice (up to 10x10):
+##             NA19160 NA18861 NA18862 NA18909 NA18907 NA18517 NA19119 NA19116
+## rs192328835       0       0       0       0       0       0       0       0
+## rs74970982        2       1       1       2       1       2       0       2
+## rs56992750        0       1       0       1       0       0       0       1
+## rs186063952       0       0       0       0       0       0       0       0
+## rs143773730       0       0       0       1       0       0       0       0
+## rs143777184       0       0       0       0       0       0       0       0
+## rs147215883       0       1       0       0       0       0       0       0
+## rs185237834       0       1       1       0       0       0       0       0
+## rs189906733       0       0       0       0       0       0       0       0
+## rs191297051       0       1       1       0       0       0       0       0
+##             NA19114 NA19171
+## rs192328835       0       0
+## rs74970982        1       1
+## rs56992750        0       0
+## rs186063952       0       0
+## rs143773730       0       0
+## rs143777184       0       0
+## rs147215883       0       0
+## rs185237834       0       0
+## rs189906733       1       1
+## rs191297051       0       0</code></pre>
+<pre class="r"><code>#http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html
+maf.list = vector(&#39;list&#39;, length(snps1))
+for(sl in 1:length(snps1)) {
+  slice = snps1[[sl]];
+  maf.list[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
+  maf.list[[sl]] = pmin(maf.list[[sl]],1-maf.list[[sl]]);
+}
+chr1_maf_sample &lt;- data.frame(
+  refsnp_id = MatrixEQTL::rownames(snps1),
+  minor_allele_freq =  unlist(maf.list)
+)
+hist(chr1_maf_sample$minor_allele_freq)
+axis(1, at = seq(0.05, 1, by = 0.1), las=2)</code></pre>
+<p><img src="calculate_maf_from_hqtl_files/figure-html/unnamed-chunk-2-1.svg" width="672" /></p>
+<pre class="r"><code>saveRDS(chr1_maf_sample, file = file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/chr1_maf_sample.rds&quot;))</code></pre>
+<pre class="r"><code>#http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html
+maf.list2 = vector(&#39;list&#39;, length(snps2))
+for(sl in 1:length(snps2)) {
+  slice = snps2[[sl]];
+  maf.list2[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
+  maf.list2[[sl]] = pmin(maf.list2[[sl]],1-maf.list2[[sl]]);
+}
+chr2_maf_sample &lt;- data.frame(
+  refsnp_id = MatrixEQTL::rownames(snps2),
+  minor_allele_freq =  unlist(maf.list2)
+)
+hist(chr2_maf_sample$minor_allele_freq)</code></pre>
+<p><img src="calculate_maf_from_hqtl_files/figure-html/unnamed-chunk-4-1.svg" width="672" /></p>
+<pre class="r"><code>saveRDS(chr2_maf_sample, file = file.path(root_dir, &quot;data/hqtl_chrom1_chrom2/chr2_maf_sample.rds&quot;))</code></pre>
+<p>Plot downloaded maf against sample</p>
+<pre class="r"><code>chr1_maf_sample_download &lt;- dplyr::inner_join(chr1_maf_sample %&gt;% rename(minor_allele_freq_sample = minor_allele_freq),
+                                       chr1_maf_download %&gt;% rename(minor_allele_freq_download = minor_allele_freq),
+                                       by = &quot;refsnp_id&quot;)
+chr1_maf_sample_download &lt;- chr1_maf_sample_download %&gt;% drop_na(minor_allele_freq_download)
+#cor(chr1_maf_sample_download$minor_allele_freq_sample,chr1_maf_sample_download$minor_allele_freq_download)
+plot(chr1_maf_sample_download$minor_allele_freq_sample, 
+     chr1_maf_sample_download$minor_allele_freq_download,
+     col = alpha(&quot;black&quot;, 0.3), 
+     pch=16)</code></pre>
+<p><img src="calculate_maf_from_hqtl_files/figure-html/unnamed-chunk-6-1.svg" width="672" />
+Does not look very correlated.</p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -2,16 +2,21 @@
 title: "calculate_maf_from_hqtl"
 author: "Daniel Fridljand"
 date: "2022-10-06"
-output: html_document
+output:
+  html_document:
+    self_contained: false
 ---
 
 ```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(scales)
+
 knitr::opts_chunk$set(echo = TRUE)
+options(bitmapType ="cairo")
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 ```{r}
 root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
 load(file.path(root_dir, "data/hqtl_chrom1_chrom2/snps1.filtered.allGT.txt.rda"))
@@ -37,6 +42,7 @@ chr1_maf_sample <- data.frame(
   minor_allele_freq =  unlist(maf.list)
 )
 hist(chr1_maf_sample$minor_allele_freq)
+axis(1, at = seq(0.05, 1, by = 0.1), las=2)
 ```
 
 ```{r}
@@ -64,14 +70,14 @@ saveRDS(chr2_maf_sample, file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr
 
 Plot downloaded maf against sample
 ```{r}
-colnames(chr1_maf_download)
-chr1_maf_sample_download <- inner_join(chr1_maf_sample %>% rename(minor_allele_freq_sample = minor_allele_freq),
+chr1_maf_sample_download <- dplyr::inner_join(chr1_maf_sample %>% rename(minor_allele_freq_sample = minor_allele_freq),
                                        chr1_maf_download %>% rename(minor_allele_freq_download = minor_allele_freq),
                                        by = "refsnp_id")
 chr1_maf_sample_download <- chr1_maf_sample_download %>% drop_na(minor_allele_freq_download)
 #cor(chr1_maf_sample_download$minor_allele_freq_sample,chr1_maf_sample_download$minor_allele_freq_download)
 plot(chr1_maf_sample_download$minor_allele_freq_sample, 
      chr1_maf_sample_download$minor_allele_freq_download,
-     col = alpha("black", 0.3), pch=16)
+     col = alpha("black", 0.3), 
+     pch=16)
 ```
-Does not look very corraleted. 
+Does not look very correlated. 
