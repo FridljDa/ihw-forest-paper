@@ -5,3 +5,4 @@ data/hqtl_chrom1_chrom2/snps2.filtered.allGT.txt.rda
 vignettes/cache
 precomputed_results/ihw_forest.Rds
 precomputed_results/ihw_quantile.Rds
+hqtl_analysis/calculate_maf_from_hqtl.html
