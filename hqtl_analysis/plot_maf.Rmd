@@ -1,24 +1,14 @@
 ---
-title: "hQTL analysis with IHW-Benjamini-Yekutieli"
+title: "analysing maf"
 author: "Danie Fridljand"
-date: "`r doc_date()`"
-output: BiocStyle::html_document
-header-includes:
-   - \usepackage{bbm}
-vignette: >
-  %\VignetteIndexEntry{"IHW-Forest-paper: hQTL analysis with IHW-Benjamini-Yekutieli"}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+date: "2022"
+output: html_document
 ---
 
 
 ```{r warning=FALSE, message=FALSE}
 library(tidyr)
 library(IHW)
-library(doRNG)
-library(doParallel)
-library(parallel)
-library(fdrtool)
 library(ggplot2)
 library(cowplot)
 theme_set(theme_cowplot())
@@ -27,25 +17,7 @@ library(scales)
 library(dplyr)
 # require(biomaRt)
 set.seed(1)
-```
-
-```{r}
-error_handler <- function(x) { # TODO
-  if (inherits(x, "try-error")) {
-    x <- NA
-  }
-  x
-}
-```
-
-```{r}
-rejections_na <- function(ihw) { # TODO
-  if (is.na(ihw)) {
-    return(NA)
-  } else {
-    rejections(ihw)
-  }
-}
+options(bitmapType ="cairo")
 ```
 
 ```{r setup, include=FALSE, cache = FALSE}
@@ -54,6 +26,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
 ```
 
+## downloaded maf
 ```{r loading_pvalues}
 chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
 chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
@@ -66,8 +39,8 @@ chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_
 
 Many MAFs are not available on `Biomart`. 
 ```{r}
-chr1_maf_missing <- sum(is.na(chr1_df$minor_allele_freq)) / nrow(chr1_maf)
-chr2_maf_missing <- sum(is.na(chr2_df$minor_allele_freq)) / nrow(chr2_maf)
+chr1_maf_missing <- sum(is.na(chr1_maf$minor_allele_freq)) / nrow(chr1_maf)
+chr2_maf_missing <- sum(is.na(chr2_maf$minor_allele_freq)) / nrow(chr2_maf)
 
 paste0(round(100 * chr1_maf_missing, 2), "%")
 paste0(round(100 * chr2_maf_missing, 2), "%")
@@ -103,3 +76,42 @@ ggplot(chr1_df, aes(x=pvalue)) +
   facet_wrap( ~ mafGroup, nrow = 2)
 ```
 
+# sampel minor alle frequency
+
+```{r loading_pvalues2}
+chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
+chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
+```
+
+```{r, eval = T}
+chr1_maf <- readRDS(file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_maf_sample.rds"))
+chr2_maf <- readRDS(file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_maf_sample.rds"))
+```
+
+```{r}
+chr1_df <- chr1_df %>% left_join(chr1_maf, by = c("SNP" = "refsnp_id"))
+chr2_df <- chr2_df %>% left_join(chr2_maf, by = c("SNP" = "refsnp_id"))
+```
+
+```{r}
+chr1_df$covariate <- rank(chr1_df$minor_allele_freq)/nrow(chr1_df)
+range(chr1_df$covariate)
+```
+
+```{r}
+# set up data frame for ggplotting
+ggplot(chr1_df, aes(x = covariate, y = -log10(pvalue))) + geom_hex(bins = 100) + 
+    ylab(expression(-log[10]~p))
+```
+```{r}
+ggplot(chr1_df, aes(x = pvalue)) + geom_histogram(boundary = 0)
+
+```
+
+```{r}
+chr1_df$mafGroup <- groups_by_filter(chr1_df$minor_allele_freq, 8)
+
+ggplot(chr1_df, aes(x=pvalue)) + 
+  geom_histogram(boundary = 0) +
+  facet_wrap( ~ mafGroup, nrow = 2)
+```
