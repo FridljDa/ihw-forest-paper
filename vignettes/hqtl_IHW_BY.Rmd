@@ -145,8 +145,8 @@ chr2_df <- left_join(chr2_df, snp_chr2, by = (c("SNP" = "snp"))) %>%
 ## Minor Allele Frequency
 In [here](http://bioconductor.org/packages/release/data/experiment/vignettes/IHWpaper/inst/doc/hqtl_IHW_BY.html) only the genomic distance was used as covariate. Here, we also want to use minor allele frequency (MAF). We load the pre-downloaded MAF file. The data was pre-downloaded with `Biomart`.
 ```{r, eval = T}
-chr1_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
-chr2_maf <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
+chr1_maf <- readRDS(file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_maf_sample.rds"))
+chr2_maf <- readRDS(file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_maf_sample.rds"))
 ```
 
 We annotate the hypotheses with the MAF data.
@@ -218,10 +218,10 @@ m <- nrow(chr1_chr2_df)
 Define formulas
 ```{r}
 formulas_mt <- c(
-  "dist",
-  "minor_allele_freq",
-  "dist + minor_allele_freq",
-  paste(c("dist", "minor_allele_freq", names_more_cov), collapse = " + ")#,
+  #"dist",
+  "minor_allele_freq"#,
+  #"dist + minor_allele_freq",
+  #paste(c("dist", "minor_allele_freq", names_more_cov), collapse = " + ")#,
   #paste(c("dist", "minor_allele_freq", names_more_cov[endsWith(names_more_cov, "snp")]), collapse = " + ")
 )
 
@@ -242,17 +242,10 @@ formulas_alpha_levels <- expand.grid(
 
 formulas_alpha_levels <- formulas_alpha_levels %>%
   mutate(
-    alphas_by = alphas / (log(m) + 1),
     number_covariates = 1 + stringr::str_count(formulas, "\\+"),
     formula_string = format(formulas)
   )
 sapply(formulas_alpha_levels, class)
-```
-
-```{r sanity_check}
-#formulas_alpha_levels <- formulas_alpha_levels[19:20, ]
-head(formulas_alpha_levels)
-length(formulas_mt) * length(alphas) == nrow(formulas_alpha_levels)
 ```
 
 Now let us run IHW with the `"quantile"` stratification method using different subsets of the available covariates:
@@ -268,14 +261,14 @@ quantile_rej <- xfun::cache_rds(
 
       formula_i <- formulas_alpha_levels$formulas[[i]]
       alpha_i <- formulas_alpha_levels$alphas[[i]]
-      alphas_by_i <- formulas_alpha_levels$alphas_by[[i]]
 
       ihw_quantile_i <- error_handler(try(
         ihw(
           formula_i,
           data = chr1_chr2_df,
-          alpha = alphas_by_i,
+          alpha = alpha_i,
           folds = folds_vec,
+          lambdas = Inf,
           stratification_method = "quantiles"
         )
       ))
@@ -286,8 +279,8 @@ quantile_rej <- xfun::cache_rds(
         formula = formulas_alpha_levels$formula_string[i],
         number_covariates = formulas_alpha_levels$number_covariates[i],
         alpha = alpha_i,
-        alphas_by = alphas_by_i,
-        rejections = rejections_na(ihw_quantile_i)
+        rejections = rejections_na(ihw_quantile_i),
+        nbins_covariates = nbins(ihw_quantile_i)
       )
     }
     quantile_rej <- bind_rows(quantile_rej)
@@ -295,7 +288,6 @@ quantile_rej <- xfun::cache_rds(
   file = "hqtl_ihw_quantile_rej.rds",
   hash = list(formulas_alpha_levels, chr1_chr2_df)
 )
-
 ```
 
 Run IHW with the `"forest"` stratification method using different subsets of the available covariates:
@@ -309,17 +301,17 @@ forest_rej <- xfun::cache_rds(
 
       formula_i <- formulas_alpha_levels$formulas[[i]]
       alpha_i <- formulas_alpha_levels$alphas[[i]]
-      alphas_by_i <- formulas_alpha_levels$alphas_by[[i]]
 
       ihw_forest_i <- error_handler(try(
         ihw(
           formula_i,
           data = chr1_chr2_df,
-          alpha = alphas_by_i,
+          alpha = alpha_i,
           folds = folds_vec,
+          lambdas = Inf,
           stratification_method = "forest",
-          n_censor_thres = 1, ntrees = 1, nodedepth = 6, nodesize = 5000
-          # n_censor_thres = 5, ntrees = 5, nodedepth = 6, nodesize = 5000 # TODO
+          #n_censor_thres = 1, ntrees = 1, nodedepth = 6, nodesize = 5000
+           n_censor_thres = 1, ntrees = 1, nodedepth = 9, nodesize = 5000 # TODO
         )
       ))
       
@@ -329,8 +321,8 @@ forest_rej <- xfun::cache_rds(
         formula = formulas_alpha_levels$formula_string[i],
         number_covariates = formulas_alpha_levels$number_covariates[i],
         alpha = alpha_i,
-        alphas_by = alphas_by_i,
-        rejections = rejections_na(ihw_forest_i)
+        rejections = rejections_na(ihw_forest_i),
+        nbins_covariates = mean(unlist(nbins(ihw_forest_i)))
       )
     }
     forest_rej <- bind_rows(forest_rej)
@@ -344,24 +336,23 @@ Rejections of BY:
 ```{r by_rej}
 # run for all alpha-formula combinations (in parallel)
 alpha_levels <- formulas_alpha_levels %>%
-  select(alphas, alphas_by) %>%
+  select(alphas) %>%
   distinct()
-by_rejections <- foreach(i = seq_len(nrow(alpha_levels))) %dorng% { 
+bh_rejections <- foreach(i = seq_len(nrow(alpha_levels))) %dorng% { 
   print(paste0("run:", i))
 
   alpha_i <- alpha_levels$alphas[[i]]
-  alphas_by_i <- alpha_levels$alphas_by[[i]]
 
-  # TODO BH or BY?
-  by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alphas_by_i)
+  by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha_i)
   # evaluate number of rejections
   data.frame(
-    method = "BY",
+    method = "BH",
     formula = "pvalue ~ 1",
     number_covariates = 0,
     alpha = alpha_i,
-    alphas_by = alphas_by_i,
-    rejections = by_rejections_i
+    #alphas_by = alphas_by_i,
+    rejections = by_rejections_i,
+    nbins_covariates = 0
   )
 }
 by_rejections <- bind_rows(by_rejections)
@@ -374,7 +365,7 @@ In the [original analysis](http://bioconductor.org/packages/release/data/experim
 Rejections of IHW-BY using different stratification methods:
 
 ```{r}
-result <- bind_rows(by_rejections, quantile_rej, forest_rej)
+result <- bind_rows(bh_rejections, quantile_rej, forest_rej)
 
 result <- result %>%
   filter(!is.na(rejections)) %>%
@@ -425,18 +416,20 @@ ggplot2::ggsave("../figures/hqtl_rejections.png", hqtl_rejections,
 ```{r}
 hqtl_rejections_by_forest <- result %>% 
   filter(method %in% c("BY", "IHW-Forest")) %>%
+  #mutate(label = if_else(alpha == max(alpha), paste(method, formula_str), NA_character_)) %>%
 ggplot(aes(x = alpha, y = rejections, col = paste(method, formula_str))) +
   geom_line() +
-  #geom_point(size = 2) +
+  geom_point(size = 2) +
   ylab("Number of rejections") +
   xlab("Target FDR") +
   theme(legend.position="bottom")+
-  #ggrepel::geom_label_repel(aes(label = paste(method, formula_str)),
+  #ggrepel::geom_label_repel(aes(label = label),
   #                nudge_x = 1,
   #                na.rm = TRUE)+
  scale_x_continuous(breaks = unique(result$alpha)) +
- guides(col=guide_legend(nrow=4,byrow=TRUE))+
+ guides(col=guide_legend(nrow=4,byrow=TRUE, title="Method, formula"))+
  scale_y_log10() 
+
 hqtl_rejections_by_forest
 ```
 
@@ -449,7 +442,7 @@ hqtl_rejections_quantile_forest <- result %>%
          ) %>%
 ggplot(aes(x = alpha, y = rejections, col = paste(method, formula_str))) +
   geom_line() +
-  #geom_point(size = 2) +
+  geom_point(size = 2) +
   ylab("Number of rejections") +
   xlab("Target FDR") +
   theme(legend.position="bottom")+
@@ -457,7 +450,7 @@ ggplot(aes(x = alpha, y = rejections, col = paste(method, formula_str))) +
   #                nudge_x = 1,
   #                na.rm = TRUE)+
  scale_x_continuous(breaks = unique(result$alpha)) +
- guides(col=guide_legend(nrow=4,byrow=TRUE))+
+ guides(col=guide_legend(nrow=4,byrow=TRUE, title="Method, formula"))+ 
  scale_y_log10() 
 hqtl_rejections_quantile_forest
 ```
