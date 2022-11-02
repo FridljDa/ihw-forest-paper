@@ -59,8 +59,9 @@ chr1_df$covariate <- rank(chr1_df$minor_allele_freq)/nrow(chr1_df)
 ```
 
 ```{r}
-# set up data frame for ggplotting
-ggplot(chr1_df, aes(x = covariate, y = -log10(pvalue))) + geom_hex(bins = 100) + 
+# set up data frame for ggplotting #y = -log10(pvalue)
+ggplot(chr1_df, aes(x = covariate, y = pmin(-log10(pvalue),10))) + 
+  geom_hex(bins = 100) +
     ylab(expression(-log[10]~p))
 ```
 ```{r}
@@ -71,9 +72,10 @@ ggplot(chr1_df, aes(x = pvalue)) + geom_histogram(boundary = 0)
 ```{r}
 chr1_df$mafGroup <- groups_by_filter(chr1_df$minor_allele_freq, 8)
 
-ggplot(chr1_df, aes(x=pvalue)) + 
-  geom_histogram(boundary = 0) +
+test<- ggplot(chr1_df, aes(x=pvalue)) + 
+  geom_histogram(boundary = 0, bins = 200) +
   facet_wrap( ~ mafGroup, nrow = 2)
+  test
 ```
 
 # sampel minor alle frequency
