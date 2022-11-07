@@ -30,7 +30,8 @@ snps2 <- snps
 
 chr1_maf_download <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf_download <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
-snps1
+
+unique(unlist(apply(snps1[[1]], 1, unique)))
 ```
 
 ```{r}
