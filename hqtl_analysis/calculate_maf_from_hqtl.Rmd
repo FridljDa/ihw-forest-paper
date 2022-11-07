@@ -15,6 +15,7 @@ output: html_document
 library(dplyr)
 library(tidyr)
 library(scales)
+library(ggplot2)
 
 knitr::opts_chunk$set(echo = TRUE)
 options(bitmapType ="cairo")
@@ -73,7 +74,7 @@ hist(chr2_maf_sample$minor_allele_freq)
 saveRDS(chr2_maf_sample, file = file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_maf_sample.rds"))
 ```
 
-Plot downloaded maf against sample
+## Plot downloaded maf against sample
 ```{r}
 chr1_maf_sample_download <- dplyr::inner_join(chr1_maf_sample %>% rename(minor_allele_freq_sample = minor_allele_freq),
                                        chr1_maf_download %>% rename(minor_allele_freq_download = minor_allele_freq),
@@ -91,3 +92,60 @@ abline(coef = c(0,1))
 
 ```
 Does not look very correlated. 
+
+## Hardy-Weinberg equilibrium
+```{r}
+sl = 1
+sample_size = ncol(snps1)-1 #TODO -1?
+maf_list_slice =  chr1_maf_sample$minor_allele_freq[1:2000]
+snps1_slice = snps1[[sl]];
+```
+
+```{r}
+p = maf_list_slice
+q = 1-p # Calulate frequency of minor allele being present in homozygous and heterozygous state
+f_dom_hom = q^2
+f_hom = p^2 
+f_het = 2*p*q # Expected number of observations in a sample size of 300 
+
+expected_f_hom_het <- data.frame(
+  expected_0 = round(f_dom_hom * sample_size),
+  expected_1=round(f_het * sample_size),
+  expected_2 =round(f_hom * sample_size)
+)
+```
+
+```{r}
+observed_f_hom_het <- apply(snps1_slice, 1, table)
+
+observed_f_hom_het <- observed_f_hom_het %>%
+
+  lapply(function (df){
+    df <- as.data.frame(df)
+    pivot_wider(df, names_from = "Var1", values_from = "Freq")
+  })
+
+observed_f_hom_het <- observed_f_hom_het %>%
+  data.table::rbindlist(use.names=TRUE, fill=TRUE)
+
+observed_f_hom_het[is.na(observed_f_hom_het)] <- 0
+```
+
+```{r}
+expected_observed_f_hom_het <- cbind(expected_f_hom_het, observed_f_hom_het)
+ggplot(expected_observed_f_hom_het, aes(x = expected_0, y = `0`))+
+  geom_point() +
+  geom_abline(slope = 1)
+```
+```{r}
+ggplot(expected_observed_f_hom_het, aes(x = expected_1, y = `1`))+
+  geom_point() +
+  geom_abline(slope = 1)
+```
+
+```{r}
+ggplot(expected_observed_f_hom_het, aes(x = expected_2, y = `2`))+
+  geom_point() +
+  geom_abline(slope = 1)
+```
+  
