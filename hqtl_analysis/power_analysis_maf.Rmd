@@ -123,6 +123,7 @@ ggplot(chr1_chr2_df %>% filter(chromosome == 1),
   geom_histogram(boundary = 0, bins = 60) +
   facet_wrap(~mafGroup, nrow = 2)
 ```
+## run IHW
 
 ```{r}
 alphas <- seq(0.001, 0.1, length.out = 5)
@@ -155,7 +156,7 @@ result_bind <- result_bind %>%
                values_to = "rejections") 
 ```
 
-## plot 
+## plot IHW result
 ```{r}
 hqtl_rejections <- ggplot(result_bind, aes(x = alpha, y = rejections, col = method)) +
   geom_line() +
@@ -174,6 +175,10 @@ hqtl_rejections <- ggplot(result_bind, aes(x = alpha, y = rejections, col = meth
   
 hqtl_rejections
 ```
+```{r}
+hqtl_rejections + scale_y_continuous(limits = c(0,NA))
+```
+
 ## dive into weights
 
 ```{r}
