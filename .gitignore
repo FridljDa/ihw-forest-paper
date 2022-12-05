@@ -6,3 +6,5 @@ vignettes/cache
 precomputed_results/ihw_forest.Rds
 precomputed_results/ihw_quantile.Rds
 hqtl_analysis/calculate_maf_from_hqtl.html
+.RData
+.Rhistory

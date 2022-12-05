@@ -41,8 +41,8 @@ rejections_na <- function(ihw) { # TODO
 # sampel minor alle frequency
 
 ```{r loading_pvalues2}
-chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
-chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) %>% dplyr::select(SNP, gene, pvalue)
+chr1_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr1_subset.Rds")) #%>% dplyr::select(SNP, gene, pvalue)
+chr2_df <- readRDS(file.path(root_dir, "data/hqtl_chrom1_chrom2/chr2_subset.Rds")) #%>% dplyr::select(SNP, gene, pvalue)
 ```
 
 ```{r, eval = T}
@@ -56,13 +56,43 @@ chr2_df <- chr2_df %>% left_join(chr2_maf, by = c("SNP" = "refsnp_id"))
 ```
 
 ```{r}
-chr1_chr2_df <- rbind(chr1_df, chr2_df)
-folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
-chr1_chr2_df$chromosome <- folds_vec
+chr1_chr2_df <- rbind(chr1_df %>% mutate(chromosome = 1), 
+                      chr2_df %>% mutate(chromosome = 2))
 ```
 
 ```{r}
 rm(chr1_df, chr2_df, chr1_maf, chr2_maf)
+```
+
+```{r}
+pval_threshold <- 10^(-10)
+chr1_chr2_df <-chr1_chr2_df %>% filter(pvalue <= pval_threshold)
+```
+
+Hence, the censored p-values follow the model 
+\begin{eqnarray}
+&P_i \mid H_i = 0 \sim U[0,10^(-4)]
+\end{eqnarray}
+
+However, all multiple testing used in this vigniette assume 
+\begin{eqnarray}
+&P_i \mid H_i = 0 \sim U[0,1]
+\end{eqnarray}
+We address this gap by artificially inflating the p-values:  
+```{r}
+chr1_chr2_df <- chr1_chr2_df %>% mutate(pvalue = pvalue / pval_threshold)
+```
+
+## compare minor alle frequency and standard deviation of effect size estimate
+
+```{r}
+chr1_chr2_df <- chr1_chr2_df %>% mutate(beta_se = beta/tstat)
+ggplot(chr1_chr2_df,
+       aes(x = minor_allele_freq, y = beta_se)) +
+  scale_y_log10()+
+  geom_hex() + #bins = 60
+  #geom_point()+
+  facet_wrap(~chromosome, ncol = 2)
 ```
 
 ## analyse distribution of p-values 
@@ -90,7 +120,7 @@ cutoffs <- chr1_chr2_df %>%
 
 ```{r}
 # set up data frame for ggplotting
-ggplot(chr1_chr2_df %>% filter(chromosome == 1),
+ggplot(chr1_chr2_df,
        aes(x = minor_allele_freq, y = -log10(pvalue))) +
   geom_hex(bins = 60) +
   geom_vline(xintercept=cutoffs, linetype="dashed") +
@@ -108,9 +138,6 @@ table(chr1_chr2_df$mafGroup, chr1_chr2_df$chromosome)
 Enough observations in each bin
 
 ## pure minor_allele_freq
-
-
-
 ```{r}
 ggplot(chr1_chr2_df %>% filter(chromosome == 1),
        aes(x = pvalue)) +
@@ -120,38 +147,62 @@ ggplot(chr1_chr2_df %>% filter(chromosome == 1),
 ```{r}
 ggplot(chr1_chr2_df %>% filter(chromosome == 1), 
        aes(x = pvalue)) +
-  geom_histogram(boundary = 0, bins = 60) +
+  geom_histogram(boundary = 0) +
   facet_wrap(~mafGroup, nrow = 2)
 ```
-## run IHW
+## run IHW 
+without regularisation
+```{r}
+#alphas <- seq(0.001, 0.01, length.out = 5)
+alphas <-c(c(1,3,5,7) %o% 10^(-2:-5))
+alphas <-c(c(1,7) %o% 10^(-2:-4))
+#alphas <- 0.05
+```
 
 ```{r}
-alphas <- seq(0.001, 0.1, length.out = 5)
-
 ihw_quantiles <- lapply(alphas, function(alpha_i) {
   ihw_quantile_i <- ihw(
     pvalues = chr1_chr2_df$pvalue,
-    covariates = chr1_chr2_df$mafGroup,
+    #covariates = chr1_chr2_df$mafGroup,
+    covariates = chr1_chr2_df$minor_allele_freq,
     alpha = alpha_i,
-    folds = folds_vec,
-    lambdas = Inf,
+    folds = chr1_chr2_df$chromosome#,
+    #lambdas = Inf
   )
 })
 ```
 
 ```{r}
-ihw_quantile_rejections <- sapply(ihw_quantiles, rejections_na)
+ihw_quantiles_no_regul <- lapply(alphas, function(alpha_i) {
+  ihw_quantile_i <- ihw(
+    pvalues = chr1_chr2_df$pvalue,
+    #covariates = chr1_chr2_df$mafGroup,
+    covariates = chr1_chr2_df$minor_allele_freq,
+    alpha = alpha_i,
+    folds = chr1_chr2_df$chromosome,
+    lambdas = Inf
+  )
+})
+```
 
+```{r}
 bh_rejections <- sapply(alphas, function(alpha_i) {
   sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha_i)
 })
+```
+
+```{r}
+ihw_quantile_rejections <- sapply(ihw_quantiles, rejections_na)
+ihw_quantiles_no_regul_rejections <- sapply(ihw_quantiles_no_regul, rejections_na)
+
 
 result_bind <- data.frame(alpha = alphas,
            ihw_quantile_rejections = ihw_quantile_rejections,
-           bh_rejections = bh_rejections)
+           bh_rejections = bh_rejections,
+           ihw_quantiles_no_regul_rejections = ihw_quantiles_no_regul_rejections)
 
 result_bind <- result_bind %>%
-  pivot_longer(c("ihw_quantile_rejections","bh_rejections"),
+  pivot_longer(c("ihw_quantile_rejections","bh_rejections", "ihw_quantiles_no_regul_rejections"),
                names_to = "method",
                values_to = "rejections") 
 ```
@@ -165,13 +216,11 @@ hqtl_rejections <- ggplot(result_bind, aes(x = alpha, y = rejections, col = meth
   xlab("Target FDR") +
   theme(legend.position="bottom")+
  guides(
-  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  color = guide_legend(title = "Method", legend.text = element_text(size = 4),  nrow = 2),
   shape = "none"
  ) +
 # scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
- scale_y_log10() +
-  #scale_y_continuous(limits = c(0,NA))+
-  scale_x_continuous(breaks = unique(result_bind$alpha)) 
+  scale_x_continuous(breaks = unique(result_bind$alpha), trans = "log") 
   
 hqtl_rejections
 ```
@@ -180,6 +229,10 @@ hqtl_rejections + scale_y_continuous(limits = c(0,NA))
 ```
 
 ## dive into weights
+```{r}
+ihw_quantiles_first <- ihw_quantiles[[1]]
+range(IHW::thresholds(ihw_quantiles_first))
+```
 
 ```{r}
 ihw_quantiles_first <- ihw_quantiles[[1]]
@@ -187,6 +240,9 @@ weights(ihw_quantiles_first, levels_only = TRUE)
 ```
 ```{r}
 plot(ihw_quantiles_first)
+```
+```{r}
+plot(ihw_quantiles_no_regul[[1]])
 ```
 
 How can I dive deeper in the last plot and understand it?

@@ -13,14 +13,14 @@
 library("DESeq2")
 library("preprocessCore")
 library("MatrixEQTL")
-library("peer")
+#library("peer")
 library("genefilter")
 library("dplyr")
 
 ## set the project folder - it has to contain the object fileAnnoDF.rda 
 projectFolder='/g/huber/users/ignatiadis/judith_hqtl/'
 projectFolder='/g/huber/users/fridljand/R/ihw-forest-paper/hqtl_analysis/'
-
+projectFolder = '/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/'
 ## load the fileAnnotationObject
 load(paste(projectFolder,'fileAnnoDF.rda',sep=''))
 

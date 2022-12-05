@@ -118,6 +118,33 @@ expected_f_hom_het <- data.frame(
 ```{r}
 observed_f_hom_het <- apply(snps1_slice, 1, table)
 
+observed_f_hom_het <- lapply(seq_along(observed_f_hom_het), function(i){
+  observed_f_hom_het_i <- observed_f_hom_het[[i]]
+  data.frame(
+    snp_index = i,
+    observed_0_before_min = ifelse('0' %in% names(observed_f_hom_het_i),
+       observed_f_hom_het_i[['0']],
+       0),
+    observed_1 = ifelse('1' %in% names(observed_f_hom_het_i),
+       observed_f_hom_het_i[['1']],
+       0),
+    observed_2_before_max = ifelse('2' %in% names(observed_f_hom_het_i),
+       observed_f_hom_het_i[['2']],
+       0)
+  )
+}) %>%
+  data.table::rbindlist(use.names=TRUE, fill=TRUE)
+
+observed_f_hom_het <- observed_f_hom_het %>%
+  mutate(observed_0 = pmax(observed_0_before_min, observed_2_before_max),
+         observed_2 = pmin(observed_0_before_min, observed_2_before_max),
+         observed_0_before_min = NULL,
+         observed_2_before_max = NULL)
+```
+
+```{r, eval = F}
+observed_f_hom_het <- apply(snps1_slice, 1, table)
+
 observed_f_hom_het <- observed_f_hom_het %>%
 
   lapply(function (df){
@@ -129,22 +156,29 @@ observed_f_hom_het <- observed_f_hom_het %>%
   data.table::rbindlist(use.names=TRUE, fill=TRUE)
 
 observed_f_hom_het[is.na(observed_f_hom_het)] <- 0
+
+observed_f_hom_het <- observed_f_hom_het %>% rename(observed_0 = `0`,
+                                                    observed_1 = `1`,
+                                                    observed_2 = `2`)
 ```
 
 ```{r}
 expected_observed_f_hom_het <- cbind(expected_f_hom_het, observed_f_hom_het)
-ggplot(expected_observed_f_hom_het, aes(x = expected_0, y = `0`))+
+```
+
+```{r}
+ggplot(expected_observed_f_hom_het, aes(x = expected_0, y = observed_0))+
   geom_point() +
   geom_abline(slope = 1)
 ```
 ```{r}
-ggplot(expected_observed_f_hom_het, aes(x = expected_1, y = `1`))+
+ggplot(expected_observed_f_hom_het, aes(x = expected_1, y = observed_1))+
   geom_point() +
   geom_abline(slope = 1)
 ```
 
 ```{r}
-ggplot(expected_observed_f_hom_het, aes(x = expected_2, y = `2`))+
+ggplot(expected_observed_f_hom_het, aes(x = expected_2, y = observed_2))+
   geom_point() +
   geom_abline(slope = 1)
 ```

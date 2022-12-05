@@ -311,7 +311,7 @@ forest_rej <- xfun::cache_rds(
           lambdas = Inf,
           stratification_method = "forest",
           #n_censor_thres = 1, ntrees = 1, nodedepth = 6, nodesize = 5000
-           n_censor_thres = 1, ntrees = 1, nodedepth = 9, nodesize = 5000 # TODO
+           n_censor_thres = 3, ntrees = 3, nodedepth = 10, nodesize = 5000 # TODO
         )
       ))
       
@@ -343,7 +343,7 @@ bh_rejections <- foreach(i = seq_len(nrow(alpha_levels))) %dorng% {
 
   alpha_i <- alpha_levels$alphas[[i]]
 
-  by_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha_i)
+  bh_rejections_i <- sum(p.adjust(na.exclude(chr1_chr2_df$pvalue), method = "BH") <= alpha_i)
   # evaluate number of rejections
   data.frame(
     method = "BH",
@@ -351,11 +351,11 @@ bh_rejections <- foreach(i = seq_len(nrow(alpha_levels))) %dorng% {
     number_covariates = 0,
     alpha = alpha_i,
     #alphas_by = alphas_by_i,
-    rejections = by_rejections_i,
+    rejections = bh_rejections_i,
     nbins_covariates = 0
   )
 }
-by_rejections <- bind_rows(by_rejections)
+bh_rejections <- bind_rows(bh_rejections)
 ```
 
 ## Evaluate number of rejections
