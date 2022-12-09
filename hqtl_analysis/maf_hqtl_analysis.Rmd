@@ -65,7 +65,9 @@ chr1_full_data_grubert[[1]][1:10,1:10]
 
 The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was. downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds).
 ```{r}
-chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
+#chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
+chr1_pvalues_grubert <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr1.txt"), header = TRUE, stringsAsFactors = FALSE)
+chr1_pvalues_grubert <- chr1_pvalues_grubert %>% rename(tstat = t.stat, pvalue = p.value)
 head(chr1_pvalues_grubert)
 ```
 `SNP`,`gene` are primary keys.
@@ -236,6 +238,7 @@ ggplot(chr1_pvalues_grubert,
   labs(x = "MAF Sample",
        y = "MAF Downloaded")
 ```
+
 ```{r}
 ggplot(chr1_pvalues_grubert,
        aes(x = rank(maf_sample), y = rank(maf_downloaded))) +

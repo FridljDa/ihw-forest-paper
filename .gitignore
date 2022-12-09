@@ -12,3 +12,5 @@ hqtl_analysis/calculate_maf_from_hqtl.html
 .RDataTmp
 .RDataTmp3
 .RDataTmp2
+chrom21H3K27AC
+qtls_chrom_21.Rds

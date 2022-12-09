@@ -62,9 +62,11 @@ chr1_full_data_grubert[[1]][1:10,1:10]
 ```
 `0` means no alternative allele, `1` means 1 alternative allele, `2` means 2 alternative allele, 
 
-The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was. downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds).
+The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds).
 ```{r}
-chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
+#chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
+chr1_pvalues_grubert <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr1.txt"), header = TRUE, stringsAsFactors = FALSE)
+chr1_pvalues_grubert <- chr1_pvalues_grubert %>% rename(tstat = t.stat, pvalue = p.value)
 head(chr1_pvalues_grubert)
 ```
 `SNP`,`gene` are primary keys.
@@ -76,8 +78,8 @@ chr1_pvalues_grubert %>%
 
 ## data set 2
 
-We consider a second data set
-from (Boca and Leek)[https://github.com/SiminaB/Fdr-regression/blob/master/BMI%20GIANT%20meta-analysis/BMI_GIANT_GWAS_results_Scott_theoretical.RData].
+We consider a [second data set](https://github.com/SiminaB/Fdr-regression/blob/master/BMI%20GIANT%20meta-analysis/BMI_GIANT_GWAS_results_Scott_theoretical.RData)
+from [Boca and Leek](https://peerj.com/articles/6035/).
 ```{r}
 pvalues_maf_boca <- loadRData(here("data/BMI_GIANT_GWAS.RData"))
 head(pvalues_maf_boca)
@@ -195,5 +197,58 @@ ggplot(pvalues_maf_boca %>%
   scale_y_log10()+
   scale_fill_gradient(name = "count", trans = "log10")+
   geom_hex()  #bins = 60
+```
+# comparing to rerunning test
+
+```{r}
+chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
+head(chr1_pvalues_grubert)
+```
+Rerunning the code ourselves [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R). 
+
+```{r}
+#tmp <- readRDS(here::here("data/hqtl_chrom1_chrom2/results/chr1_mod_H3K27AC"))
+#chr1_pvalues_grubert_rerun <- tmp$all$eqtls 
+chr1_pvalues_grubert_rerun <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr1.txt"), header = TRUE, stringsAsFactors = FALSE)
+head(chr1_pvalues_grubert_rerun)
+```
+
+```{r}
+chr1_pvalues_grubert_rerun_join <- inner_join(chr1_pvalues_grubert,
+                                              chr1_pvalues_grubert_rerun %>% mutate(gene = as.integer(gene)), 
+                                              by = c("SNP","gene"))
+colnames(chr1_pvalues_grubert_rerun_join)
+```
+
+```{r}
+ggplot(chr1_pvalues_grubert_rerun_join,
+       aes(x = beta.x, y = beta.y)) +
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex(bins = 60) +
+  geom_abline(intercept=0, slope=1, color="red") +
+  labs(x = "downloaded beta",
+       y = "rerun beta")
+```
+
+```{r}
+ggplot(chr1_pvalues_grubert_rerun_join,
+       aes(x = tstat, y = t.stat)) +
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex(bins = 60) +
+  geom_abline(intercept=0, slope=1, color="red") +
+  labs(x = "downloaded tstat",
+       y = "rerun tstat")
+```
+
+```{r}
+ggplot(chr1_pvalues_grubert_rerun_join,
+       aes(x = pvalue, y = p.value)) +
+  scale_fill_gradient(name = "count", trans = "log10")+
+  scale_y_log10()+
+  scale_x_log10()+
+  geom_hex(bins = 60) +
+  geom_abline(intercept=0, slope=1, color="red") +
+  labs(x = "downloaded tstat",
+       y = "rerun tstat")
 ```
 

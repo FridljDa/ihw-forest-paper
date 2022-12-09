@@ -25,7 +25,7 @@ projectFolder = '/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_ch
 load(paste(projectFolder,'fileAnnoDF.rda',sep=''))
 
 ## define the folder for the results
-resultDir=paste(projectFolder,'/results/',sep='')
+resultDir=paste(projectFolder,'results/',sep='')
 if(!file.exists(resultDir))system(paste('mkdir',resultDir))
 plotFolder = paste(resultDir, 'plots/',sep='')
 if(!file.exists(plotFolder))system(paste('mkdir',plotFolder))
@@ -36,7 +36,7 @@ load(covariates_file_used)
 
 
 # pick smallest chromosome...
-snpchr <- 2
+snpchr <- 2 #21
 mod    <- 'H3K27AC'
 
 fileAnnoDF_sub = fileAnnoDF[fileAnnoDF$Chr==snpchr,]
@@ -54,13 +54,16 @@ peakpos_all$chr=gsub('chr','',peakpos_all$chr)
 ## load the hpeaks signals for the respective mark
 hpeaksfileName = fileAnnoDF$FileLocation[fileAnnoDF$Filename=='hpeaksfileName'&fileAnnoDF$Mark==mod]
 cat('reading peaks signal file',mod,'...\n')
-load(hpeaksfileName)
+#load(hpeaksfileName)
+#TODO replaced, not reproducibal
+load("data/hqtl_chrom1_chrom2/hMat.norm.ALL.H3K27AC.peer_lS_5.txt.rda")
 hpeaksMat = as.matrix(hpeaks)
 
 cat('processing chromosome',snpchr,'...\n')
 
 ## define your output file
 QTLresultFile = paste(resultDir, 'cisQTLs_',mod,'_chr',snpchr,'.txt',sep='')
+QTLresultFile = paste(resultDir, 'cisQTLs_',mod,'_chr',snpchr,'.csv',sep='')
 logFile = paste(QTLresultFile,'.log',sep='')
 
 
@@ -73,7 +76,8 @@ snpspos = read.table(snps_location_file_name, header = TRUE, stringsAsFactors = 
 snpspos=snpspos[,1:3]
 
 ## use only the peaks of the chromosome in question
-peakpos=peakpos_all[peakpos_all$chr%in%snpchr,]
+#peakpos=peakpos_all[peakpos_all$chr%in%snpchr,]
+peakpos=peakpos_all[peakpos_all$chr%in%as.character(snpchr),] #done by Daniel
 
 ## load the SNP genotype information file
 load(SNP_file_name_used)
@@ -84,7 +88,7 @@ cvrt2<-cvrt
 cvrt2$ColumnSubsample(cvrt2$columnNames%in%snps$columnNames)
 cvrt2$ColumnSubsample(match(snps$columnNames,cvrt2$columnNames))
 
-hpeaksMatT = hpeaksMat[rownames(hpeaksMat)%in%peakpos$id,]
+hpeaksMatT = hpeaksMat[rownames(hpeaksMat)%in%peakpos$id,] 
 
 ## redefine the hpeaks, for a given chromosome, this speeds up the QTL calling
 hpeaks2 = SlicedData$new();
@@ -103,22 +107,25 @@ me = Matrix_eQTL_main(
   snps = snps, 
   cvrt = cvrt2,
   output_file_name = QTLresultFile,
-  pvOutputThreshold  = 1,
+  #pvOutputThreshold  = 1,
+  pvOutputThreshold  = 10^(-3), #TODO increase
   useModel = modelLINEAR,  
   errorCovariance = errorCovariance, 
   verbose = TRUE, 
   output_file_name.cis = NULL,
-  pvOutputThreshold.cis = 0,#pvOutputThreshold,
+  pvOutputThreshold.cis = 0,
   snpspos = snpspos, 
   genepos = peakpos[,1:4],
   cisDist = 0,
   pvalue.hist = 402)
 
-saveRDS(me, file="chrom21H3K27AC") #save intermediate result
+#QTLresultFileDf <- read.table(QTLresultFile, header = TRUE, stringsAsFactors = FALSE)
+#saveRDS(me, file="chrom21H3K27AC") #save intermediate result
+saveRDS(me,  file = paste0(resultDir,"chr",snpchr,"_mod_",mod))
 
-
-tmp <- readRDS("chrom21H3K27AC")
-qtls <- tmp$all$eqtls
+tmp <- readRDS(paste0(resultDir,"chr",snpchr,"_mod_",mod))
+#tmp <- readRDS("chrom21H3K27AC")
+qtls <- tmp$all$eqtls #same thing as QTLresultFileDf
 qtls$beta <- NULL
 qtls$statistic <- NULL
 qtls$FDR <- NULL
