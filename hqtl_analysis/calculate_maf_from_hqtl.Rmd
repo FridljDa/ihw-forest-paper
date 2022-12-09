@@ -29,6 +29,8 @@ snps1 <- snps
 load(file.path(root_dir, "data/hqtl_chrom1_chrom2/snps2.filtered.allGT.txt.rda"))
 snps2 <- snps
 
+rm(snps)
+
 chr1_maf_download <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr1_maf.Rds"))
 chr2_maf_download <- readRDS(file = file.path(root_dir, "data/downloaded_covariates/chr2_maf.Rds"))
 
@@ -38,15 +40,22 @@ unique(unlist(apply(snps1[[1]], 1, unique)))
 ```{r}
 #http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html
 maf.list = vector('list', length(snps1))
-for(sl in 1:length(snps1)) {
+for(sl in seq_along(snps1)) {
+#sl <- 1
   slice = snps1[[sl]];
+  rownames(slice);
   maf.list[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
   maf.list[[sl]] = pmin(maf.list[[sl]],1-maf.list[[sl]]);
 }
+```
+```{r}
 chr1_maf_sample <- data.frame(
   refsnp_id = MatrixEQTL::rownames(snps1),
   minor_allele_freq =  unlist(maf.list)
 )
+```
+
+```{r}
 hist(chr1_maf_sample$minor_allele_freq)
 axis(1, at = seq(0.05, 1, by = 0.1), las=2)
 ```
@@ -81,15 +90,22 @@ chr1_maf_sample_download <- dplyr::inner_join(chr1_maf_sample %>% rename(minor_a
                                        by = "refsnp_id")
 chr1_maf_sample_download <- chr1_maf_sample_download %>% drop_na(minor_allele_freq_download)
 
-chr1_maf_sample_download <- chr1_maf_sample_download[sample(nrow(chr1_maf_sample_download), 3000), ]
+#chr1_maf_sample_download <- chr1_maf_sample_download[sample(nrow(chr1_maf_sample_download), 3000), ]
 
 #cor(chr1_maf_sample_download$minor_allele_freq_sample,chr1_maf_sample_download$minor_allele_freq_download)
 plot(chr1_maf_sample_download$minor_allele_freq_sample, 
      chr1_maf_sample_download$minor_allele_freq_download,
      col = alpha("black", 0.3), 
-     pch=16)
+     pch= ".")
 abline(coef = c(0,1))
 
+ggplot(chr1_maf_sample_download,
+       aes(x = minor_allele_freq_sample, y = minor_allele_freq_download)) +
+  scale_fill_gradient(name = "count", trans = "log")+
+ # scale_y_log10()+
+  geom_hex(bins = 60)# + #bins = 60
+  #geom_point()+
+  #facet_wrap(~chromosome, ncol = 2)
 ```
 Does not look very correlated. 
 

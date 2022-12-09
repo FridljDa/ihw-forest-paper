@@ -65,7 +65,7 @@ rm(chr1_df, chr2_df, chr1_maf, chr2_maf)
 ```
 
 ```{r}
-pval_threshold <- 10^(-10)
+pval_threshold <- 10^(-4)
 chr1_chr2_df <-chr1_chr2_df %>% filter(pvalue <= pval_threshold)
 ```
 
@@ -108,7 +108,7 @@ cutoffs <- c(0.06, 0.07, 0.08, 0.09, 0.1, 0.3, 0.4)
 ```
 
 ```{r}
-chr1_chr2_df$mafGroup <- groups_by_filter(chr1_chr2_df$minor_allele_freq, 8)
+chr1_chr2_df$mafGroup <- groups_by_filter(chr1_chr2_df$beta_se, 8)
 cutoffs <- chr1_chr2_df %>%
   group_by(mafGroup) %>%
   summarise(cutoffs = max(minor_allele_freq)) %>%

@@ -1,0 +1,381 @@
+---
+title: "analyse relationship between p-values and maf"
+author: "Danie Fridljand"
+date: "08.12.2022"
+output: html_document
+#header-includes:
+#   - \usepackage{bbm}
+#vignette: >
+#  %\VignetteIndexEntry{"calculate_maf_from_hqtl"}
+#  %\VignetteEngine{knitr::rmarkdown}
+#  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(tidyr)
+library(scales)
+library(ggplot2)
+library(rtracklayer)
+library(here)
+library(MatrixEQTL)
+library(dplyr)
+
+knitr::opts_chunk$set(echo = TRUE)
+options(bitmapType ="cairo")
+```
+
+# load data set precalculated p-values
+
+helper function
+```{r}
+loadRData <- function(fileName){
+#loads an RData file, and returns it
+    load(fileName)
+    get(ls()[ls() != "fileName"])
+}
+```
+
+## data set 1
+
+The following is the same same data set as in hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. It is taken from [Grubert et al.](https://linkinghub.elsevier.com/retrieve/pii/S0092867415009642). 
+```{r}
+chr1_full_data_grubert <- loadRData(here("data/hqtl_chrom1_chrom2/snps1.filtered.allGT.txt.rda"))
+```
+
+Sample names (The population sample is 76 individuals).
+```{r}
+MatrixEQTL::colnames(chr1_full_data_grubert)[1:10]
+```
+
+SNPs
+```{r}
+MatrixEQTL::rownames(chr1_full_data_grubert)[1:10]
+```
+
+top-left submatrix
+```{r}
+chr1_full_data_grubert[[1]][1:10,1:10]
+```
+`0` means no alternative allele, `1` means 1 alternative allele, `2` means 2 alternative allele, 
+
+The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was. downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds).
+```{r}
+chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
+head(chr1_pvalues_grubert)
+```
+`SNP`,`gene` are primary keys.
+```{r}
+chr1_pvalues_grubert %>%
+  group_by(SNP,gene) %>%
+  filter(n()>1)
+```
+
+## data set 2
+
+We consider a second data set
+from (Boca and Leek)[https://github.com/SiminaB/Fdr-regression/blob/master/BMI%20GIANT%20meta-analysis/BMI_GIANT_GWAS_results_Scott_theoretical.RData].
+```{r}
+pvalues_maf_boca <- loadRData(here("data/BMI_GIANT_GWAS.RData"))
+head(pvalues_maf_boca)
+```
+
+TODO why are there multiple rows per SNP?
+```{r, eval = FALSE}
+pvalues_maf_boca %>%
+  group_by(SNP) %>%
+  filter(n()>1)
+```
+ 
+## harmonise data set 1 and 2
+
+We calculate the standard deviation for the beta estimate of the effect size from the `beta_se`from `beta` and `tstat`.
+```{r}
+chr1_pvalues_grubert <- chr1_pvalues_grubert %>%
+  mutate(beta_se = beta/tstat,
+         tstat = NULL,
+         FDR = NULL)
+```
+
+We harmonise the two data sets.
+```{r}
+pvalues_maf_boca <- pvalues_maf_boca %>%
+  dplyr::rename(beta = b, beta_se = se, pvalue = p, maf_sample = Freq_MAF_Hapmap) %>%
+  mutate(Freq_MAF_Int_Hapmap = NULL,
+         A1 = NULL,
+         A2 = NULL)
+
+colnames(chr1_pvalues_grubert)
+colnames(pvalues_maf_boca)
+```
+TODO how is Freq_MAF_Hapmap calculated? Is it from sample?
+
+# download maf from online data base
+
+## data set 1
+```{r}
+ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
+```
+
+Download minor_allele_freq for first data set
+```{r, eval=FALSE}
+chr1_maf_grubert_downloaded <- biomaRt::getBM(
+  attributes = c("refsnp_id", "minor_allele_freq"),
+  filters = "snp_filter", values = "rs1620325",#unique(chr1_pvalues_grubert$SNP),
+  mart = ensembl, uniqueRows = TRUE
+)
+writeRDS(chr1_maf_grubert_downloaded, here("data/downloaded_covariates/chr1_maf.Rds"))
+```
+
+Load the pre-downloaded maf
+
+```{r, eval = TRUE}
+chr1_maf_grubert_downloaded <- readRDS(here("data/downloaded_covariates/chr1_maf.Rds"))
+```
+
+join, filter out rows where downloaded maf is missing
+```{r}
+chr1_maf_grubert_downloaded <- chr1_maf_grubert_downloaded %>% 
+  dplyr::rename(maf_downloaded = minor_allele_freq)
+
+chr1_pvalues_grubert <- chr1_pvalues_grubert %>%
+  inner_join(chr1_maf_grubert_downloaded, by = c("SNP" = "refsnp_id")) %>%
+  drop_na(maf_downloaded)
+```
+
+```{r}
+ggplot(chr1_pvalues_grubert, aes(x = maf_downloaded)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+  labs(title = "Histogram of MAF Download",
+       x = "MAF Download",
+       y = "Frequency")
+```
+
+```{r}
+range(chr1_pvalues_grubert$maf_downloaded)
+```
+
+## data set 2
+
+```{r, eval = FALSE}
+chr1_maf <- biomaRt::getBM(
+  attributes = c("refsnp_id", "minor_allele_freq"),
+  filters = "snp_filter", values = unique(pvalues_maf_boca$SNP),
+  mart = ensembl, uniqueRows = TRUE
+)
+```
+
+# calculate minor alle frequency 
+
+## data set 1
+This code is directly taken from here: http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html. Explenation: each entry of the matrix can take the values `0`,`1`,`2`. `rowMeans(slice,na.rm=TRUE)/2=rowSum(slice,na.rm=TRUE)/(2*76)`.
+
+```{r}
+maf.list = vector('list', length(chr1_full_data_grubert))
+for(sl in seq_along(chr1_full_data_grubert)) {
+  slice = chr1_full_data_grubert[[sl]];
+  maf.list[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
+  maf.list[[sl]] = pmin(maf.list[[sl]],1-maf.list[[sl]]);
+}
+```
+
+We assign the maf to the snp identifier TODO mistake in this cell?
+```{r}
+chr1_maf_sample <- data.frame(
+  SNP = MatrixEQTL::rownames(chr1_full_data_grubert),
+  maf_sample = unlist(maf.list)
+)
+```
+
+```{r}
+chr1_pvalues_grubert <- chr1_pvalues_grubert %>%
+  inner_join(chr1_maf_sample, by = "SNP") 
+```
+
+```{r}
+ggplot(chr1_pvalues_grubert, aes(x = maf_sample)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+  labs(title = "Histogram of MAF Sample",
+       x = "MAF Sample",
+       y = "Frequency")
+```
+This is plausible and checks out with what we would expect from the datq set description.
+```{r}
+range(chr1_pvalues_grubert$maf_sample)
+```
+
+
+## data set 2
+already pre calculated
+```{r}
+ggplot(pvalues_maf_boca, aes(x = maf_sample)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+  labs(title = "Histogram of MAF Sample",
+       x = "MAF Sample",
+       y = "Frequency")
+```
+The boca leek data set seems to be not filtered for significant SNPs.
+```{r}
+range(pvalues_maf_boca$maf_sample)
+```
+
+# comparing downloaded and calculated maf
+
+## data set 1
+The sample MAF does not go below 0.05.
+```{r}
+ggplot(chr1_pvalues_grubert,
+       aes(x = maf_sample, y = maf_downloaded)) +
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex(bins = 60) +
+  geom_abline(intercept=0, slope=1, color="red") +
+  labs(x = "MAF Sample",
+       y = "MAF Downloaded")
+```
+```{r}
+ggplot(chr1_pvalues_grubert,
+       aes(x = rank(maf_sample), y = rank(maf_downloaded))) +
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex(bins = 60) +
+  geom_abline(intercept=0, slope=1, color="red") +
+  labs(x = "MAF Sample Rank",
+       y = "MAF Downloaded Rank")
+```
+# compare minor alle frequency and standard deviation of effect size estimate
+
+## data set 1
+The beta_se estimate is calculated from the pre-calculated p-value. So it is assumed, that the pre-calculated p-value is correct. This is plausible: std should decrease with smaller beta_se.
+```{r}
+ggplot(chr1_pvalues_grubert,
+       aes(x = maf_sample, y = beta_se)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+```{r}
+ggplot(chr1_pvalues_grubert,
+       aes(x = maf_downloaded, y = beta_se)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+So the sample maf looks more informative
+
+## data set 2
+The beta_se estimate is calculated from the pre-calculated p-value. So it is assumed, that the pre-calculated p-value is correct.
+```{r}
+ggplot(pvalues_maf_boca,
+       aes(x = maf_sample, y = beta_se)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+# compare pvalues and standard deviation of effect size estimate
+
+## data set 1
+The following plot makes sense. In `chr1_pvalues_grubert` we have filtered out SNPs with low MAF and high pvalues. 
+
+```{r}
+ggplot(chr1_pvalues_grubert,
+       aes(x = beta_se , y = pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+## data set 2
+
+TODO why is `beta_se` independent of `pvalue`.
+```{r}
+ggplot(pvalues_maf_boca,
+       aes(x = beta_se, y =  pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+Reproducing what happens for data set 1.
+```{r}
+ggplot(pvalues_maf_boca %>%
+         filter(pvalue <= 10^(-2), maf_sample >= 0.05),
+       aes(x = beta_se, y =  pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+# comparing p-values with maf sample
+
+## data set 1
+
+`maf_sample` does not seem super informative.
+
+```{r}
+ggplot(chr1_pvalues_grubert,
+       aes(x = maf_sample, y = pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+## data set 2
+
+Here the data set 2 exhibits a much stronger trend. `maf_sample` seems more informative.
+```{r}
+ggplot(pvalues_maf_boca,
+       aes(x = maf_sample, y = pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+# stratifying pvalues by beta std
+```{r}
+groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
+  if (!is.null(seed) && ties.method=="random"){
+    #http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1
+    tmp <- runif(1)
+    old <- .Random.seed
+    on.exit( { .Random.seed <<- old } )
+    set.seed(as.integer(seed)) 
+  }
+	rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
+	as.factor(ceiling( rfs* nbins))
+}
+```
+
+## stratifying pvalues by beta std, data set 1
+
+`mutate(beta_se = beta/tstat)`
+```{r}
+ggplot(chr1_pvalues_grubert, 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(chr1_pvalues_grubert$beta_se, 8), nrow = 2)
+```
+## data set 2
+```{r}
+ggplot(pvalues_maf_boca, 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(pvalues_maf_boca$beta_se, 8), nrow = 2)
+```
+
+# stratifying pvalues by maf
+
+## data set 1
+```{r}
+ggplot(chr1_pvalues_grubert, 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(chr1_pvalues_grubert$maf_sample, 8), nrow = 2)
+```
+
+## data set 2
+```{r}
+ggplot(pvalues_maf_boca, 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(pvalues_maf_boca$maf_sample, 8), nrow = 2)
+```
