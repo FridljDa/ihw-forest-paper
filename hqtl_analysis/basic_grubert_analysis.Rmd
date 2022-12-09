@@ -1,10 +1,14 @@
 ---
-title: "analyse relationship between p-values and maf"
+title: "Basic analysis of the pvalues in Grubert et al."
 author: "Danie Fridljand"
-date: "08.12.2022"
-output: html_document
-#header-includes:
-#   - \usepackage{bbm}
+date: "09.12.2022"
+header-includes:
+   - \usepackage{bbm}
+output:
+  html_document:
+    toc: true
+    theme: united
+
 #vignette: >
 #  %\VignetteIndexEntry{"calculate_maf_from_hqtl"}
 #  %\VignetteEngine{knitr::rmarkdown}
@@ -126,8 +130,8 @@ groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
 
 ## stratifying pvalues by beta std, data set 1
 
-Stratifying the p-values in the first data set by `beta_se` does not really show clear trends.
-`mutate(beta_se = beta/tstat)`
+Stratifying the p-values in the first data set by `beta_se` does not really show clear trends. 
+The [downloaded data set](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds) has columns `beta` and `tstat`. `beta_se` was calculated the following way `mutate(beta_se = beta/tstat)`.
 ```{r}
 ggplot(chr1_pvalues_grubert, 
        aes(x = pvalue)) +

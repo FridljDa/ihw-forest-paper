@@ -2,7 +2,12 @@
 title: "analyse relationship between p-values and maf"
 author: "Danie Fridljand"
 date: "08.12.2022"
-output: html_document
+header-includes:
+   - \usepackage{bbm}
+output:
+  html_document:
+    toc: true
+    theme: united
 #header-includes:
 #   - \usepackage{bbm}
 #vignette: >
