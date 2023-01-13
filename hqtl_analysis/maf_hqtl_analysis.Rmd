@@ -377,7 +377,7 @@ ggplot(pvalues_maf_boca,
 ggplot(chr1_pvalues_grubert, 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0) +
-  facet_wrap(groups_by_filter(chr1_pvalues_grubert$maf_sample, 8), nrow = 2)
+  facet_wrap(groups_by_filter(chr1_pvalues_grubert$maf_sample, 4), nrow = 2)
 ```
 
 ## data set 2

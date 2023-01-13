@@ -36,7 +36,7 @@ load(covariates_file_used)
 
 
 # pick smallest chromosome...
-snpchr <- 2 #21
+snpchr <- 22 #21
 mod    <- 'H3K27AC'
 
 fileAnnoDF_sub = fileAnnoDF[fileAnnoDF$Chr==snpchr,]
@@ -108,7 +108,7 @@ me = Matrix_eQTL_main(
   cvrt = cvrt2,
   output_file_name = QTLresultFile,
   #pvOutputThreshold  = 1,
-  pvOutputThreshold  = 10^(-3), #TODO increase
+  pvOutputThreshold  = 1,#10^(-2), #10^(-2) worked
   useModel = modelLINEAR,  
   errorCovariance = errorCovariance, 
   verbose = TRUE, 
@@ -117,7 +117,8 @@ me = Matrix_eQTL_main(
   snpspos = snpspos, 
   genepos = peakpos[,1:4],
   cisDist = 0,
-  pvalue.hist = 402)
+  pvalue.hist = FALSE,#402,
+  noFDRsaveMemory = TRUE)
 
 #QTLresultFileDf <- read.table(QTLresultFile, header = TRUE, stringsAsFactors = FALSE)
 #saveRDS(me, file="chrom21H3K27AC") #save intermediate result
@@ -140,6 +141,7 @@ qtls <- left_join(qtls, peakpos)
 qtls <- mutate(qtls, dist = pmin(abs(peak_start-snp_pos), abs(peak_end-snp_pos)))
 saveRDS(qtls, file="qtls_chrom_21.Rds")
 
+quit()
 ##########################################################
 # Step 2: Apply IHW and compare to BH/Indep. Filtering
 ##########################################################
