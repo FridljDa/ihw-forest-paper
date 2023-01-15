@@ -1,13 +1,10 @@
 ---
 title: "analyse relationship between p-values and maf"
 author: "Danie Fridljand"
-date: "08.12.2022"
 header-includes:
    - \usepackage{bbm}
-output:
-  html_document:
-    toc: true
-    theme: united
+output: bookdown::html_document2
+#BiocStyle::html_document
 #header-includes:
 #   - \usepackage{bbm}
 #vignette: >
@@ -24,6 +21,7 @@ library(rtracklayer)
 library(here)
 library(MatrixEQTL)
 library(dplyr)
+library(EnvStats)
 
 knitr::opts_chunk$set(echo = TRUE)
 options(bitmapType ="cairo")
@@ -70,8 +68,8 @@ chr21_pvalues_grubert <- chr21_pvalues_grubert %>% rename(tstat = `t-stat`, pval
 head(chr21_pvalues_grubert)
 ```
 
-```{r, eval = FALSE}
-chr21_pvalues_grubert <- chr21_pvalues_grubert %>% sample_n(1000000)
+```{r, eval = TRUE}
+chr21_pvalues_grubert <- chr21_pvalues_grubert %>% sample_n(1000) #3000000
 ```
 
 `SNP`,`gene` are primary keys.
@@ -117,7 +115,8 @@ pvalues_maf_boca <- pvalues_maf_boca %>%
   dplyr::rename(beta = b, beta_se = se, pvalue = p, maf_sample = Freq_MAF_Hapmap) %>%
   mutate(Freq_MAF_Int_Hapmap = NULL,
          A1 = NULL,
-         A2 = NULL)
+         A2 = NULL,
+         tstat = beta/beta_se)
 
 colnames(chr21_pvalues_grubert)
 colnames(pvalues_maf_boca)
@@ -126,8 +125,31 @@ TODO how is Freq_MAF_Hapmap calculated? Is it from sample?
 
 # check t-distribution
 
-## data set 1 
-```{r}
+## data set 1
+
+```{=latex}
+$$
+Y_i=\beta_0+\beta_1 x_i+\epsilon_i
+$$
+
+$$
+\left(\begin{array}{l}
+\widehat{\beta}_0 \\
+\widehat{\beta}_1
+\end{array}\right) \sim \mathcal{N}\left(\left(\begin{array}{l}
+\beta_0 \\
+\beta_1
+\end{array}\right), \sigma^2\left(X^{\top} X\right)^{-1}\right)
+$$
+
+$$
+T_n(\boldsymbol{Y}):=\frac{\widehat{\beta}_1}{s(\boldsymbol{Y}) / \sqrt{s s_{x x} x}}
+$$
+\end{tabular}
+```
+
+
+```{r cars, fig.cap = "An amazing plot"}
 ggplot(chr21_pvalues_grubert, aes(x = tstat)) +
   geom_histogram(fill = "lightblue", color = "black", bins = 30) +
   labs(title = "Histogram of tstat",
@@ -135,15 +157,48 @@ ggplot(chr21_pvalues_grubert, aes(x = tstat)) +
        y = "Frequency")
 ```
 
-TODO
-```{r, eval = FALSE}
-ggplot(chr21_pvalues_grubert, 
-            aes(sample = tstat)) + 
-  stat_qq() + #distribution = stats::ts
-  stat_qq_line()
 
+```{=latex}
+
+$$
+T_n(\boldsymbol{Y}):=\frac{\widehat{\beta}_1}{s(\boldsymbol{Y}) / \sqrt{s s_{x x} x}}
+$$
+\end{tabular}
 ```
 
+
+```{r}
+qqPlot(chr21_pvalues_grubert$tstat, dist = "t", param.list = list(df = 74), add.line = TRUE)
+```
+TODO
+
+```{=latex}
+$$
+\widehat{\beta}_1 \sim \mathcal{N}\left(\beta_1, \sigma^2\left(X^{\top} X\right)_{22}^{-1}\right)
+$$
+\end{tabular}
+```
+
+```{r}
+qqPlot(chr21_pvalues_grubert$beta, dist = "norm", estimate.params = TRUE, add.line = TRUE)
+```
+```{=latex}
+$$
+s^2(\boldsymbol{Y})=\frac{1}{n-2}\|\boldsymbol{Y}-\widehat{\boldsymbol{\zeta}}\|^2=\frac{1}{n-2} \sum_{i=1}^n\left(Y_i-\widehat{\beta}_0-\widehat{\beta}_1 x_i\right)^2 \sim \chi_n^2
+$$
+\end{tabular}
+```
+
+
+```{r}
+#TODO more complicated because of \sqrt{s s_{x x} x}
+qqPlot(chr21_pvalues_grubert$beta_se, dist = "chisq", param.list = list(df = 74), add.line = TRUE)
+```
+
+## data set 2
+```{r, eval = FALSE}
+qqPlot(pvalues_maf_boca$tstat, dist = "t", estimate.parameters = TRUE, add.line = TRUE)
+```
 
 # calculate minor alle frequency 
 

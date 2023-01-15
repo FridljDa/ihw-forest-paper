@@ -1,14 +1,8 @@
 ---
 title: "hQTL analysis with IHW-Benjamini-Yekutieli"
-author: "Nikos Ignatiadis"
-date: "`r doc_date()`"
-package: "`r pkg_ver('IHWpaper')`"
-output: BiocStyle::html_document
-bibliography: bibliography.bib
-vignette: >
-  %\VignetteIndexEntry{"Stats paper: hQTL analysis with IHW-Benjamini-Yekutieli"}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+author: "Daniel Fridljand"
+date: "15.01.2023"
+output: bookdown::html_document2
 ---
 
 
@@ -235,23 +229,26 @@ ihw_chr1_chr2 <- ihw(chr1_chr2_df$pvalue, chr1_chr2_groups, alpha, folds=folds_v
                      m_groups=m_groups, lambdas=2000)
 ```
 
+## Rejections in BY/IHW-BY:
 Rejections of BY:
 
 ```{r}
 sum(p.adjust(chr1_chr2_df$pvalue, n = m, method="BH") <= alpha)
 ```
 
+Rejections of IHW-BY with censoring trick:
+
 ```{r}
 rejections(ihw_chr1_chr2_no_binning)
 ```
 
-Rejections of IHW-BY:
+Rejections of IHW-BY with binning:
 
 ```{r}
 rejections(ihw_chr1_chr2)
 ```
 
-So we see that discoveries have more than doubled.
+So we see that discoveries have more than doubled. IHW-BY with binning with pre-binning, because it can learn the features of the covariate space on the full, uncensored data set. 
 
 
 What if we had applied BH and IHW-BH instead of BY and IHW-BY?
@@ -263,6 +260,7 @@ ihw_chr1_chr2_bh <- ihw(chr1_chr2_df$pvalue, chr1_chr2_groups, alpha_bh,
                         folds=folds_vec, m_groups=m_groups, lambdas=2000)
 ```
 
+## Rejections of BH:
 ```{r}
 sum(p.adjust(chr1_chr2_df$pvalue, n = m, method="BH") <= alpha_bh)
 ```
@@ -277,13 +275,25 @@ rejections(ihw_chr1_chr2_bh)
 # plot weights with build-in function
 
 ## BY
+theoretical breaks
+```{r}
+my_breaks
+```
+sort of logarithmic scale, more granular with very small distances
+
+
 ```{r}
 plot(ihw_chr1_chr2)
 ```
 
 ```{r}
+stratification_breaks(ihw_chr1_chr2_no_binning)
+```
+
+```{r}
 plot(ihw_chr1_chr2_no_binning)
 ```
+
 ```{r}
 plot(ihw_chr1_chr2_no_binning_reg)
 ```
