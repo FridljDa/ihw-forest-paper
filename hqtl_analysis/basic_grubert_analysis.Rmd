@@ -43,35 +43,37 @@ loadRData <- function(fileName){
 
 The following is the same same data set as in hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. It is taken from [Grubert et al.](https://linkinghub.elsevier.com/retrieve/pii/S0092867415009642). 
 ```{r}
-chr1_full_data_grubert <- loadRData(here("data/hqtl_chrom1_chrom2/snps1.filtered.allGT.txt.rda"))
+chr21_full_data_grubert <- loadRData(here("data/hqtl_chrom1_chrom2/snps21.filtered.allGT.txt.rda"))
 ```
 
 Sample names (The population sample is 76 individuals).
 ```{r}
-MatrixEQTL::colnames(chr1_full_data_grubert)[1:10]
+MatrixEQTL::colnames(chr21_full_data_grubert)[1:10]
 ```
 
 SNPs
 ```{r}
-MatrixEQTL::rownames(chr1_full_data_grubert)[1:10]
+MatrixEQTL::rownames(chr21_full_data_grubert)[1:10]
 ```
 
 top-left submatrix
 ```{r}
-chr1_full_data_grubert[[1]][1:10,1:10]
+chr21_full_data_grubert[[1]][1:10,1:10]
 ```
 `0` means no alternative allele, `1` means 1 alternative allele, `2` means 2 alternative allele, 
 
-The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds).
+The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr21_subset.Rds).
 ```{r}
-#chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
-chr1_pvalues_grubert <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr1.txt"), header = TRUE, stringsAsFactors = FALSE)
-chr1_pvalues_grubert <- chr1_pvalues_grubert %>% rename(tstat = t.stat, pvalue = p.value)
-head(chr1_pvalues_grubert)
+#chr21_pvalues_grubert <- readRDS(here::here("data/hqtl_chrom1_chrom2/results/chr21_mod_H3K27AC.Rds"))
+#chr21_pvalues_grubert <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr21.txt"), header = TRUE, stringsAsFactors = FALSE,  nrows =10)
+
+chr21_pvalues_grubert <- data.table::fread(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr21.txt"))
+chr21_pvalues_grubert <- chr21_pvalues_grubert %>% rename(tstat = `t-stat`, pvalue = `p-value`)
+head(chr21_pvalues_grubert)
 ```
 `SNP`,`gene` are primary keys.
-```{r}
-chr1_pvalues_grubert %>%
+```{r, eval = FALSE}
+chr21_pvalues_grubert %>%
   group_by(SNP,gene) %>%
   filter(n()>1)
 ```
@@ -96,10 +98,11 @@ pvalues_maf_boca %>%
 
 We calculate the standard deviation for the beta estimate of the effect size from the `beta_se`from `beta` and `tstat`.
 ```{r}
-chr1_pvalues_grubert <- chr1_pvalues_grubert %>%
+chr21_pvalues_grubert <- chr21_pvalues_grubert %>%
   mutate(beta_se = beta/tstat,
-         tstat = NULL,
-         FDR = NULL)
+         tstat = NULL#,
+         #FDR = NULL
+         )
 ```
 
 We harmonise the two data sets.
@@ -110,7 +113,7 @@ pvalues_maf_boca <- pvalues_maf_boca %>%
          A1 = NULL,
          A2 = NULL)
 
-colnames(chr1_pvalues_grubert)
+colnames(chr21_pvalues_grubert)
 colnames(pvalues_maf_boca)
 ```
 TODO how is Freq_MAF_Hapmap calculated? Is it from sample?
@@ -133,12 +136,12 @@ groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
 ## stratifying pvalues by beta std, data set 1
 
 Stratifying the p-values in the first data set by `beta_se` does not really show clear trends. 
-The [downloaded data set](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr1_subset.Rds) has columns `beta` and `tstat`. `beta_se` was calculated the following way `mutate(beta_se = beta/tstat)`.
+The [downloaded data set](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr21_subset.Rds) has columns `beta` and `tstat`. `beta_se` was calculated the following way `mutate(beta_se = beta/tstat)`.
 ```{r}
-ggplot(chr1_pvalues_grubert, 
+ggplot(chr21_pvalues_grubert, 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0) +
-  facet_wrap(groups_by_filter(chr1_pvalues_grubert$beta_se, 8), nrow = 2)
+  facet_wrap(groups_by_filter(chr21_pvalues_grubert$beta_se, 8), nrow = 2)
 ```
 
 ## data set 2
@@ -155,16 +158,16 @@ ggplot(pvalues_maf_boca,
 # compare pvalues and standard deviation of effect size estimate
 
 ## data set 1
-The following plot makes sense. In `chr1_pvalues_grubert` we have filtered out SNPs with low MAF and high pvalues. 
+The following plot makes sense. In `chr21_pvalues_grubert` we have filtered out SNPs with low MAF and high pvalues. 
 ```{r}
-ggplot(chr1_pvalues_grubert,
+ggplot(chr21_pvalues_grubert,
        aes(x = beta_se , y = pvalue)) +
   scale_fill_gradient(name = "count", trans = "log10")+
   geom_hex()  #bins = 60
 ```
 
 ```{r}
-ggplot(chr1_pvalues_grubert,
+ggplot(chr21_pvalues_grubert,
        aes(x = beta_se , y = pvalue)) +
   scale_y_log10()+
   scale_fill_gradient(name = "count", trans = "log10")+
@@ -201,27 +204,27 @@ ggplot(pvalues_maf_boca %>%
 # comparing to rerunning test
 
 ```{r}
-chr1_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr1_subset.Rds"))
-head(chr1_pvalues_grubert)
+chr21_pvalues_grubert <- readRDS(here("data/hqtl_chrom1_chrom2/chr21_subset.Rds"))
+head(chr21_pvalues_grubert)
 ```
 Rerunning the code ourselves [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R). 
 
 ```{r}
-#tmp <- readRDS(here::here("data/hqtl_chrom1_chrom2/results/chr1_mod_H3K27AC"))
-#chr1_pvalues_grubert_rerun <- tmp$all$eqtls 
-chr1_pvalues_grubert_rerun <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr1.txt"), header = TRUE, stringsAsFactors = FALSE)
-head(chr1_pvalues_grubert_rerun)
+#tmp <- readRDS(here::here("data/hqtl_chrom1_chrom2/results/chr21_mod_H3K27AC"))
+#chr21_pvalues_grubert_rerun <- tmp$all$eqtls 
+chr21_pvalues_grubert_rerun <- read.table(here::here("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr21.txt"), header = TRUE, stringsAsFactors = FALSE)
+head(chr21_pvalues_grubert_rerun)
 ```
 
 ```{r}
-chr1_pvalues_grubert_rerun_join <- inner_join(chr1_pvalues_grubert,
-                                              chr1_pvalues_grubert_rerun %>% mutate(gene = as.integer(gene)), 
+chr21_pvalues_grubert_rerun_join <- inner_join(chr21_pvalues_grubert,
+                                              chr21_pvalues_grubert_rerun %>% mutate(gene = as.integer(gene)), 
                                               by = c("SNP","gene"))
-colnames(chr1_pvalues_grubert_rerun_join)
+colnames(chr21_pvalues_grubert_rerun_join)
 ```
 
 ```{r}
-ggplot(chr1_pvalues_grubert_rerun_join,
+ggplot(chr21_pvalues_grubert_rerun_join,
        aes(x = beta.x, y = beta.y)) +
   scale_fill_gradient(name = "count", trans = "log10")+
   geom_hex(bins = 60) +
@@ -231,7 +234,7 @@ ggplot(chr1_pvalues_grubert_rerun_join,
 ```
 
 ```{r}
-ggplot(chr1_pvalues_grubert_rerun_join,
+ggplot(chr21_pvalues_grubert_rerun_join,
        aes(x = tstat, y = t.stat)) +
   scale_fill_gradient(name = "count", trans = "log10")+
   geom_hex(bins = 60) +
@@ -241,7 +244,7 @@ ggplot(chr1_pvalues_grubert_rerun_join,
 ```
 
 ```{r}
-ggplot(chr1_pvalues_grubert_rerun_join,
+ggplot(chr21_pvalues_grubert_rerun_join,
        aes(x = pvalue, y = p.value)) +
   scale_fill_gradient(name = "count", trans = "log10")+
   scale_y_log10()+

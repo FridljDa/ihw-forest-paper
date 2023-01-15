@@ -1,0 +1,299 @@
+---
+title: "hQTL analysis with IHW-Benjamini-Yekutieli"
+author: "Nikos Ignatiadis"
+date: "`r doc_date()`"
+package: "`r pkg_ver('IHWpaper')`"
+output: BiocStyle::html_document
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{"Stats paper: hQTL analysis with IHW-Benjamini-Yekutieli"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r warning=FALSE, message=FALSE}
+library(dplyr)
+library(IHW)
+#library(fdrtool)
+library(ggplot2)
+library(cowplot)
+theme_set(theme_cowplot())
+library(tidyr)
+library(scales)
+library(latex2exp)
+```
+
+Let us start by loading in the data:
+
+```{r}
+file_loc <- system.file("extdata","real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
+```
+
+First the two tables with the p-values corresponding to the two chromosomes. Note that only p-values <= 1e-4 are stored in these.
+```{r}
+chr1_df <- readRDS(file.path(file_loc, "chr1_subset.Rds"))
+chr2_df <- readRDS(file.path(file_loc, "chr2_subset.Rds"))
+```
+
+```{r}
+pval_threshold <- 10^(-4)
+```
+
+Also recall each hypothesis corresponds to a peak (which we call gene below) and a SNP. Hence let us load files about each of the SNPs and peaks:
+
+```{r}
+snp_chr1 <- readRDS(file.path(file_loc, "snppos_chr1.Rds"))
+snp_chr2 <-  readRDS(file.path(file_loc, "snppos_chr2.Rds"))
+
+all_peaks <- readRDS(file.path(file_loc, "peak_locations.Rds"))
+peaks_chr1 <- dplyr::filter(all_peaks, chr=="chr1")
+peaks_chr2 <- dplyr::filter(all_peaks, chr=="chr2")
+```
+
+
+
+We can use these both to infer how many hypotheses were conducted in total (or at a given distance), but also to calculate our covariates which are a function of SNP and peak (their distance).
+
+
+Now let us attach the new column with the covariate (distance) to the data frames.
+
+```{r}
+chr1_df <- left_join(chr1_df, select(snp_chr1, snp, pos), by=(c("SNP"="snp"))) %>%
+       left_join(peaks_chr1, by=(c("gene"="id"))) %>%
+       mutate( dist = pmin( abs(pos-start), abs(pos-end)))
+
+chr2_df <- left_join(chr2_df, select(snp_chr2, snp, pos), by=(c("SNP"="snp"))) %>%
+       left_join(peaks_chr2, by=(c("gene"="id"))) %>%
+       mutate( dist = pmin( abs(pos-start), abs(pos-end)))
+```
+
+Now let us convert the distance to a categorical covariate by binning:
+
+```{r breaks}
+my_breaks <- c(-1, 
+                 seq(from=10000,to=290000, by=10000) , 
+                 seq(from=300000, to=0.9*10^6, by=100000),
+                 seq(from=10^6, to=25.1*10^7, by=10^7))
+myf1 <- cut(chr1_df$dist, my_breaks)
+myf2 <- cut(chr2_df$dist, my_breaks)
+```
+
+To apply our method despite the fact that only small p-values are available, we will count how many hypotheses there are in each of the bins. The above code is not very efficient, so we have precomputed the results and do not run the below chunk.
+
+```{r eval=FALSE}
+cnt = 0
+ms <- rep(0, length(levels(myf1)))
+pb = txtProgressBar(min = 0, max = nrow(peaks_chr1), initial = 0) 
+
+for (i in 1:nrow(peaks_chr1)){
+  setTxtProgressBar(pb,i)
+  start_pos <- peaks_chr1$start[i]
+  end_pos <- peaks_chr1$end[i]
+  dist_vec <- pmin( abs(snp_chr1$pos - start_pos), abs(snp_chr1$pos - end_pos) )
+  ms <- ms + table(cut(dist_vec, my_breaks))
+}
+
+saveRDS( ms, file = "m_groups_chr1.Rds" )
+
+
+cnt = 0
+ms_chr2 <- table(myf2)*0
+pb = txtProgressBar(min = 0, max = nrow(peaks_chr2), initial = 0) 
+
+for (i in 1:nrow(peaks_chr2)){
+  setTxtProgressBar(pb,i)
+  start_pos <- peaks_chr1$start[i]
+  end_pos <- peaks_chr1$end[i]
+  dist_vec <- pmin( abs(snp_chr2$pos - start_pos), abs(snp_chr2$pos - end_pos) )
+  ms_chr2 <- ms_chr2 + table(cut(dist_vec, my_breaks))
+}
+
+saveRDS( ms_chr2, file = "m_groups_chr2.Rds" )
+```
+
+Let us load the result from the above execution:
+
+```{r}
+ms_chr1 <- readRDS(file.path(file_loc, "m_groups_chr1.Rds"))
+ms_chr2 <- readRDS(file.path(file_loc, "m_groups_chr2.Rds"))
+```
+
+
+Let us put the data for the two chromosomes together:
+
+```{r}
+chr1_chr2_df <- rbind(chr1_df, chr2_df)
+chr1_chr2_groups <- as.factor(c(myf1,myf2))
+folds_vec <- as.factor(c(rep(1, nrow(chr1_df)), rep(2, nrow(chr2_df))))
+m_groups <- cbind(ms_chr1, ms_chr2)
+```
+```{r}
+m <- sum(m_groups) #total number of hypotheses
+m
+```
+
+# Histogram plots
+
+Get our colors:
+```{r chunk12}
+beyonce_colors <- c("#b72da0", "#7c5bd2", "#0097ed","#00c6c3",
+                   "#9cd78a", "#f7f7a7", "#ebab5f", "#e24344",
+                   "#04738d")#,"#d8cdc9")
+beyonce_colors[6] <- c("#dbcb09") # thicker yellow
+pretty_colors <- beyonce_colors[c(2,1,3:5)]
+```
+
+  
+```{r}
+qs <- c(0.025, 0.05)
+cutoffs <- c(0, quantile(chr1_chr2_df$dist,qs), Inf)
+```
+  
+```{r chunk13, eval = FALSE}
+cov_scatter_gg <- ggplot(chr1_chr2_df, aes(x=rank(dist)/nrow(chr1_chr2_df),
+                                           y=-log10(pvalue))) +
+     geom_bin2d(bins=150, drop=TRUE) + #  geom_point(alpha=0.2, col=pretty_colors[1]) +
+     geom_vline(xintercept=qs, linetype="dashed") + 
+     ylab(expression(paste(-log[10],"(p-value)"))) +
+     xlab(expression(paste("Quantile of distance"))) + 
+     scale_fill_gradientn(trans="log10", colors=alpha(pretty_colors[1], c(0.2,1)))
+cov_scatter_gg
+```
+
+
+
+```{r chunk14, eval=FALSE}
+ggsave(cov_scatter_gg, filename="cov_scatter_gg.pdf", width=4,height=3)
+```
+
+
+```{r chunk15}
+chr1_chr2_df$cutoff_groups <- cut(chr1_chr2_df$dist, cutoffs)
+table(chr1_chr2_df$cutoff_groups)
+```
+
+
+
+
+
+First let us plot the marginal histogram:
+
+```{r chunk16}
+gg_marginal_hist <- ggplot(chr1_chr2_df, aes(x=pvalue*10^4)) + 
+         geom_histogram(aes(y=..density..), alpha=0.5, binwidth=0.05, boundary = 0, colour="black",fill=pretty_colors[1]) +
+          scale_x_continuous(expand = c(0.02, 0), breaks=c(0,0.5,1)) + 
+          scale_y_continuous(expand = c(0.02, 0), limits=c(0,2.5)) + 
+          ylab(expression(paste("Density")))+
+          xlab(TeX("p-value ($\\times 10^{-4}$)")) 
+gg_marginal_hist
+```
+```{r chunk17, eval=FALSE}
+ggsave(gg_marginal_hist, filename="gg_marginal_hist.pdf", width=4,height=3)
+```
+
+
+```{r chunk18}
+gg_stratified_hist <- ggplot(chr1_chr2_df, aes(x=pvalue*10^4)) + 
+         geom_histogram(aes(y=..density..), alpha=0.5, binwidth=0.05, boundary = 0, colour="black",fill=pretty_colors[1]) +
+          scale_x_continuous(expand = c(0.02, 0), breaks=c(0,0.5,1)) + 
+          scale_y_continuous(expand = c(0.02, 0), limits=c(0,11)) + 
+          ylab("Density")+
+          xlab(TeX("p-value ($\\times 10^{-4}$)")) +
+          facet_grid(~cutoff_groups) + 
+          theme(strip.background = element_blank(), strip.text.y = element_blank()) + 
+          theme(panel.spacing = unit(2, "lines"))
+gg_stratified_hist      
+```
+
+```{r chunk19, eval=FALSE}
+ggsave(gg_stratified_hist, filename="gg_stratified_hist.pdf", width=7,height=3)
+```
+
+
+# Apply IHW-BY and BY
+
+We want to apply the Benjamini-Yekutieli at alpha=0.1, thus we will apply Benjamini-Hochberg at the corrected level:
+
+```{r chunk20}
+alpha <- .01/(log(m)+1)
+```
+
+IHW procedure without binned covariates
+```{r chunk21}
+ihw_chr1_chr2_no_binning <- ihw(10^4*chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds=folds_vec, lambdas=2000)
+```
+
+IHW procedure without binned covariates with aggresive regularisation
+```{r}
+ihw_chr1_chr2_no_binning_reg <- ihw(10^4*chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha, folds=folds_vec)
+```
+
+Now let us run the IHW procedure:
+```{r chunk22}
+ihw_chr1_chr2 <- ihw(chr1_chr2_df$pvalue, chr1_chr2_groups, alpha, folds=folds_vec,
+                     m_groups=m_groups, lambdas=2000)
+```
+
+Rejections of BY:
+
+```{r}
+sum(p.adjust(chr1_chr2_df$pvalue, n = m, method="BH") <= alpha)
+```
+
+```{r}
+rejections(ihw_chr1_chr2_no_binning)
+```
+
+Rejections of IHW-BY:
+
+```{r}
+rejections(ihw_chr1_chr2)
+```
+
+So we see that discoveries have more than doubled.
+
+
+What if we had applied BH and IHW-BH instead of BY and IHW-BY?
+
+```{r}
+alpha_bh <- 0.01
+ihw_chr1_chr2_bh_no_binning <- ihw(10^4*chr1_chr2_df$pvalue, chr1_chr2_df$dist, alpha_bh, folds=folds_vec, lambdas=2000)
+ihw_chr1_chr2_bh <- ihw(chr1_chr2_df$pvalue, chr1_chr2_groups, alpha_bh,
+                        folds=folds_vec, m_groups=m_groups, lambdas=2000)
+```
+
+```{r}
+sum(p.adjust(chr1_chr2_df$pvalue, n = m, method="BH") <= alpha_bh)
+```
+
+```{r}
+rejections(ihw_chr1_chr2_bh_no_binning)
+```
+
+```{r}
+rejections(ihw_chr1_chr2_bh)
+```
+# plot weights with build-in function
+
+## BY
+```{r}
+plot(ihw_chr1_chr2)
+```
+
+```{r}
+plot(ihw_chr1_chr2_no_binning)
+```
+```{r}
+plot(ihw_chr1_chr2_no_binning_reg)
+```
+
+## BH
+```{r}
+plot(ihw_chr1_chr2_bh)
+```
+
+```{r}
+plot(ihw_chr1_chr2_bh_no_binning)
+```
+

@@ -16,6 +16,8 @@ library("MatrixEQTL")
 #library("peer")
 library("genefilter")
 library("dplyr")
+library("matrixStats")
+library("purrr")
 
 ## set the project folder - it has to contain the object fileAnnoDF.rda 
 projectFolder='/g/huber/users/ignatiadis/judith_hqtl/'
@@ -100,6 +102,16 @@ hpeaks2$fileSliceSize = 2000; # read file in pieces of 2,000 rows
 hpeaks2$CreateFromMatrix(hpeaksMatT[match(peakpos$id,rownames(hpeaksMatT)),match(snps$columnNames,colnames(hpeaksMatT))]);
 hpeaks2$ResliceCombined()
 
+hpeaks2_sub <- hpeaks2[[1]][1:100, ]
+snps_sub <- snps[[1]][1:100,]
+
+hpeaks2_sub <- (hpeaks2_sub - rowMeans2(hpeaks2_sub))/rowVars(hpeaks2_sub)
+snps_sub <- (snps_sub - rowMeans2(snps_sub))/rowVars(snps_sub)
+
+R = hpeaks2_sub %*% t(snps_sub)
+n = ncol(hpeaks2_sub)
+
+t <- apply(R, 1:2, function(r) r/sqrt(1-r^2))
 
 ## Main function (matrix eQTL)
 me = Matrix_eQTL_main(
