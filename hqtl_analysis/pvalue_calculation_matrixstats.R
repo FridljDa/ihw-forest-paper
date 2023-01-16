@@ -105,14 +105,21 @@ hpeaks2$ResliceCombined()
 hpeaks2_sub <- hpeaks2[[1]][1:100, ]
 snps_sub <- snps[[1]][1:100,]
 
-hpeaks2_sub <- (hpeaks2_sub - rowMeans2(hpeaks2_sub))/rowVars(hpeaks2_sub)
-snps_sub <- (snps_sub - rowMeans2(snps_sub))/rowVars(snps_sub)
+hpeaks2_sub <- (hpeaks2_sub - rowMeans2(hpeaks2_sub))
+hpeaks2_sub <- hpeaks2_sub/rowSums(hpeaks2_sub ^2)
+
+snps_sub <- (snps_sub - rowMeans2(snps_sub))
+snps_sub <- snps_sub/rowSums(snps_sub^2)
 
 R = hpeaks2_sub %*% t(snps_sub)
 n = ncol(hpeaks2_sub)
 
-t <- apply(R, 1:2, function(r) r/sqrt(1-r^2))
+t <- sqrt(n-2) *apply(R, 1:2, function(r) r/sqrt(1-r^2))
 
+me_sub = Matrix_eQTL_main(
+  gene = hpeaks2_sub, 
+  snps = snps_sub)
+  
 ## Main function (matrix eQTL)
 me = Matrix_eQTL_main(
   gene = hpeaks2, 
