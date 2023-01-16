@@ -1,16 +1,8 @@
 ---
 title: "analyse relationship between p-values and maf"
 author: "Danie Fridljand"
-header-includes:
-   - \usepackage{bbm}
-output: bookdown::html_document2
-#BiocStyle::html_document
-#header-includes:
-#   - \usepackage{bbm}
-#vignette: >
-#  %\VignetteIndexEntry{"calculate_maf_from_hqtl"}
-#  %\VignetteEngine{knitr::rmarkdown}
-#  %\VignetteEncoding{UTF-8}
+header-includes: \usepackage{bbm}
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -23,7 +15,7 @@ library(MatrixEQTL)
 library(dplyr)
 library(EnvStats)
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, dpi = 40)
 options(bitmapType ="cairo")
 ```
 
@@ -69,7 +61,7 @@ head(chr21_pvalues_grubert)
 ```
 
 ```{r, eval = TRUE}
-chr21_pvalues_grubert <- chr21_pvalues_grubert %>% sample_n(1000) #3000000
+chr21_pvalues_grubert <- chr21_pvalues_grubert %>% sample_n(1*10^5) #3000000  #1*10^5
 ```
 
 `SNP`,`gene` are primary keys.
@@ -104,7 +96,7 @@ pvalues_maf_boca %>%
 We calculate the standard deviation for the beta estimate of the effect size from the `beta_se`from `beta` and `tstat`.
 ```{r}
 chr21_pvalues_grubert <- chr21_pvalues_grubert %>%
-  mutate(beta_se = beta/tstat,
+  mutate(beta_se = beta/tstat, #TODO correct?
          #tstat = NULL,
          FDR = NULL)
 ```
@@ -149,7 +141,7 @@ $$
 ```
 
 
-```{r cars, fig.cap = "An amazing plot"}
+```{r}
 ggplot(chr21_pvalues_grubert, aes(x = tstat)) +
   geom_histogram(fill = "lightblue", color = "black", bins = 30) +
   labs(title = "Histogram of tstat",
@@ -170,7 +162,7 @@ $$
 ```{r}
 qqPlot(chr21_pvalues_grubert$tstat, dist = "t", param.list = list(df = 74), add.line = TRUE)
 ```
-TODO
+
 
 ```{=latex}
 $$
@@ -191,7 +183,7 @@ $$
 
 
 ```{r}
-#TODO more complicated because of \sqrt{s s_{x x} x}
+#more complicated because of \sqrt{s s_{x x} x}
 qqPlot(chr21_pvalues_grubert$beta_se, dist = "chisq", param.list = list(df = 74), add.line = TRUE)
 ```
 
@@ -214,7 +206,7 @@ for(sl in seq_along(chr21_full_data_grubert)) {
 }
 ```
 
-We assign the maf to the snp identifier TODO mistake in this cell?
+We assign the maf to the snp identifier 
 ```{r}
 chr21_maf_sample <- data.frame(
   SNP = MatrixEQTL::rownames(chr21_full_data_grubert),
@@ -269,7 +261,7 @@ ggplot(chr21_pvalues_grubert,
 
 ## data set 2
 
-TODO why is `beta_se` independent of `pvalue`.
+TODO Does this relationship make sense? Why `beta_se` independent of `pvalue`?
 ```{r}
 ggplot(pvalues_maf_boca,
        aes(x = beta_se, y =  pvalue)) +
@@ -337,6 +329,7 @@ ggplot(chr21_pvalues_grubert %>% select(pvalue),
   geom_histogram(boundary = 0) +
   facet_wrap(groups_by_filter(chr21_pvalues_grubert$beta_se, 8), nrow = 2)
 ```
+
 ## data set 2
 ```{r}
 ggplot(pvalues_maf_boca, 
