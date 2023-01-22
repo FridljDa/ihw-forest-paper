@@ -32,7 +32,7 @@ loadRData <- function(fileName){
 
 ## data set 1
 ```{r}
-chr <- 22
+chr <- 21
 ```
 
 The following is the same same data set as in hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. It is taken from [Grubert et al.](https://linkinghub.elsevier.com/retrieve/pii/S0092867415009642). 
@@ -121,19 +121,37 @@ TODO how is Freq_MAF_Hapmap calculated? Is it from sample?
 # basic histogram plots of pvalues
 ## data set 1
 ```{r}
-sum(p.adjust(chr_pvalues_grubert$pvalue, method = "BH") <= 0.01)
+chr_pvalues_grubert_p_adjust <- p.adjust(chr_pvalues_grubert$pvalue, method = "BH")
+
+sum(chr_pvalues_grubert_p_adjust <= 0.01)
+```
+
+Effective Benjamini-Hochberg rejections threshold
+```{r}
+max(chr_pvalues_grubert$pvalue[chr_pvalues_grubert_p_adjust <= 0.01])
+```
+
+```{r}
+nrow(chr_pvalues_grubert)
 ```
 
 ```{r}
 sum(p.adjust(chr_pvalues_grubert$pvalue, method = "BH") <= 0.01)/nrow(chr_pvalues_grubert)
 ```
 
-
+This is a very large data set. Considering all pvalues, it is very hard to see anything.   
 ```{r pvalue_histogram, fig.cap = "Basic Pvalue histogram"}
-ggplot(chr_pvalues_grubert, 
+ggplot(chr_pvalues_grubert %>% select(pvalue), 
        aes(x = pvalue)) +
-  #scale_x_log10()+
   geom_histogram(boundary = 0, bins = 50) 
+```
+
+After zooming in, we see more.
+```{r}
+ggplot(chr_pvalues_grubert %>% 
+         filter(pvalue <= 10^(-4)), 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 50)
 ```
 
 ## data set 2
@@ -147,7 +165,7 @@ sum(p.adjust(pvalues_maf_boca$pvalue, method = "BH") <= 0.01)/nrow(pvalues_maf_b
 
 
 ```{r pvalue_histogram_boca, fig.cap = "Basic Pvalue histogram Boca"}
-ggplot(pvalues_maf_boca, 
+ggplot(pvalues_maf_boca %>% select(pvalue), 
        aes(x = pvalue)) +
   #scale_x_log10()+
   geom_histogram(boundary = 0, bins = 50) 
@@ -180,7 +198,7 @@ chr_pvalues_grubert <- chr_pvalues_grubert %>%
   inner_join(chr_maf_sample, by = "SNP") 
 ```
 
-```{r}
+```{r maf_histogram}
 ggplot(chr_pvalues_grubert, aes(x = maf_sample)) +
   geom_histogram(fill = "lightblue", color = "black", bins = 30) +
   labs(title = "Histogram of MAF Sample",
@@ -205,30 +223,6 @@ ggplot(pvalues_maf_boca, aes(x = maf_sample)) +
 The boca leek data set seems to be not filtered for significant SNPs.
 ```{r}
 range(pvalues_maf_boca$maf_sample)
-```
-
-# compare pvalues and standard deviation of effect size estimate
-
-## data set 1
-The following plot makes sense. In `chr_pvalues_grubert` we have filtered out SNPs with low MAF and high pvalues. 
-
-```{r pvalue_beta_std, fig.cap = "Pvalues against betha std"}
-ggplot(chr_pvalues_grubert,
-       aes(x = beta_se , y = pvalue)) +
-  scale_y_log10()+
-  scale_fill_gradient(name = "count", trans = "log10")+
-  geom_hex()  #bins = 60
-```
-
-## data set 2
-
-TODO Does this relationship make sense? Why `beta_se` independent of `pvalue`?
-```{r pvalue_beta_std_boca, fig.cap = "Pvalues against betha std boca"}
-ggplot(pvalues_maf_boca,
-       aes(x = beta_se, y =  pvalue)) +
-  scale_y_log10()+
-  scale_fill_gradient(name = "count", trans = "log10")+
-  geom_hex()  #bins = 60
 ```
 
 # comparing p-values with maf sample
@@ -272,18 +266,32 @@ groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
 
 
 ## data set 1
-```{r pvalue_hist_by_maf_kern, fig.cap = "pvalue_hist_by_maf_kern"}
-ggplot(chr_pvalues_grubert %>% select(pvalue),
-       aes(pvalue)) +
-  geom_density()
+add `maf_sample_bin`. 
+```{r}
+chr_pvalues_grubert <- chr_pvalues_grubert %>%
+  mutate(maf_sample_bin = groups_by_filter(maf_sample, 8))
+head(chr_pvalues_grubert)
 ```
 
-```{r pvalue_hist_by_maf, fig.cap = "pvalue_hist_by_maf"}
-ggplot(chr_pvalues_grubert %>% select(pvalue), 
+```{r pvalue_hist_by_maf, eval = FALSE, fig.cap = "pvalue_hist_by_maf"}
+ggplot(chr_pvalues_grubert %>%
+         sample_n(5* 10^8)%>%
+         select(pvalue, maf_sample_bin), 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 40) + #, bins = 40
+  facet_grid(cols = vars(maf_sample_bin)) 
+```
+
+zoom in, right-censoring 
+```{r pvalue_hist_by_maf_zoomed_in}
+ggplot(chr_pvalues_grubert %>% 
+         filter(pvalue <= 10^{-2}), 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0, bins = 40) +
-  facet_wrap(groups_by_filter(chr_pvalues_grubert$maf_sample, 8), nrow = 2)
+  facet_wrap(vars(maf_sample_bin), nrow = 2) +
+   scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
 ```
+
 
 ## data set 2
 ```{r pvalue_hist_by_maf_kern_boca, fig.cap= "Pvalues stratified by MAF"}
@@ -292,6 +300,7 @@ ggplot(pvalues_maf_boca,
   geom_histogram(boundary = 0) +
   facet_wrap(groups_by_filter(pvalues_maf_boca$maf_sample, 8), nrow = 2)
 ```
+
 # compare minor alle frequency and standard deviation of effect size estimate
 
 ## data set 1
@@ -351,7 +360,7 @@ $$
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 ggplot(chr_pvalues_grubert, aes(x = tstat)) +
   geom_histogram(fill = "lightblue", color = "black", bins = 30) +
   labs(title = "Histogram of tstat",
@@ -391,7 +400,34 @@ qqPlot(pvalues_maf_boca$tstat, dist = "t", estimate.parameters = TRUE, add.line 
 ```
 
 
+
 # trash
+
+
+## compare pvalues and standard deviation of effect size estimate
+
+### data set 1
+The following plot makes sense. In `chr_pvalues_grubert` we have filtered out SNPs with low MAF and high pvalues. 
+
+```{r pvalue_beta_std, eval = FALSE, fig.cap = "Pvalues against betha std"}
+ggplot(chr_pvalues_grubert %>% select(beta_se, pvalue),
+       aes(x = beta_se , y = pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+### data set 2
+
+TODO Does this relationship make sense? Why `beta_se` independent of `pvalue`?
+```{r pvalue_beta_std_boca, fig.cap = "Pvalues against betha std boca", eval = FALSE}
+ggplot(pvalues_maf_boca,
+       aes(x = beta_se, y =  pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
 analyses, which we are not seriously considering anymore
 
 ## stratifying pvalues by beta std
