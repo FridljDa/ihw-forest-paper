@@ -306,16 +306,9 @@ ggplot(pvalues_maf_boca,
 ## data set 1
 The beta_se estimate is calculated from the pre-calculated p-value. So it is assumed, that the pre-calculated p-value is correct. This is plausible: std should decrease with smaller beta_se.
 ```{r}
-ggplot(chr_pvalues_grubert,
+ggplot(chr_pvalues_grubert %>%
+         sample_n(5* 10^6),
        aes(x = maf_sample, y = beta_se)) +
-  scale_y_log10()+
-  scale_fill_gradient(name = "count", trans = "log10")+
-  geom_hex()  #bins = 60
-```
-
-```{r, eval = FALSE}
-ggplot(chr_pvalues_grubert,
-       aes(x = maf_downloaded, y = beta_se)) +
   scale_y_log10()+
   scale_fill_gradient(name = "count", trans = "log10")+
   geom_hex()  #bins = 60
