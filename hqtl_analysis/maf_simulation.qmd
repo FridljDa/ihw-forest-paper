@@ -48,8 +48,13 @@ betha <- mean(chr_pvalues_grubert$beta)
 sanity check
 
 ```{r, eval = FALSE}
-chr_pvalues_grubert$`p-value`[1]
-2*(1-pt(abs(chr_pvalues_grubert$`t-stat`[1]), df = 74))
+#TODO estimate sigma for noise
+fileAnnoDF  <- load(here("data/hqtl_chrom1_chrom2/fileAnnoDF.rda"))
+## load the hpeaks signals for the respective mark
+hpeaksfileName = fileAnnoDF$FileLocation[fileAnnoDF$Filename=='hpeaksfileName'&fileAnnoDF$Mark==21]
+
+hpeaksMat <- load(here("data/hqtl_chrom1_chrom2/hMat.norm.ALL.H3K27AC.peer_lS_5.txt.rda")) %>%
+  as.matrix()
 ```
 
 ## Simulation
@@ -69,7 +74,7 @@ $$
 Hyperparameters for simulation
 
 ```{r}
-ntrials = 1000
+ntrials = 10000
 nsample = 76
 pi0 = 0.9
 ```
