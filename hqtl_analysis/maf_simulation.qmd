@@ -16,7 +16,7 @@ options(bitmapType ="cairo")
 
 ```{r, eval = FALSE}
 chr <- 21
-chr_full_data_grubert <- loadRData(paste0("/g/scb/zaugg/zaugg/hQTL/GenotypeData/snps", chr, ".filtered.allGT.txt.rda"))
+chr_full_data_grubert <- load(paste0("/g/scb/zaugg/zaugg/hQTL/GenotypeData/snps", chr, ".filtered.allGT.txt.rda"))
 
 ```
 
@@ -81,17 +81,17 @@ pi0 = 0.9
 
 ```{r}
 #alpha should not play any role
-simulate_data <- function(H, nsample = 76, s_prob = 0.26, alpha = 50, betha = 30, sigma = 2){
+simulate_data <- function(H, s, nsample = 76, alpha = 50, betha = 5, sigma = 100){
   data_sim <- data.frame(
     #save parameters (unobserved)
-    s_prob = s_prob,
+    #s_prob = s_prob,
     alpha = alpha,
     betha = betha, #true
     sigma = sigma,
     nsample_i = seq_len(nsample),
     
     #simulate s and noise
-    s = rbinom(n = nsample, size = 2, s_prob),
+    #s = rbinom(n = nsample, size = 2, s_prob),
     noise = rnorm(n = nsample, sd = sigma)
   )
 
@@ -101,6 +101,12 @@ simulate_data <- function(H, nsample = 76, s_prob = 0.26, alpha = 50, betha = 30
   #only histone_modification and s observable
   return(data_sim)
 }
+```
+
+```{r}
+length(chr_full_data_grubert)
+head(chr_full_data_grubert)
+chr_full_data_grubert[[1]]
 ```
 
 ```{r}

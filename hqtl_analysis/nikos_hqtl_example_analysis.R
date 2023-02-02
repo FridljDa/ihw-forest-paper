@@ -43,7 +43,7 @@ fileAnnoDF_sub = fileAnnoDF[fileAnnoDF$Chr==snpchr,]
 fileAnnoDF_sub[1,]
 # SNP genotype information
 
-cat('processing',mod,'...\n')
+cat('processing on chromosome',snpchr,'mod',mod,'...\n')
 
 ## load the peak annotations for the respective mark
 peak_location_file_name = fileAnnoDF$FileLocation[fileAnnoDF$Filename=='peak_location_file_name'&fileAnnoDF$Mark==mod]
@@ -124,71 +124,75 @@ me = Matrix_eQTL_main(
 #saveRDS(me, file="chrom21H3K27AC") #save intermediate result
 saveRDS(me,  file = paste0(resultDir,"chr",snpchr,"_mod_",mod,".Rds"))
 
-tmp <- readRDS(paste0(resultDir,"chr",snpchr,"_mod_",mod,".Rds"))
-#tmp <- readRDS("chrom21H3K27AC")
-qtls <- tmp$all$eqtls #same thing as QTLresultFileDf
-qtls$beta <- NULL
-qtls$statistic <- NULL
-qtls$FDR <- NULL
-snpspos <- select(snpspos, snp, pos) %>% rename(snps = snp, snp_pos=pos)
-qtls <- left_join(qtls, snpspos)
-
-peakpos <- select(peakpos, id, start, end) %>% rename(gene=id, peak_start=start, peak_end=end)
-peakpos <- mutate(peakpos, gene=as.factor(gene))
-
-qtls <- left_join(qtls, peakpos)
-# calculate distances
-qtls <- mutate(qtls, dist = pmin(abs(peak_start-snp_pos), abs(peak_end-snp_pos)))
-saveRDS(qtls, file="qtls_chrom_21.Rds")
-
-quit()
-##########################################################
-# Step 2: Apply IHW and compare to BH/Indep. Filtering
-##########################################################
-
-library("IHW")
-
-
-qtls <- readRDS(file = "qtls_chrom_21.Rds")
-print("qtls loaded into memory")
-
-## up to 300k in 10 bins
-my_breaks <- c(-1, 
-               seq(from=10000,to=290000, by=10000) , 
-               seq(from=300000, to=0.9*10^6, by=100000),
-               seq(from=10^6, to=50*10^6, by=10^7))
-myf <- cut(qtls$dist, my_breaks)
-
-alphas <- seq(0.05,0.1,length=5)
-filter_thresholds <- c(10^4, 2*10^5, 10^6)
-dfs <- list()
-
-
-for (i in seq_along(alphas)){
-  alpha <- alphas[i]
-  print(paste0("alpha:",alpha))
-  x <- ddhw(qtls$pvalue, myf, alpha, lambdas=Inf,quiet=F)
-  print("DDHW finished")
-  ws <- weights(x, levels_only=TRUE)
-  group_levels <- levels(groups_factor(x))
-  folds  <- factor(1:x@nfolds)
-  df <- expand.grid(stratum=1:nlevels(groups_factor(x)),
-                    fold=folds)
-  df$group <- group_levels[df$stratum]
-  df$weight <- mapply(function(x,y) ws[x,y], df$stratum, df$fold)
-  df$alpha <- alpha
-  df$rejections <-rejections(x)
-  df$bh_rejections <- sum(p.adjust(qtls$pvalue, method="BH") <= alpha, na.rm=T)
-  for (filter_t in filter_thresholds){
-    filter_f <- tail(which( my_breaks <= filter_t),1)-1
-    filt_pvalue <- qtls$pvalue[as.numeric(myf) <= filter_f]
-    df[paste0("threshold:", filter_t)] <- sum(p.adjust(filt_pvalue, method="BH") <= alpha, na.rm=T)
+if(FALSE){
+  
+  tmp <- readRDS(paste0(resultDir,"chr",snpchr,"_mod_",mod,".Rds"))
+  #tmp <- readRDS("chrom21H3K27AC")
+  qtls <- tmp$all$eqtls #same thing as QTLresultFileDf
+  qtls$beta <- NULL
+  qtls$statistic <- NULL
+  qtls$FDR <- NULL
+  snpspos <- select(snpspos, snp, pos) %>% rename(snps = snp, snp_pos=pos)
+  qtls <- left_join(qtls, snpspos)
+  
+  peakpos <- select(peakpos, id, start, end) %>% rename(gene=id, peak_start=start, peak_end=end)
+  peakpos <- mutate(peakpos, gene=as.factor(gene))
+  
+  qtls <- left_join(qtls, peakpos)
+  # calculate distances
+  qtls <- mutate(qtls, dist = pmin(abs(peak_start-snp_pos), abs(peak_end-snp_pos)))
+  saveRDS(qtls, file="qtls_chrom_21.Rds")
+  
+  quit()
+  ##########################################################
+  # Step 2: Apply IHW and compare to BH/Indep. Filtering
+  ##########################################################
+  
+  library("IHW")
+  
+  
+  qtls <- readRDS(file = "qtls_chrom_21.Rds")
+  print("qtls loaded into memory")
+  
+  ## up to 300k in 10 bins
+  my_breaks <- c(-1, 
+                 seq(from=10000,to=290000, by=10000) , 
+                 seq(from=300000, to=0.9*10^6, by=100000),
+                 seq(from=10^6, to=50*10^6, by=10^7))
+  myf <- cut(qtls$dist, my_breaks)
+  
+  alphas <- seq(0.05,0.1,length=5)
+  filter_thresholds <- c(10^4, 2*10^5, 10^6)
+  dfs <- list()
+  
+  
+  for (i in seq_along(alphas)){
+    alpha <- alphas[i]
+    print(paste0("alpha:",alpha))
+    x <- ddhw(qtls$pvalue, myf, alpha, lambdas=Inf,quiet=F)
+    print("DDHW finished")
+    ws <- weights(x, levels_only=TRUE)
+    group_levels <- levels(groups_factor(x))
+    folds  <- factor(1:x@nfolds)
+    df <- expand.grid(stratum=1:nlevels(groups_factor(x)),
+                      fold=folds)
+    df$group <- group_levels[df$stratum]
+    df$weight <- mapply(function(x,y) ws[x,y], df$stratum, df$fold)
+    df$alpha <- alpha
+    df$rejections <-rejections(x)
+    df$bh_rejections <- sum(p.adjust(qtls$pvalue, method="BH") <= alpha, na.rm=T)
+    for (filter_t in filter_thresholds){
+      filter_f <- tail(which( my_breaks <= filter_t),1)-1
+      filt_pvalue <- qtls$pvalue[as.numeric(myf) <= filter_f]
+      df[paste0("threshold:", filter_t)] <- sum(p.adjust(filt_pvalue, method="BH") <= alpha, na.rm=T)
+    }
+    dfs[[i]] <- df
   }
-  dfs[[i]] <- df
+  
+  res <- list(alpha_df = bind_rows(dfs),
+              breaks   = my_breaks,
+              break_min = 5000)
+  
+  saveRDS(res, file = paste0(projectFolder, "hQTL_benchmark.Rds"))
+  
 }
-
-res <- list(alpha_df = bind_rows(dfs),
-            breaks   = my_breaks,
-            break_min = 5000)
-
-saveRDS(res, file = paste0(projectFolder, "hQTL_benchmark.Rds"))
