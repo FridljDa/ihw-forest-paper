@@ -8,24 +8,20 @@ bibliography: references.bib
 ```{r echo=FALSE}
 library("dplyr")
 library("GGally")
-library(here)
+library("here")
+library("purrr")
 options(bitmapType ="cairo")
 ```
 
 ## Estimate simulation hyper parameters based on real data
 
-```{r, eval = FALSE}
+```{r}
 chr <- 21
-chr_full_data_grubert <- load(paste0("/g/scb/zaugg/zaugg/hQTL/GenotypeData/snps", chr, ".filtered.allGT.txt.rda"))
+load(here("data/hqtl_chrom1_chrom2/snps21.filtered.allGT.txt.rda"))
 snps
 ```
 
 Data driven parameter for $s_i$
-
-```{r, eval = FALSE}
-s_prob <- mean(chr_full_data_grubert[[1]])/2
-s_prob
-```
 
 Same number of patients
 
@@ -81,7 +77,7 @@ pi0 = 0.9
 
 ```{r}
 #alpha should not play any role
-simulate_data <- function(H, s, nsample = 76, alpha = 50, betha = 5, sigma = 100){
+simulate_data <- function(H, s, nsample = 76, alpha = 50, betha = 50, sigma = 120){
   data_sim <- data.frame(
     #save parameters (unobserved)
     #s_prob = s_prob,
@@ -92,6 +88,7 @@ simulate_data <- function(H, s, nsample = 76, alpha = 50, betha = 5, sigma = 100
     
     #simulate s and noise
     #s = rbinom(n = nsample, size = 2, s_prob),
+    s = s,
     noise = rnorm(n = nsample, sd = sigma)
   )
 
@@ -104,12 +101,6 @@ simulate_data <- function(H, s, nsample = 76, alpha = 50, betha = 5, sigma = 100
 ```
 
 ```{r}
-length(chr_full_data_grubert)
-head(chr_full_data_grubert)
-chr_full_data_grubert[[1]]
-```
-
-```{r}
 sampled_rows <- sample(seq_len(2000), ntrials, replace = TRUE)
 sampled_s <- snps[[1]][sampled_rows,]
 sampled_s <- as.list(data.frame(t(sampled_s)))
@@ -117,9 +108,8 @@ sampled_s <- as.list(data.frame(t(sampled_s)))
 
 ```{r}
 H <- rbinom(ntrials, size = 1, 1-pi0)
-#data_sim <- lapply(H, simulate_data)
 
-data_sim <- mapply(simulate_data, H, sampled_s)
+data_sim <- map2(H, sampled_s, simulate_data)
 head(data_sim[[1]])
 ```
 
@@ -179,31 +169,11 @@ head(sim_res)
 
 ## Rationale for MAF
 
-We don't think that the minor allele frequency $f$ informs about the hypothesis $H$. We think that under the alternative $H=1$ it is informative for our multiple testing procedure in the following way:
-
-Higher MAF $f =\frac{1}{2}\min \left( \bar{s},2- \bar{s}\right)$
-
-$\Rightarrow$ Higher predictor variation $\sqrt{\sum_{i=1}^n\left(s_i-\bar{s}\right)^2}$ (intuitive, both are measures of variation of $s$)
-
-$\Rightarrow$ Smaller variation of $\widehat{\beta}$ estimate $$
-S E_{\widehat{\beta}}=\frac{\sqrt{\frac{1}{n-2} \sum_{i=1}^n\left(g_i-\bar{g}\right)^2}}{\sqrt{\sum_{i=1}^n\left(s_i-\bar{s}\right)^2}}
-$$
-
-$\Rightarrow$ Higher test statistic $$
-t_{\text {score }}=\frac{\widehat{\beta} }{S E_{\widehat{\beta}}}
-$$
-
-$\Rightarrow$ Smaller p-value
-
-$$P = 2(1-F_{H_0}(t_{\text {score }}))$$
-
-::: callout-note
-Question: 1) Is above interpretation correct? 2) What happens under the null above?
-:::
+We don't think that the minor allele frequency $f$ informs about the hypothesis $H$. We think that a higher minor allele frequency implies higher power.
 
 ## Diagnostic plots
 
-```{r}
+```{r, eval = FALSE}
 ggpairs(sim_res, 
         mapping=ggplot2::aes(colour = H, alpha = 0.3),
         columns= c(5,6,2,3,4), 
