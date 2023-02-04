@@ -17,7 +17,7 @@ options(bitmapType ="cairo")
 ```{r, eval = FALSE}
 chr <- 21
 chr_full_data_grubert <- load(paste0("/g/scb/zaugg/zaugg/hQTL/GenotypeData/snps", chr, ".filtered.allGT.txt.rda"))
-
+snps
 ```
 
 Data driven parameter for $s_i$
@@ -110,9 +110,16 @@ chr_full_data_grubert[[1]]
 ```
 
 ```{r}
-H <- rbinom(ntrials, size = 1, 1-pi0)
-data_sim <- lapply(H, simulate_data)
+sampled_rows <- sample(seq_len(2000), ntrials, replace = TRUE)
+sampled_s <- snps[[1]][sampled_rows,]
+sampled_s <- as.list(data.frame(t(sampled_s)))
+```
 
+```{r}
+H <- rbinom(ntrials, size = 1, 1-pi0)
+#data_sim <- lapply(H, simulate_data)
+
+data_sim <- mapply(simulate_data, H, sampled_s)
 head(data_sim[[1]])
 ```
 
