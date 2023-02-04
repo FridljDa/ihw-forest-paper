@@ -283,12 +283,12 @@ H_0: (H\beta) =0 \quad \text { against } \quad H_1: (H\beta) \neq 0.
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data_sim[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  alpha betha sigma nsample_i s      noise histone_modification
-1    50    50   120         1 0   62.98231           112.982315
-2    50    50   120         2 0  145.74102           195.741017
-3    50    50   120         3 0  -41.72961             8.270391
-4    50    50   120         4 1 -222.17585          -172.175850
-5    50    50   120         5 0  -66.44637           -16.446372
-6    50    50   120         6 2 -168.18700          -118.186995</code></pre>
+1    50    50   120         1 0   73.46468           123.464676
+2    50    50   120         2 1  -57.94317            -7.943167
+3    50    50   120         3 0  -44.96355             5.036448
+4    50    50   120         4 0  -17.99695            32.003046
+5    50    50   120         5 0  -39.83976            10.160241
+6    50    50   120         6 0 -101.43186           -51.431864</code></pre>
 </div>
 </div>
 </section>
@@ -317,40 +317,41 @@ t_{\text {score }}=\frac{\widehat{\beta}}{S E_{\widehat{\beta}}},
 \]</span></p>
 <p>where <span class="math inline">\(\widehat{\beta}\)</span> is the least square estimator for <span class="math inline">\(H\beta\)</span> and <span class="math inline">\(S E_{\widehat{\beta}}\)</span> is the associated standard error. We are following the notation from B7.13 in <span class="citation" data-cites="czado2011">(<a href="#ref-czado2011" role="doc-biblioref">Czado and Schmidt 2011</a>)</span>. Under the null and assuming <span class="math inline">\(\epsilon_{1},\ldots , \epsilon_{n} \sim \text { i.i.d. } \mathcal{N}\left(0, \sigma^2\right)\)</span> we have <span class="math inline">\(t_{\text {score }} \sim \mathcal{T}_{n-2}\)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sim_res <span class="ot">&lt;-</span> <span class="fu">lapply</span>(data_sim, <span class="cf">function</span>(data_sim_i){</span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sim_res <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(data_sim, <span class="cf">function</span>(data_sim_i){</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  t_test_lm <span class="ot">=</span> <span class="fu">lm</span>(histone_modification <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> s, <span class="at">data=</span>data_sim_i)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm <span class="ot">=</span> <span class="fu">summary</span>(t_test_lm)<span class="sc">$</span>coefficients[<span class="dv">2</span>,]</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="fu">as.list</span>(s_line_t_test_lm))</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#calculate minor_allele_frequency</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm<span class="sc">$</span>minor_allele_frequency <span class="ot">=</span> <span class="fl">0.5</span><span class="sc">*</span> <span class="fu">min</span>(<span class="fu">mean</span>(data_sim_i<span class="sc">$</span>s), <span class="dv">2</span><span class="sc">-</span> <span class="fu">mean</span>(data_sim_i<span class="sc">$</span>s))</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm<span class="sc">$</span>s_variance <span class="ot">&lt;-</span> <span class="fu">var</span>(data_sim_i<span class="sc">$</span>s)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>sim_res <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(sim_res)</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co">#sim_res &lt;- sim_res %&gt;% rename(pvalue = `Pr...t..`)</span></span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(sim_res)[<span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="st">"pvalue"</span></span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>sim_res<span class="sc">$</span>H <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(H)</span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sim_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm <span class="ot">&lt;-</span> s_line_t_test_lm <span class="sc">%&gt;%</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">residual_sigma =</span> <span class="fu">summary</span>(t_test_lm)<span class="sc">$</span>sigma,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">snr =</span> Estimate<span class="sc">/</span>residual_sigma,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>           <span class="co">#calculate minor_allele_frequency</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">minor_allele_frequency =</span> <span class="fl">0.5</span><span class="sc">*</span> <span class="fu">min</span>(<span class="fu">mean</span>(data_sim_i<span class="sc">$</span>s), <span class="dv">2</span><span class="sc">-</span> <span class="fu">mean</span>(data_sim_i<span class="sc">$</span>s)), </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">s_variance =</span> <span class="fu">var</span>(data_sim_i<span class="sc">$</span>s))</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  s_line_t_test_lm</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>sim_res <span class="ot">&lt;-</span> sim_res <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">pvalue =</span> <span class="st">`</span><span class="at">Pr...t..</span><span class="st">`</span>)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>sim_res <span class="ot">&lt;-</span> sim_res <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">betha_estimate_std =</span> <span class="st">`</span><span class="at">Std..Error</span><span class="st">`</span>)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>sim_res<span class="sc">$</span>H <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(H)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sim_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    Estimate Std..Error    t.value       pvalue minor_allele_frequency
-1   7.732898   21.18206  0.3650682 7.161018e-01             0.29605263
-2  19.180249   32.66823  0.5871223 5.589087e-01             0.07236842
-3 103.557885   24.82211  4.1720017 8.127165e-05             0.19078947
-4  57.402734   29.91119  1.9191057 5.882722e-02             0.07894737
-5   3.243699   19.48881  0.1664391 8.682654e-01             0.25657895
-6  -2.852079   19.38560 -0.1471236 8.834346e-01             0.48026316
-  s_variance H
-1  0.4847368 0
-2  0.2054386 0
-3  0.2924561 1
-4  0.1614035 0
-5  0.3864912 0
-6  0.5450877 0</code></pre>
+<pre><code>    Estimate betha_estimate_std     t.value    pvalue residual_sigma
+1 -31.213736           35.53098 -0.87849359 0.3825195       107.5239
+2  17.370345           43.54139  0.39893870 0.6910873       116.4917
+3 -15.852293           41.99570 -0.37747420 0.7069017       118.2924
+4  23.875922           24.01057  0.99439203 0.3232726       133.4296
+5  23.553564           31.94359  0.73734880 0.4632419       122.4078
+6  -2.201609           39.95219 -0.05510609 0.9562025       135.0186
+          snr minor_allele_frequency s_variance H
+1 -0.29029581             0.05263158  0.1221053 0
+2  0.14911232             0.05263158  0.0954386 0
+3 -0.13400945             0.05921053  0.1057895 0
+4  0.17894019             0.23026316  0.4117544 0
+5  0.19241888             0.06578947  0.1957895 0
+6 -0.01630597             0.09210526  0.1522807 0</code></pre>
 </div>
 </div>
 </section>
@@ -361,52 +362,137 @@ t_{\text {score }}=\frac{\widehat{\beta}}{S E_{\widehat{\beta}}},
 <section id="diagnostic-plots" class="level2">
 <h2 class="anchored" data-anchor-id="diagnostic-plots">Diagnostic plots</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(sim_res, </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">mapping=</span>ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">colour =</span> H, <span class="at">alpha =</span> <span class="fl">0.3</span>),</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">columns=</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>), </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">title=</span><span class="st">"correlogram with ggpairs()"</span>,</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">lower=</span><span class="fu">list</span>(<span class="at">combo=</span><span class="fu">wrap</span>(<span class="st">"facethist"</span>, <span class="at">binwidth=</span><span class="dv">1</span>))</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(sim_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Estimate"               "betha_estimate_std"     "t.value"               
+[4] "pvalue"                 "residual_sigma"         "snr"                   
+[7] "minor_allele_frequency" "s_variance"             "H"                     </code></pre>
 </div>
-</section>
-<section id="pvalue-histograms" class="level2">
-<h2 class="anchored" data-anchor-id="pvalue-histograms">Pvalue histograms</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>groups_by_filter <span class="ot">&lt;-</span> <span class="cf">function</span>(covariate, nbins, <span class="at">ties.method=</span><span class="st">"random"</span>, <span class="at">seed=</span><span class="cn">NULL</span>){</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(seed) <span class="sc">&amp;&amp;</span> ties.method<span class="sc">==</span><span class="st">"random"</span>){</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    old <span class="ot">&lt;-</span> .Random.seed</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">on.exit</span>( { .Random.seed <span class="ot">&lt;&lt;-</span> old } )</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set.seed</span>(<span class="fu">as.integer</span>(seed)) </span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    rfs <span class="ot">&lt;-</span> <span class="fu">rank</span>(covariate, <span class="at">ties.method=</span>ties.method)<span class="sc">/</span><span class="fu">length</span>(covariate)</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.factor</span>(<span class="fu">ceiling</span>( rfs<span class="sc">*</span> nbins))</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>GGscatterhex <span class="ot">&lt;-</span> <span class="cf">function</span>(data, mapping,...) {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> GGally<span class="sc">::</span><span class="fu">eval_data_col</span>(data, mapping<span class="sc">$</span>x)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> GGally<span class="sc">::</span><span class="fu">eval_data_col</span>(data, mapping<span class="sc">$</span>y)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  pp <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>y)) <span class="sc">+</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_hex</span>()</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(pp)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#ggpairs(flea, columns = 2:3,</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">#        lower=list(continuous=wrap(GGscatterhex)))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(sim_res, </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">mapping=</span>ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">colour =</span> H, <span class="at">alpha =</span> <span class="fl">0.3</span>),</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="co">#columns= c(5,6,2,3,4), </span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">title=</span><span class="st">"correlogram with ggpairs()"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">lower=</span><span class="fu">list</span>(<span class="at">combo=</span><span class="fu">wrap</span>(<span class="st">"facethist"</span>, <span class="at">binwidth=</span><span class="dv">1</span>),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">continuous=</span><span class="fu">wrap</span>(GGscatterhex))</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>      ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="maf_simulation_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">groups_by_filter</span>(sim_res<span class="sc">$</span>minor_allele_frequency, <span class="dv">8</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(sim_res, </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">mapping=</span>ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">colour =</span> H, <span class="at">alpha =</span> <span class="fl">0.3</span>),</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="co">#columns= c(5,6,2,3,4), </span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">title=</span><span class="st">"correlogram with ggpairs()"</span><span class="co">#,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">#lower=list(combo=wrap("facethist", binwidth=1),</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">#           continuous=wrap(GGscatterhex))</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>      ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="maf_simulation_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="pvalue-histograms" class="level2">
+<h2 class="anchored" data-anchor-id="pvalue-histograms">Pvalue histograms</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>groups_by_filter <span class="ot">&lt;-</span> <span class="cf">function</span>(covariate, nbins, <span class="at">ties.method=</span><span class="st">"random"</span>, <span class="at">seed=</span><span class="cn">NULL</span>){</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(seed) <span class="sc">&amp;&amp;</span> ties.method<span class="sc">==</span><span class="st">"random"</span>){</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    old <span class="ot">&lt;-</span> .Random.seed</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">on.exit</span>( { .Random.seed <span class="ot">&lt;&lt;-</span> old } )</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set.seed</span>(<span class="fu">as.integer</span>(seed)) </span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    rfs <span class="ot">&lt;-</span> <span class="fu">rank</span>(covariate, <span class="at">ties.method=</span>ties.method)<span class="sc">/</span><span class="fu">length</span>(covariate)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.factor</span>(<span class="fu">ceiling</span>( rfs<span class="sc">*</span> nbins))</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="maf_simulation_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="maf_simulation_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">groups_by_filter</span>(sim_res<span class="sc">$</span>minor_allele_frequency, <span class="dv">8</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="maf_simulation_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">groups_by_filter</span>(sim_res<span class="sc">$</span>residual_sigma, <span class="dv">8</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="maf_simulation_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">groups_by_filter</span>(sim_res<span class="sc">$</span>s_variance, <span class="dv">8</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="maf_simulation_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sim_res, </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> pvalue,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> H)) <span class="sc">+</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">groups_by_filter</span>(sim_res<span class="sc">$</span>betha_estimate_std, <span class="dv">8</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="maf_simulation_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 

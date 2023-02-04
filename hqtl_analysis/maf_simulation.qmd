@@ -146,23 +146,24 @@ $$
 where $\widehat{\beta}$ is the least square estimator for $H\beta$ and $S E_{\widehat{\beta}}$ is the associated standard error. We are following the notation from B7.13 in [@czado2011]. Under the null and assuming $\epsilon_{1},\ldots , \epsilon_{n} \sim \text { i.i.d. } \mathcal{N}\left(0, \sigma^2\right)$ we have $t_{\text {score }} \sim \mathcal{T}_{n-2}$.
 
 ```{r}
-sim_res <- lapply(data_sim, function(data_sim_i){
+sim_res <- purrr::map_dfr(data_sim, function(data_sim_i){
   t_test_lm = lm(histone_modification ~ 1 + s, data=data_sim_i)
   s_line_t_test_lm = summary(t_test_lm)$coefficients[2,]
   
   s_line_t_test_lm = data.frame(as.list(s_line_t_test_lm))
-  
-  #calculate minor_allele_frequency
-  s_line_t_test_lm$minor_allele_frequency = 0.5* min(mean(data_sim_i$s), 2- mean(data_sim_i$s))
-  
-  s_line_t_test_lm$s_variance <- var(data_sim_i$s)
+  s_line_t_test_lm <- s_line_t_test_lm %>%
+    mutate(residual_sigma = summary(t_test_lm)$sigma,
+           snr = Estimate/residual_sigma,
+           #calculate minor_allele_frequency
+           minor_allele_frequency = 0.5* min(mean(data_sim_i$s), 2- mean(data_sim_i$s)), 
+           s_variance = var(data_sim_i$s))
   
   s_line_t_test_lm
 })
 
-sim_res <- bind_rows(sim_res)
-#sim_res <- sim_res %>% rename(pvalue = `Pr...t..`)
-colnames(sim_res)[4] <- "pvalue"
+sim_res <- sim_res %>% rename(pvalue = `Pr...t..`)
+sim_res <- sim_res %>% rename(betha_estimate_std = `Std..Error`)
+
 sim_res$H <- as.factor(H)
 head(sim_res)
 ```
@@ -173,12 +174,41 @@ We don't think that the minor allele frequency $f$ informs about the hypothesis 
 
 ## Diagnostic plots
 
-```{r, eval = FALSE}
+```{r}
+colnames(sim_res)
+```
+
+```{r}
+GGscatterhex <- function(data, mapping,...) {
+  x <- GGally::eval_data_col(data, mapping$x)
+  y <- GGally::eval_data_col(data, mapping$y)
+  df <- data.frame(x = x, y = y)
+  pp <- ggplot(df, aes(x=x, y=y)) +
+        geom_hex()
+  return(pp)
+  }
+#ggpairs(flea, columns = 2:3,
+#        lower=list(continuous=wrap(GGscatterhex)))
+```
+
+```{r, eval = TRUE}
 ggpairs(sim_res, 
         mapping=ggplot2::aes(colour = H, alpha = 0.3),
-        columns= c(5,6,2,3,4), 
+        #columns= c(5,6,2,3,4), 
         title="correlogram with ggpairs()",
-        lower=list(combo=wrap("facethist", binwidth=1))
+        lower=list(combo=wrap("facethist", binwidth=1),
+                   continuous=wrap(GGscatterhex))
+      ) 
+
+```
+
+```{r, eval = TRUE}
+ggpairs(sim_res, 
+        mapping=ggplot2::aes(colour = H, alpha = 0.3),
+        #columns= c(5,6,2,3,4), 
+        title="correlogram with ggpairs()"#,
+        #lower=list(combo=wrap("facethist", binwidth=1),
+        #           continuous=wrap(GGscatterhex))
       ) 
 
 ```
@@ -212,4 +242,28 @@ ggplot(sim_res,
            fill = H)) +
   geom_histogram(boundary = 0) +
   facet_wrap(groups_by_filter(sim_res$minor_allele_frequency, 8), nrow = 2)
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$residual_sigma, 8), nrow = 2)
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$s_variance, 8), nrow = 2)
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$betha_estimate_std, 8), nrow = 2)
 ```
