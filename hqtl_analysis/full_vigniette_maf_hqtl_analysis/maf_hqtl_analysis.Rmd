@@ -9,6 +9,7 @@ output: bookdown::html_document2
 library(tidyr)
 library(scales)
 library(ggplot2)
+library("GGally")
 #library(rtracklayer)
 library(here)
 library(MatrixEQTL)
@@ -72,7 +73,7 @@ Size of
 format(as.numeric(object.size(chr_pvalues_grubert)) / (1024^3), digits = 3, unit = "GB")
 ```
 
-
+No censoring
 ```{r}
 range(chr_pvalues_grubert$pvalue)
 ```
@@ -225,6 +226,7 @@ The boca leek data set seems to be not filtered for significant SNPs.
 range(pvalues_maf_boca$maf_sample)
 ```
 
+
 # comparing p-values with maf sample
 
 ## data set 1
@@ -275,7 +277,7 @@ head(chr_pvalues_grubert)
 
 ```{r pvalue_hist_by_maf, eval = FALSE, fig.cap = "pvalue_hist_by_maf"}
 ggplot(chr_pvalues_grubert %>%
-         sample_n(5* 10^8)%>%
+         #sample_n(5* 10^8)%>%
          select(pvalue, maf_sample_bin), 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0, bins = 40) + #, bins = 40
@@ -285,7 +287,7 @@ ggplot(chr_pvalues_grubert %>%
 zoom in, right-censoring 
 ```{r pvalue_hist_by_maf_zoomed_in}
 ggplot(chr_pvalues_grubert %>% 
-         filter(pvalue <= 10^{-2}), 
+         #filter(pvalue <= 10^{-2}), 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0, bins = 40) +
   facet_wrap(vars(maf_sample_bin), nrow = 2) +
