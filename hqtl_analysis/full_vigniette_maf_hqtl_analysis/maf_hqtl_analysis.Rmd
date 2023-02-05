@@ -78,23 +78,6 @@ No censoring
 range(chr_pvalues_grubert$pvalue)
 ```
 
-
-## data set 2
-
-We consider a second data set
-from (Boca and Leek)[https://github.com/SiminaB/Fdr-regression/blob/master/BMI%20GIANT%20meta-analysis/BMI_GIANT_GWAS_results_Scott_theoretical.RData].
-```{r}
-pvalues_maf_boca <- loadRData(here("data/BMI_GIANT_GWAS.RData"))
-head(pvalues_maf_boca)
-```
-
-TODO why are there multiple rows per SNP? Why are there dublicate rows?
-```{r, eval = FALSE}
-pvalues_maf_boca %>%
-  group_by(SNP) %>%
-  filter(n()>1)
-```
- 
 ## harmonise data set 1 and 2
 
 We calculate the standard deviation for the beta estimate of the effect size from the `beta_se`from `beta` and `tstat`.
@@ -105,18 +88,6 @@ chr_pvalues_grubert <- chr_pvalues_grubert %>%
          FDR = NULL)
 ```
 
-We harmonise the two data sets.
-```{r}
-pvalues_maf_boca <- pvalues_maf_boca %>%
-  dplyr::rename(beta = b, beta_se = se, pvalue = p, maf_sample = Freq_MAF_Hapmap) %>%
-  mutate(Freq_MAF_Int_Hapmap = NULL,
-         A1 = NULL,
-         A2 = NULL,
-         tstat = beta/beta_se)
-
-colnames(chr_pvalues_grubert)
-colnames(pvalues_maf_boca)
-```
 TODO how is Freq_MAF_Hapmap calculated? Is it from sample?
 
 # basic histogram plots of pvalues
@@ -154,24 +125,6 @@ ggplot(chr_pvalues_grubert %>%
        aes(x = pvalue)) +
   geom_histogram(boundary = 0, bins = 50)
 ```
-
-## data set 2
-```{r}
-sum(p.adjust(pvalues_maf_boca$pvalue, method = "BH") <= 0.01)
-```
-
-```{r}
-sum(p.adjust(pvalues_maf_boca$pvalue, method = "BH") <= 0.01)/nrow(pvalues_maf_boca)
-```
-
-
-```{r pvalue_histogram_boca, fig.cap = "Basic Pvalue histogram Boca"}
-ggplot(pvalues_maf_boca %>% select(pvalue), 
-       aes(x = pvalue)) +
-  #scale_x_log10()+
-  geom_histogram(boundary = 0, bins = 50) 
-```
-
 # calculate minor alle frequency 
 
 ## data set 1
@@ -211,22 +164,6 @@ This is plausible and checks out with what we would expect from the data set des
 range(chr_pvalues_grubert$maf_sample)
 ```
 
-
-## data set 2
-already pre calculated
-```{r}
-ggplot(pvalues_maf_boca, aes(x = maf_sample)) +
-  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
-  labs(title = "Histogram of MAF Sample",
-       x = "MAF Sample",
-       y = "Frequency")
-```
-The boca leek data set seems to be not filtered for significant SNPs.
-```{r}
-range(pvalues_maf_boca$maf_sample)
-```
-
-
 # comparing p-values with maf sample
 
 ## data set 1
@@ -235,17 +172,6 @@ range(pvalues_maf_boca$maf_sample)
 
 ```{r pvalue_maf, fig.cap = "Pvalues against maf"}
 ggplot(chr_pvalues_grubert,
-       aes(x = maf_sample, y = pvalue)) +
-  scale_y_log10()+
-  scale_fill_gradient(name = "count", trans = "log10")+
-  geom_hex()  #bins = 60
-```
-
-## data set 2
-
-Here the data set 2 exhibits a much stronger trend. `maf_sample` seems more informative.
-```{r pvalue_maf_boca, fig.cap = "Pvalues against maf boca"}
-ggplot(pvalues_maf_boca,
        aes(x = maf_sample, y = pvalue)) +
   scale_y_log10()+
   scale_fill_gradient(name = "count", trans = "log10")+
@@ -294,15 +220,6 @@ ggplot(chr_pvalues_grubert %>%
    scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
 ```
 
-
-## data set 2
-```{r pvalue_hist_by_maf_kern_boca, fig.cap= "Pvalues stratified by MAF"}
-ggplot(pvalues_maf_boca, 
-       aes(x = pvalue)) +
-  geom_histogram(boundary = 0) +
-  facet_wrap(groups_by_filter(pvalues_maf_boca$maf_sample, 8), nrow = 2)
-```
-
 # compare minor alle frequency and standard deviation of effect size estimate
 
 ## data set 1
@@ -317,17 +234,6 @@ ggplot(chr_pvalues_grubert %>%
 ```
 
 So the sample maf looks more informative
-
-## data set 2
-The beta_se estimate is calculated from the pre-calculated p-value. So it is assumed, that the pre-calculated p-value is correct.
-```{r}
-ggplot(pvalues_maf_boca,
-       aes(x = maf_sample, y = beta_se)) +
-  scale_y_log10()+
-  scale_fill_gradient(name = "count", trans = "log10")+
-  geom_hex()  #bins = 60
-```
-
 
 # check t-distribution
 
@@ -387,9 +293,3 @@ $$
 \end{tabular}
 ```
 
-
-
-## data set 2
-```{r, eval = FALSE}
-qqPlot(pvalues_maf_boca$tstat, dist = "t", estimate.parameters = TRUE, add.line = TRUE)
-```
