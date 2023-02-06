@@ -9,7 +9,7 @@ output: bookdown::html_document2
 library(tidyr)
 library(scales)
 library(ggplot2)
-library("GGally")
+#library("GGally")
 #library(rtracklayer)
 library(here)
 library(MatrixEQTL)
@@ -128,10 +128,11 @@ ggplot(chr_pvalues_grubert %>%
 # calculate minor alle frequency 
 
 ## data set 1
-This code is directly taken from here: http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html. Explenation: each entry of the matrix can take the values `0`,`1`,`2`. `rowMeans(slice,na.rm=TRUE)/2=rowSum(slice,na.rm=TRUE)/(2*76)`.
+This code is directly taken from here: http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html. Explanation: each entry of the matrix can take the values `0`,`1`,`2`. `rowMeans(slice,na.rm=TRUE)/2=rowSum(slice,na.rm=TRUE)/(2*76)`.
 
 ```{r}
 maf.list = vector('list', length(chr_full_data_grubert))
+#sl = 1
 for(sl in seq_along(chr_full_data_grubert)) {
   slice = chr_full_data_grubert[[sl]];
   maf.list[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
@@ -139,17 +140,29 @@ for(sl in seq_along(chr_full_data_grubert)) {
 }
 ```
 
+```{r}
+svars.list = vector('list', length(chr_full_data_grubert))
+for(sl in seq_along(chr_full_data_grubert)) {
+  slice = chr_full_data_grubert[[sl]];
+  svars.list[[sl]] = genefilter::rowSds(slice,na.rm=TRUE)
+}
+#rm(chr_full_data_grubert)
+```
+
 We assign the maf to the snp identifier 
 ```{r}
-chr_maf_sample <- data.frame(
+chr_maf_sample <- data.frame( #TODO mistake here?
   SNP = MatrixEQTL::rownames(chr_full_data_grubert),
-  maf_sample = unlist(maf.list)
+  maf_sample = unlist(maf.list),
+  svars = unlist(svars.list)
 )
+rm(maf.list, svars.list)
 ```
 
 ```{r}
 chr_pvalues_grubert <- chr_pvalues_grubert %>%
   inner_join(chr_maf_sample, by = "SNP") 
+rm(chr_maf_sample)
 ```
 
 ```{r maf_histogram}
@@ -164,9 +177,40 @@ This is plausible and checks out with what we would expect from the data set des
 range(chr_pvalues_grubert$maf_sample)
 ```
 
+```{r}
+format(as.numeric(object.size(chr_pvalues_grubert)) / (1024^3), digits = 3, unit = "GB")
+head(chr_pvalues_grubert)
+
+```
+```{r}
+chr_pvalues_grubert <- chr_pvalues_grubert %>% select(pvalue,  beta_se, maf_sample, svars)
+format(as.numeric(object.size(chr_pvalues_grubert)) / (1024^3), digits = 3, unit = "GB")
+```
+
+
 # comparing p-values with maf sample
 
 ## data set 1
+
+
+```{r, eval = FALSE}
+GGscatterhex <- function(data, mapping,...) {
+  x <- GGally::eval_data_col(data, mapping$x)
+  y <- GGally::eval_data_col(data, mapping$y)
+  df <- data.frame(x = x, y = y)
+  pp <- ggplot(df, aes(x=x, y=y)) +
+        geom_hex()
+  return(pp)
+}
+
+GGally::ggpairs(chr_pvalues_grubert, 
+        #mapping=ggplot2::aes(colour = H, alpha = 0.3),
+        columns= which(colnames(chr_pvalues_grubert) %in% c("pvalue", "maf_sample", "svars")), 
+        title="correlogram with ggpairs()",
+        lower=list(combo=wrap("facethist", binwidth=1),
+                   continuous=wrap(GGscatterhex))
+      ) 
+```
 
 `maf_sample` does not seem super informative.
 
@@ -177,6 +221,7 @@ ggplot(chr_pvalues_grubert,
   scale_fill_gradient(name = "count", trans = "log10")+
   geom_hex()  #bins = 60
 ```
+
 # stratifying pvalues by maf
 ```{r}
 groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
@@ -187,8 +232,16 @@ groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
     on.exit( { .Random.seed <<- old } )
     set.seed(as.integer(seed)) 
   }
-	rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
-	as.factor(ceiling( rfs* nbins))
+  if(ties.method == "random"){
+    rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
+	  as.factor(ceiling( rfs* nbins))
+  }else if(ties.method == "systematic"){
+    #will lead to systematic bias with tias, but has more helpful factor labels
+    #breaks <- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))
+    #cut(covariate, breaks=breaks, include.lowest=TRUE)
+    #oneR::bin(covariate, method = "content", nbins = nbins)
+    Hmisc::cut2(covariate, g=nbins)
+  }
 }
 ```
 
@@ -197,21 +250,24 @@ groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
 add `maf_sample_bin`. 
 ```{r}
 chr_pvalues_grubert <- chr_pvalues_grubert %>%
-  mutate(maf_sample_bin = groups_by_filter(maf_sample, 8))
+  mutate(maf_sample_bin = groups_by_filter(maf_sample, nbins = 8),
+         svars_bin = groups_by_filter(svars, nbins = 8, ties.method = "systematic"))
+
+table(chr_pvalues_grubert$maf_sample_bin)
 head(chr_pvalues_grubert)
 ```
 
-```{r pvalue_hist_by_maf, eval = FALSE, fig.cap = "pvalue_hist_by_maf"}
-ggplot(chr_pvalues_grubert %>%
-         #sample_n(5* 10^8)%>%
-         select(pvalue, maf_sample_bin), 
-       aes(x = pvalue)) +
-  geom_histogram(boundary = 0, bins = 40) + #, bins = 40
-  facet_grid(cols = vars(maf_sample_bin)) 
-```
 
 zoom in, right-censoring 
 ```{r pvalue_hist_by_maf_zoomed_in}
+ggplot(chr_pvalues_grubert,  
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 40) +
+  facet_wrap(vars(maf_sample_bin), nrow = 2) +
+   scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
+```
+
+```{r}
 ggplot(chr_pvalues_grubert %>% 
          #filter(pvalue <= 10^{-2}), 
        aes(x = pvalue)) +
