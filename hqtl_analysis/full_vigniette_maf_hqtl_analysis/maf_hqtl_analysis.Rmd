@@ -38,9 +38,9 @@ chr <- 21
 
 The following is the same same data set as in hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. It is taken from [Grubert et al.](https://linkinghub.elsevier.com/retrieve/pii/S0092867415009642). 
 ```{r}
-#chr_full_data_grubert <- loadRData(here("data/hqtl_chrom1_chrom2/snps22.filtered.allGT.txt.rda"))
-#TODO not reproducible, but too big to copy everything
-chr_full_data_grubert <- loadRData(paste0("/g/scb/zaugg/zaugg/hQTL/GenotypeData/snps", chr, ".filtered.allGT.txt.rda"))
+
+chr_full_data_grubert <- loadRData(here("data/hqtl_chrom1_chrom2/snps21.filtered.allGT.txt.rda"))
+
 ```
 
 Sample names (The population sample is 76 individuals).
@@ -61,8 +61,6 @@ chr_full_data_grubert[[1]][1:10,1:10]
 
 The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr_subset.Rds).
 ```{r}
-#chr_pvalues_grubert <- readRDS(here(paste0("data/hqtl_chrom1_chrom2/results/chr",19,"_mod_H3K27AC.Rds")))
-
 chr_pvalues_grubert <- data.table::fread(here(paste0("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr",chr,".txt")))
 chr_pvalues_grubert <- chr_pvalues_grubert %>% rename(tstat = `t-stat`, pvalue = `p-value`)
 head(chr_pvalues_grubert)
@@ -268,7 +266,7 @@ ggplot(chr_pvalues_grubert,
 ```
 
 ```{r}
-ggplot(chr_pvalues_grubert %>% 
+ggplot(chr_pvalues_grubert, #%>% 
          #filter(pvalue <= 10^{-2}), 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0, bins = 40) +
