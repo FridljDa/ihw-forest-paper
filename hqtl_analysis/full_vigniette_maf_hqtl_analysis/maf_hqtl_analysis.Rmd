@@ -144,7 +144,7 @@ for(sl in seq_along(chr_full_data_grubert)) {
   slice = chr_full_data_grubert[[sl]];
   svars.list[[sl]] = genefilter::rowSds(slice,na.rm=TRUE)
 }
-#rm(chr_full_data_grubert)
+rm(chr_full_data_grubert)
 ```
 
 We assign the maf to the snp identifier 
@@ -212,7 +212,7 @@ GGally::ggpairs(chr_pvalues_grubert,
 
 `maf_sample` does not seem super informative.
 
-```{r pvalue_maf, fig.cap = "Pvalues against maf"}
+```{r pvalue_maf, fig.cap = "Pvalues against maf", eval = FALSE}
 ggplot(chr_pvalues_grubert,
        aes(x = maf_sample, y = pvalue)) +
   scale_y_log10()+
@@ -265,12 +265,11 @@ ggplot(chr_pvalues_grubert,
    scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
 ```
 
-```{r}
-ggplot(chr_pvalues_grubert, #%>% 
-         #filter(pvalue <= 10^{-2}), 
+```{r, eval = FALSE}
+ggplot(chr_pvalues_grubert, 
        aes(x = pvalue)) +
   geom_histogram(boundary = 0, bins = 40) +
-  facet_wrap(vars(maf_sample_bin), nrow = 2) +
+  facet_wrap(vars(svars_bin), nrow = 2) +
    scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
 ```
 
@@ -278,7 +277,7 @@ ggplot(chr_pvalues_grubert, #%>%
 
 ## data set 1
 The beta_se estimate is calculated from the pre-calculated p-value. So it is assumed, that the pre-calculated p-value is correct. This is plausible: std should decrease with smaller beta_se.
-```{r}
+```{r, eval = FALSE}
 ggplot(chr_pvalues_grubert %>%
          sample_n(5* 10^6),
        aes(x = maf_sample, y = beta_se)) +
@@ -333,7 +332,7 @@ $$
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 qqPlot(chr_pvalues_grubert$tstat %>% 
   quantile(., probs = seq(0, 1, 0.05)), 
        dist = "t", param.list = list(df = 74), add.line = TRUE)
