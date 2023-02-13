@@ -1,0 +1,348 @@
+---
+title: "analyse relationship between p-values and maf"
+author: "Danie Fridljand"
+header-includes: \usepackage{bbm}
+output: bookdown::html_document2
+---
+
+```{r setup, include=FALSE}
+library(tidyr)
+library(scales)
+library(ggplot2)
+#library("GGally")
+#library(rtracklayer)
+library(here)
+library(MatrixEQTL)
+library(dplyr)
+library(EnvStats)
+
+knitr::opts_chunk$set(echo = TRUE, dpi = 40)
+options(bitmapType ="cairo")
+```
+
+# load data set precalculated p-values
+
+helper function
+```{r}
+loadRData <- function(fileName){
+#loads an RData file, and returns it
+    load(fileName)
+    get(ls()[ls() != "fileName"])
+}
+```
+
+## data set 1
+```{r}
+chr <- 21
+```
+
+The following is the same same data set as in hQTL analysis as in https://rss.onlinelibrary.wiley.com/doi/10.1111/rssb.12411?af=R, Section 6: APPLICATION EXAMPLE: BIOLOGICAL HIGH-THROUGHPUT DATA. It is taken from [Grubert et al.](https://linkinghub.elsevier.com/retrieve/pii/S0092867415009642). 
+```{r}
+
+chr_full_data_grubert <- loadRData(here("data/hqtl_chrom1_chrom2/snps21.filtered.allGT.txt.rda"))
+
+```
+
+Sample names (The population sample is 76 individuals).
+```{r}
+MatrixEQTL::colnames(chr_full_data_grubert)[1:10]
+```
+
+SNPs
+```{r}
+MatrixEQTL::rownames(chr_full_data_grubert)[1:10]
+```
+
+top-left submatrix
+```{r}
+chr_full_data_grubert[[1]][1:10,1:10]
+```
+`0` means no alternative allele, `1` means 1 alternative allele, `2` means 2 alternative allele, 
+
+The p-values are pre-calculated with `MatrixEQTL` package [ref](https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/bts163). It is basically row-wise t-test with covariate adjustment. [Here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/real_data_examples/hqtl_example_analysis.R) is the code. The pre-calculated file was downloaded from [here](https://github.com/nignatiadis/IHWpaper/blob/master/inst/extdata/real_data/hqtl_chrom1_chrom2/chr_subset.Rds).
+```{r}
+chr_pvalues_grubert <- data.table::fread(here(paste0("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr",chr,".txt")))
+chr_pvalues_grubert <- chr_pvalues_grubert %>% rename(tstat = `t-stat`, pvalue = `p-value`)
+head(chr_pvalues_grubert)
+```
+
+Size of 
+```{r}
+format(as.numeric(object.size(chr_pvalues_grubert)) / (1024^3), digits = 3, unit = "GB")
+```
+
+No censoring
+```{r}
+range(chr_pvalues_grubert$pvalue)
+```
+
+## harmonise data set 1 and 2
+
+We calculate the standard deviation for the beta estimate of the effect size from the `beta_se`from `beta` and `tstat`.
+```{r}
+chr_pvalues_grubert <- chr_pvalues_grubert %>%
+  mutate(beta_se = beta/tstat, 
+         #tstat = NULL,
+         FDR = NULL)
+```
+
+TODO how is Freq_MAF_Hapmap calculated? Is it from sample?
+
+# basic histogram plots of pvalues
+## data set 1
+```{r}
+chr_pvalues_grubert_p_adjust <- p.adjust(chr_pvalues_grubert$pvalue, method = "BH")
+
+sum(chr_pvalues_grubert_p_adjust <= 0.01)
+```
+
+Effective Benjamini-Hochberg rejections threshold
+```{r}
+max(chr_pvalues_grubert$pvalue[chr_pvalues_grubert_p_adjust <= 0.01])
+```
+
+```{r}
+nrow(chr_pvalues_grubert)
+```
+
+```{r}
+sum(p.adjust(chr_pvalues_grubert$pvalue, method = "BH") <= 0.01)/nrow(chr_pvalues_grubert)
+```
+
+This is a very large data set. Considering all pvalues, it is very hard to see anything.   
+```{r pvalue_histogram, fig.cap = "Basic Pvalue histogram"}
+ggplot(chr_pvalues_grubert %>% select(pvalue), 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 400) 
+```
+
+After zooming in, we see more.
+```{r}
+ggplot(chr_pvalues_grubert %>% 
+         filter(pvalue <= 10^(-4)), 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 50)
+```
+# calculate minor alle frequency 
+
+## data set 1
+This code is directly taken from here: http://www.bios.unc.edu/research/genomic_software/Matrix_eQTL/faq.html. Explanation: each entry of the matrix can take the values `0`,`1`,`2`. `rowMeans(slice,na.rm=TRUE)/2=rowSum(slice,na.rm=TRUE)/(2*76)`.
+
+```{r}
+maf.list = vector('list', length(chr_full_data_grubert))
+#sl = 1
+for(sl in seq_along(chr_full_data_grubert)) {
+  slice = chr_full_data_grubert[[sl]];
+  maf.list[[sl]] = rowMeans(slice,na.rm=TRUE)/2;
+  maf.list[[sl]] = pmin(maf.list[[sl]],1-maf.list[[sl]]);
+}
+```
+
+```{r}
+svars.list = vector('list', length(chr_full_data_grubert))
+for(sl in seq_along(chr_full_data_grubert)) {
+  slice = chr_full_data_grubert[[sl]];
+  svars.list[[sl]] = genefilter::rowSds(slice,na.rm=TRUE)
+}
+rm(chr_full_data_grubert)
+```
+
+We assign the maf to the snp identifier 
+```{r}
+chr_maf_sample <- data.frame( #TODO mistake here?
+  SNP = MatrixEQTL::rownames(chr_full_data_grubert),
+  maf_sample = unlist(maf.list),
+  svars = unlist(svars.list)
+)
+rm(maf.list, svars.list)
+```
+
+```{r}
+chr_pvalues_grubert <- chr_pvalues_grubert %>%
+  inner_join(chr_maf_sample, by = "SNP") 
+rm(chr_maf_sample)
+```
+
+```{r maf_histogram}
+ggplot(chr_pvalues_grubert, aes(x = maf_sample)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+  labs(title = "Histogram of MAF Sample",
+       x = "MAF Sample",
+       y = "Frequency")
+```
+This is plausible and checks out with what we would expect from the data set description.
+```{r}
+range(chr_pvalues_grubert$maf_sample)
+```
+
+```{r}
+format(as.numeric(object.size(chr_pvalues_grubert)) / (1024^3), digits = 3, unit = "GB")
+head(chr_pvalues_grubert)
+
+```
+```{r}
+chr_pvalues_grubert <- chr_pvalues_grubert %>% select(pvalue,  beta_se, maf_sample, svars)
+format(as.numeric(object.size(chr_pvalues_grubert)) / (1024^3), digits = 3, unit = "GB")
+```
+
+
+# comparing p-values with maf sample
+
+## data set 1
+
+
+```{r, eval = FALSE}
+GGscatterhex <- function(data, mapping,...) {
+  x <- GGally::eval_data_col(data, mapping$x)
+  y <- GGally::eval_data_col(data, mapping$y)
+  df <- data.frame(x = x, y = y)
+  pp <- ggplot(df, aes(x=x, y=y)) +
+        geom_hex()
+  return(pp)
+}
+
+GGally::ggpairs(chr_pvalues_grubert, 
+        #mapping=ggplot2::aes(colour = H, alpha = 0.3),
+        columns= which(colnames(chr_pvalues_grubert) %in% c("pvalue", "maf_sample", "svars")), 
+        title="correlogram with ggpairs()",
+        lower=list(combo=wrap("facethist", binwidth=1),
+                   continuous=wrap(GGscatterhex))
+      ) 
+```
+
+`maf_sample` does not seem super informative.
+
+```{r pvalue_maf, fig.cap = "Pvalues against maf", eval = FALSE}
+ggplot(chr_pvalues_grubert,
+       aes(x = maf_sample, y = pvalue)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+# stratifying pvalues by maf
+```{r}
+groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
+  if (!is.null(seed) && ties.method=="random"){
+    #http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1
+    tmp <- runif(1)
+    old <- .Random.seed
+    on.exit( { .Random.seed <<- old } )
+    set.seed(as.integer(seed)) 
+  }
+  if(ties.method == "random"){
+    rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
+	  as.factor(ceiling( rfs* nbins))
+  }else if(ties.method == "systematic"){
+    #will lead to systematic bias with tias, but has more helpful factor labels
+    #breaks <- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))
+    #cut(covariate, breaks=breaks, include.lowest=TRUE)
+    #oneR::bin(covariate, method = "content", nbins = nbins)
+    Hmisc::cut2(covariate, g=nbins)
+  }
+}
+```
+
+
+## data set 1
+add `maf_sample_bin`. 
+```{r}
+chr_pvalues_grubert <- chr_pvalues_grubert %>%
+  mutate(maf_sample_bin = groups_by_filter(maf_sample, nbins = 8),
+         svars_bin = groups_by_filter(svars, nbins = 8, ties.method = "systematic"))
+
+table(chr_pvalues_grubert$maf_sample_bin)
+head(chr_pvalues_grubert)
+```
+
+
+zoom in, right-censoring 
+```{r pvalue_hist_by_maf_zoomed_in}
+ggplot(chr_pvalues_grubert,  
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 400) +
+  facet_wrap(vars(maf_sample_bin), nrow = 2) +
+  scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
+```
+
+```{r, eval = FALSE}
+ggplot(chr_pvalues_grubert, 
+       aes(x = pvalue)) +
+  geom_histogram(boundary = 0, bins = 40) +
+  facet_wrap(vars(svars_bin), nrow = 2) +
+   scale_x_continuous(labels = function(x) format(x, scientific = TRUE), n.breaks = 3) 
+```
+
+# compare minor alle frequency and standard deviation of effect size estimate
+
+## data set 1
+The beta_se estimate is calculated from the pre-calculated p-value. So it is assumed, that the pre-calculated p-value is correct. This is plausible: std should decrease with smaller beta_se.
+```{r, eval = FALSE}
+ggplot(chr_pvalues_grubert %>%
+         sample_n(5* 10^6),
+       aes(x = maf_sample, y = beta_se)) +
+  scale_y_log10()+
+  scale_fill_gradient(name = "count", trans = "log10")+
+  geom_hex()  #bins = 60
+```
+
+So the sample maf looks more informative
+
+# check t-distribution
+
+## data set 1
+
+```{=latex}
+$$
+Y_i=\beta_0+\beta_1 x_i+\epsilon_i
+$$
+
+$$
+\left(\begin{array}{l}
+\widehat{\beta}_0 \\
+\widehat{\beta}_1
+\end{array}\right) \sim \mathcal{N}\left(\left(\begin{array}{l}
+\beta_0 \\
+\beta_1
+\end{array}\right), \sigma^2\left(X^{\top} X\right)^{-1}\right)
+$$
+
+$$
+T_n(\boldsymbol{Y}):=\frac{\widehat{\beta}_1}{s(\boldsymbol{Y}) / \sqrt{s s_{x x} x}}
+$$
+\end{tabular}
+```
+
+
+```{r, eval = FALSE}
+ggplot(chr_pvalues_grubert, aes(x = tstat)) +
+  geom_histogram(fill = "lightblue", color = "black", bins = 30) +
+  labs(title = "Histogram of tstat",
+       x = "tstat",
+       y = "Frequency")
+```
+
+
+```{=latex}
+
+$$
+T_n(\boldsymbol{Y}):=\frac{\widehat{\beta}_1}{s(\boldsymbol{Y}) / \sqrt{s s_{x x} x}}
+$$
+\end{tabular}
+```
+
+
+```{r, eval = FALSE}
+qqPlot(chr_pvalues_grubert$tstat %>% 
+  quantile(., probs = seq(0, 1, 0.05)), 
+       dist = "t", param.list = list(df = 74), add.line = TRUE)
+```
+
+
+```{=latex}
+$$
+\widehat{\beta}_1 \sim \mathcal{N}\left(\beta_1, \sigma^2\left(X^{\top} X\right)_{22}^{-1}\right)
+$$
+\end{tabular}
+```
+

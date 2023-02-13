@@ -1,0 +1,201 @@
+---
+title: "analyse relationship between p-values and maf"
+author: "Danie Fridljand"
+header-includes: \usepackage{bbm}
+output: bookdown::html_document2
+---
+
+```{r setup, include=FALSE}
+#library(tidyr)
+#library(scales)
+library(ggplot2)
+#library("GGally")
+#library(rtracklayer)
+library(here)
+#library(MatrixEQTL)
+library(dplyr)
+#library(EnvStats)
+library(IHW)
+library("ggpubr")
+
+knitr::opts_chunk$set(echo = TRUE, dpi = 40)
+options(bitmapType ="cairo")
+```
+
+# load data set precalculated p-values
+
+helper function
+```{r}
+loadRData <- function(fileName){
+#loads an RData file, and returns it
+    load(fileName)
+    get(ls()[ls() != "fileName"])
+}
+```
+
+## data set 1
+```{r}
+chr <- 21
+```
+
+```{r}
+#chr_pvalues_grubert_chr21 <- loadRData("chr_pvalues_grubert_chr21.Rda")
+#chr_pvalues_grubert <- data.table::fread("chr_pvalues_grubert_chr21_maf.csv")
+chr_pvalues_grubert <- fst::read.fst("chr_pvalues_grubert_chr21.fst")
+head(chr_pvalues_grubert)
+```
+
+```{r, eval = FALSE}
+fst::write.fst(chr_pvalues_grubert, "chr_pvalues_grubert_chr21.fst")
+#fst::read.fst("chr_pvalues_grubert_chr21.fst")
+#data.table::fwrite(chr_pvalues_grubert, "chr_pvalues_grubert_chr21_maf.csv")
+#save(chr_pvalues_grubert, file = "chr_pvalues_grubert_chr21.rda")
+
+#saveRDS(chr_pvalues_grubert, file="hqtl_analysis/full_vigniette_maf_hqtl_analysis/chr_pvalues_grubert_chr21.Rda")
+```
+
+#functions 
+```{r}
+groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
+  if (!is.null(seed) && ties.method=="random"){
+    #http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1
+    tmp <- runif(1)
+    old <- .Random.seed
+    on.exit( { .Random.seed <<- old } )
+    set.seed(as.integer(seed)) 
+  }
+  if(ties.method == "random"){
+    rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
+	  as.factor(ceiling( rfs* nbins))
+  }else if(ties.method == "systematic"){
+    #will lead to systematic bias with tias, but has more helpful factor labels
+    #breaks <- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))
+    #cut(covariate, breaks=breaks, include.lowest=TRUE)
+    #oneR::bin(covariate, method = "content", nbins = nbins)
+    Hmisc::cut2(covariate, g=nbins)
+  }
+}
+```
+
+```{r}
+quick_hist = function(values_vec, breaks=50, title = NULL, threshold_proportion = 10^(-4)) {
+    res = hist(values_vec, plot=FALSE, breaks=breaks)
+    
+    proportion <- mean(values_vec <= threshold_proportion)
+    proportion <- formatC(proportion, format = "e", digits = 2)
+    
+    dat = data.frame(xmin=head(res$breaks, -1L),
+                     xmax=tail(res$breaks, -1L),
+                     ymin=0.0,
+                     ymax=res$counts)
+
+    ggplot(dat, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)) +
+      geom_rect(size=0.5, colour="grey30", fill="grey80") + 
+      ggtitle(paste(title, "proportion", proportion)) +
+      ylab("pvalue count")
+}
+```
+
+# analysis
+```{r}
+quick_hist(chr_pvalues_grubert$pvalue, breaks = 400)
+```
+
+add `maf_sample_bin`.
+```{r, eval = FALSE}
+chr_pvalues_grubert <- chr_pvalues_grubert %>%
+  mutate(#maf_sample_bin = groups_by_filter(maf_sample, nbins = 8),
+         maf_bin_uneq = groups_by_filter(maf_sample, nbins = 8, ties.method = "systematic"),
+         #svars_bin = groups_by_filter(svars, nbins = 8, ties.method = "systematic")
+         )
+
+table(chr_pvalues_grubert$maf_sample_bin)
+head(chr_pvalues_grubert)
+```
+
+```{r}
+chr_pvalues_grubert_split_maf_sample_bin <- chr_pvalues_grubert %>%
+  select(pvalue, maf_sample_bin, maf_sample) %>%
+  split(chr_pvalues_grubert$maf_sample_bin) 
+
+maf_sample_bin_hist <- lapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  title <- unique(maf_sample_bin_i$maf_sample_bin)
+  title <- paste0(title, ", ")
+  quick_hist(maf_sample_bin_i$pvalue, breaks = 400, title = title)
+})
+```
+
+
+```{r}
+proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  threshold_proportion = 10^(-4)
+  proportion <- mean(maf_sample_bin_i$pvalue <= threshold_proportion)
+})
+
+plot(names(chr_pvalues_grubert_split_maf_sample_bin), proportions_maf_sample_bin)
+```
+
+```{r}
+for(maf_sample_bin_i in maf_sample_bin_hist){
+  print(maf_sample_bin_i)
+}
+#ggarrange(plotlist =maf_sample_bin_hist,
+#                        nrow = 2, ncol = 4)
+```
+
+```{r}
+chr_pvalues_grubert_split_svars_bin <- chr_pvalues_grubert %>%
+  select(pvalue, svars_bin) %>%
+  split(chr_pvalues_grubert$svars_bin) 
+
+svars_bin_hist <- lapply(chr_pvalues_grubert_split_svars_bin, function(svars_bin_i){
+  title <- unique(svars_bin_hist_i$svars_bin)
+  title <- paste0(title, ", ")
+  quick_hist(svars_bin_i$pvalue, breaks = 800, title = title)
+})
+```
+
+```{r}
+for(svars_bin_hist_i in svars_bin_hist){
+  print(svars_bin_hist_i)
+}
+```
+ 
+```{r}
+chr_pvalues_grubert_split_maf_bin_uneq <- chr_pvalues_grubert %>%
+  select(pvalue, maf_bin_uneq) %>%
+  split(chr_pvalues_grubert$maf_bin_uneq) 
+
+chr_pvalues_grubert_split_maf_bin_uneq_hist <- lapply(chr_pvalues_grubert_split_maf_bin_uneq, function(maf_bin_uneq_i){
+  quick_hist(maf_bin_uneq_i$pvalue, breaks = 800)
+})
+```
+
+```{r}
+for(maf_bin_uneq_i in chr_pvalues_grubert_split_maf_bin_uneq_hist){
+  print(maf_bin_uneq_i)
+}
+```
+
+```{r}
+proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  threshold_proportion = 10^(-4)
+  proportion <- mean(maf_sample_bin_i$pvalue <= threshold_proportion)
+})
+
+plot(names(chr_pvalues_grubert_split_maf_sample_bin), proportions_maf_sample_bin)
+```
+
+#IHW
+```{r}
+ihw_maf_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_sample_bin, alpha = 0.05)
+```
+
+```{r}
+ihw_maf_unequal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_bin_uneq)
+```
+
+```{r}
+ihw_maf_unequal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$svars_bin)
+```
+
