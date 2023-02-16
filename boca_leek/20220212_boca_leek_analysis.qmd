@@ -4,24 +4,24 @@ format: html
 editor: visual
 ---
 
-```{r}
-#library(tidyr)
-#library(scales)
+```{r, echo=FALSE}
 library(ggplot2)
-#library("GGally")
-#library(rtracklayer)
 library(here)
 library(dplyr)
-#library(IHW)
+
+set.seed(4)
+options(bitmapType ="cairo")
 ```
 
 ```{r}
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../../IHW")
+
 ```
 
 ```{r}
 load(here("data/BMI_GIANT_GWAS.RData"))
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(100000)
 head(BMI_GIANT_GWAS)
 ```
 
@@ -95,12 +95,12 @@ BMI_GIANT_GWAS_p_adjust <- p.adjust(BMI_GIANT_GWAS$p, method = "BH")
 sum(BMI_GIANT_GWAS_p_adjust <= 0.05)
 ```
 
-```{r}
+```{r, eval = F}
 ihw_quantile_n <- IHW::ihw(p ~  N,data = BMI_GIANT_GWAS, alpha = 0.05, stratification_method = "quantiles")
 rejections(ihw_quantile_n) 
 ```
 
-```{r}
+```{r, eval = F}
 ihw_quantile_maf <- IHW::ihw(p ~ Freq_MAF_Hapmap,data = BMI_GIANT_GWAS, alpha = 0.05, stratification_method = "quantiles")
 rejections(ihw_quantile_maf) 
 ```
@@ -116,11 +116,9 @@ ihw_forest_n_maf <-
           p ~ Freq_MAF_Hapmap + N,
           data = BMI_GIANT_GWAS,
           alpha = 0.05,
-          #folds = folds_vec,
           lambdas = Inf,
           stratification_method = "forest",
-          #n_censor_thres = 1, ntrees = 1, nodedepth = 3, nodesize = 5000
-           n_censor_thres = 3, ntrees = 3, nodedepth = 10, nodesize = 5000 # TODO
+           n_censor_thres = 3, ntrees = 3, nodedepth = 4, nodesize = 4000
         )
       
 ```
