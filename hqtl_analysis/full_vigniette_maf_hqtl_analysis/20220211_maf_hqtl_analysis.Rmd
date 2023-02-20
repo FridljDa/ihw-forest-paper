@@ -56,6 +56,10 @@ fst::write.fst(chr_pvalues_grubert, "chr_pvalues_grubert_chr21.fst")
 
 #functions 
 ```{r}
+Hmisc::cut2(covariate, g=nbins)
+```
+
+```{r}
 groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
   if (!is.null(seed) && ties.method=="random"){
     #http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1
@@ -66,7 +70,8 @@ groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
   }
   if(ties.method == "random"){
     rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
-	  as.factor(ceiling( rfs* nbins))
+    bins <- ceiling( rfs* nbins)
+	  as.factor(bins)
   }else if(ties.method == "systematic"){
     #will lead to systematic bias with tias, but has more helpful factor labels
     #breaks <- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))
@@ -149,7 +154,7 @@ chr_pvalues_grubert_split_svars_bin <- chr_pvalues_grubert %>%
   split(chr_pvalues_grubert$svars_bin) 
 
 svars_bin_hist <- lapply(chr_pvalues_grubert_split_svars_bin, function(svars_bin_i){
-  title <- unique(svars_bin_hist_i$svars_bin)
+  title <- unique(svars_bin_i$svars_bin)
   title <- paste0(title, ", ")
   quick_hist(svars_bin_i$pvalue, breaks = 800, title = title)
 })
