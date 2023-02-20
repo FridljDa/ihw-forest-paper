@@ -191,6 +191,20 @@ proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, f
 plot(names(chr_pvalues_grubert_split_maf_sample_bin), proportions_maf_sample_bin)
 ```
 
+```{r}
+set.seed(123)
+covariate <- rnorm(100)
+bins <- cut(covariate, breaks = 5)
+
+# group covariate by bins and get range
+range_by_bins <- tapply(covariate, bins, range)
+
+range_by_bins <- as.factor(names(range_by_bins))
+
+levels(bins) <- range_by_bins
+cbind(covariate, bins)
+```
+
 #IHW
 ```{r}
 ihw_maf_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_sample_bin, alpha = 0.05)
