@@ -1,7 +1,6 @@
 ---
 title: "analyse relationship between p-values and maf"
 author: "Danie Fridljand"
-header-includes: \usepackage{bbm}
 output: bookdown::html_document2
 ---
 
@@ -13,6 +12,7 @@ library(IHW)
 library("ggpubr")
 
 knitr::opts_chunk$set(echo = TRUE, dpi = 40)
+#knitr::include_graphics()
 options(bitmapType ="cairo")
 ```
 
@@ -49,12 +49,12 @@ quick_hist = function(values_vec, breaks=50, title = NULL, threshold_proportion 
 ```
 
 # analysis
-```{r}
+```{r, fig.cap="not stratified histogram"}
 quick_hist(chr_pvalues_grubert$pvalue, breaks = 400)
 ```
 
 
-```{r}
+```{r, fig.cap="stratified histogram"}
 chr_pvalues_grubert_split_maf_sample_bin <- chr_pvalues_grubert %>%
   select(pvalue, maf_sample_bin, maf_sample) %>%
   split(chr_pvalues_grubert$maf_sample_bin) 
@@ -71,7 +71,7 @@ for(maf_sample_bin_i in maf_sample_bin_hist){
 ```
 
 
-```{r}
+```{r, fig.cap="proportion of small pvalues on each stratum"}
 proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
   threshold_proportion = 10^(-4)
   proportion <- mean(maf_sample_bin_i$pvalue <= threshold_proportion)
@@ -80,21 +80,6 @@ proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, f
 plot(names(chr_pvalues_grubert_split_maf_sample_bin), proportions_maf_sample_bin)
 ```
 
-```{r}
-chr_pvalues_grubert_split_maf_sample_bin <- chr_pvalues_grubert %>%
-  select(pvalue, maf_bin_uneq, maf_sample) %>%
-  split(chr_pvalues_grubert$maf_bin_uneq) 
-
-maf_sample_bin_uneq_hist <- lapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
-  title <- unique(maf_sample_bin_i$maf_bin_uneq)
-  title <- paste0(title, ", ")
-  quick_hist(maf_sample_bin_i$pvalue, breaks = 400, title = title)
-})
-
-for(maf_sample_bin_uneq_i in maf_sample_bin_uneq_hist){
-  print(maf_sample_bin_uneq_i)
-}
-```
 
 #IHW
 ```{r}
