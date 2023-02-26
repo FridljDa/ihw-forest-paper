@@ -55,9 +55,6 @@ fst::write.fst(chr_pvalues_grubert, "chr_pvalues_grubert_chr21.fst")
 ```
 
 #functions 
-```{r}
-Hmisc::cut2(covariate, g=nbins)
-```
 
 ```{r}
 groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){

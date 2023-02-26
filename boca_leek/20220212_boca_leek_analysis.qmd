@@ -18,6 +18,10 @@ devtools::load_all("../../IHW")
 
 ```
 
+https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI
+
+All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq
+
 ```{r}
 load(here("data/BMI_GIANT_GWAS.RData"))
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
