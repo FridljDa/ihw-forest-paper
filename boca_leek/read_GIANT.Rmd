@@ -30,6 +30,7 @@ library(reshape2)
 library(curl)
 library(Hmisc)
 library(here)
+library(biomaRt)
 ```
 
 Now load the data (first need to download the file from https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI):
@@ -40,6 +41,21 @@ https://portals.broadinstitute.org/collaboration/giant/images/f/f0/All_ancestrie
 tot = read_tsv(here("boca_leek/All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq"))
 head(tot)
 dim(tot)
+```
+
+```{r, eval = FALSE}
+ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
+#download data
+annotations_locke <- biomaRt::getBM(
+  attributes = c("refsnp_id", "minor_allele_freq","chr_name", "chrom_start","chrom_end"),
+  filters = "snp_filter", values = unique(tot$SNP),
+  mart = ensembl, uniqueRows = TRUE
+)
+saveRDS(annotations_locke, "annotations_locke.Rds")
+```
+```{r}
+annotations_locke <- readRDS(here("boca_leek/annotations_locke.Rds"))
+head(annotations_locke)
 ```
 
 Do some basic data filtering (to remove missing values) and data cleaning (switch to minor allele from effect allele, add variable with frequency intervals):
@@ -60,10 +76,51 @@ table(tot$Freq_MAF_Int_Hapmap)
 quantile(tot$Freq_MAF_Hapmap)
 ```
 
+## Additional annotation
+```{r}
+annotations_locke <- annotations_locke %>%
+  group_by(refsnp_id) %>%
+  slice(1) %>%
+  ungroup()
+```
+
+```{r}
+tot_annot <- inner_join(annotations_locke, tot,  by = c("refsnp_id"="SNP"))
+tot_annot <-  tot_annot %>%
+  mutate(minor_allele_freq = as.double(minor_allele_freq),
+         chrom_start = as.integer(chrom_start),
+         chrom_end = as.integer(chrom_end))
+head(tot_annot)
+```
+
+```{r}
+tot_annot %>%
+  ggplot(aes(x = Freq_MAF_Hapmap, y = minor_allele_freq)) +
+  geom_hex(bins = 100)
+```
+```{r}
+tot_annot <- tot_annot %>%
+  filter(!is.na(minor_allele_freq))
+```
+
+```{r}
+# Step 2: Calculate the quantiles
+quantiles_freq <- quantile(tot_annot$Freq_MAF_Hapmap, probs = seq(0, 1, by = 0.01))
+quantiles_maf <- quantile(tot_annot$minor_allele_freq, probs = seq(0, 1, by = 0.01))
+
+# Step 3: Create a data frame with the quantiles
+quantiles_df <- data.frame(Freq_MAF_Hapmap = quantiles_freq, minor_allele_freq = quantiles_maf)
+
+# Step 4: Create a new plot
+ggplot(quantiles_df, aes(x = Freq_MAF_Hapmap, y = minor_allele_freq)) +
+  geom_point() +
+  geom_abline(slope=1, intercept = 0)
+```
+
 Save in a data frame in a .RData file:
 
 ```{r}
-BMI_GIANT_GWAS <- tot
+BMI_GIANT_GWAS <- tot_annot
 save(x=BMI_GIANT_GWAS, file="BMI_GIANT_GWAS.RData")
 ```
 

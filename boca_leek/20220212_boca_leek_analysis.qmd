@@ -120,7 +120,7 @@ ihw_forest_n_maf <-
           p ~ Freq_MAF_Hapmap + N,
           data = BMI_GIANT_GWAS,
           alpha = 0.05,
-          lambdas = Inf,
+          #lambdas = Inf,
           stratification_method = "forest",
            n_censor_thres = 3, ntrees = 3, nodedepth = 4, nodesize = 4000
         )
