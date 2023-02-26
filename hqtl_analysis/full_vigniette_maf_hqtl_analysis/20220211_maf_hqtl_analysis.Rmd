@@ -188,7 +188,7 @@ proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, f
 plot(names(chr_pvalues_grubert_split_maf_sample_bin), proportions_maf_sample_bin)
 ```
 
-```{r}
+```{r, eval = FALSE}
 set.seed(123)
 covariate <- rnorm(100)
 bins <- cut(covariate, breaks = 5)
@@ -204,14 +204,23 @@ cbind(covariate, bins)
 
 #IHW
 ```{r}
-ihw_maf_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_sample_bin, alpha = 0.05)
+chr_pvalues_grubert_p_adjust <- p.adjust(chr_pvalues_grubert$pvalue, method = "BH")
+
+sum(chr_pvalues_grubert_p_adjust <= 0.05)
 ```
 
 ```{r}
-ihw_maf_unequal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_bin_uneq)
+object.size(chr_pvalues_grubert)
 ```
 
 ```{r}
-ihw_maf_unequal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$svars_bin)
+ihw_maf_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_sample_bin, alpha = 0.05, lambdas = Inf, nfolds = 3)
+rejections(ihw_maf_equal)
+```
+
+
+```{r}
+ihw_svars_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$svars_bin, alpha = 0.05)
+rejections(ihw_svars_equal)
 ```
 

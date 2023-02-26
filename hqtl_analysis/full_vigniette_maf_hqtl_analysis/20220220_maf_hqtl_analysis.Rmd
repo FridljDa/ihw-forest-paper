@@ -1,0 +1,96 @@
+---
+title: "analyse relationship between p-values and maf"
+author: "Danie Fridljand"
+output: bookdown::html_document2
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(here)
+library(dplyr)
+library(IHW)
+library("ggpubr")
+
+knitr::opts_chunk$set(echo = TRUE, dpi = 40)
+#knitr::include_graphics()
+options(bitmapType ="cairo")
+```
+
+
+## data set 1
+```{r}
+chr <- 21
+```
+
+```{r}
+chr_pvalues_grubert <- fst::read.fst("chr_pvalues_grubert_chr21.fst")
+head(chr_pvalues_grubert)
+```
+
+#histogram
+
+```{r}
+quick_hist = function(values_vec, breaks=50, title = NULL, threshold_proportion = 10^(-4)) {
+    res = hist(values_vec, plot=FALSE, breaks=breaks)
+    
+    proportion <- mean(values_vec <= threshold_proportion)
+    proportion <- formatC(proportion, format = "e", digits = 2)
+    
+    dat = data.frame(xmin=head(res$breaks, -1L),
+                     xmax=tail(res$breaks, -1L),
+                     ymin=0.0,
+                     ymax=res$counts)
+
+    ggplot(dat, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)) +
+      geom_rect(size=0.5, colour="grey30", fill="grey80") + 
+      ggtitle(paste(title, "proportion", proportion)) +
+      ylab("pvalue count")
+}
+```
+
+# analysis
+```{r, fig.cap="not stratified histogram"}
+quick_hist(chr_pvalues_grubert$pvalue, breaks = 400)
+```
+
+
+```{r, fig.cap="stratified histogram"}
+chr_pvalues_grubert_split_maf_sample_bin <- chr_pvalues_grubert %>%
+  select(pvalue, maf_sample_bin, maf_sample) %>%
+  split(chr_pvalues_grubert$maf_sample_bin) 
+
+maf_sample_bin_hist <- lapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  title <- unique(maf_sample_bin_i$maf_sample_bin)
+  title <- paste0(title, ", ")
+  quick_hist(maf_sample_bin_i$pvalue, breaks = 400, title = title)
+})
+
+for(maf_sample_bin_i in maf_sample_bin_hist){
+  print(maf_sample_bin_i)
+}
+```
+
+
+```{r, fig.cap="proportion of small pvalues on each stratum"}
+proportions_maf_sample_bin <- sapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  threshold_proportion = 10^(-4)
+  proportion <- mean(maf_sample_bin_i$pvalue <= threshold_proportion)
+})
+
+plot(names(chr_pvalues_grubert_split_maf_sample_bin), proportions_maf_sample_bin)
+```
+
+
+#IHW
+```{r}
+chr_pvalues_grubert_p_adjust <- p.adjust(chr_pvalues_grubert$pvalue, method = "BH")
+
+sum(chr_pvalues_grubert_p_adjust <= 0.05)
+```
+
+
+```{r, eval = FALSE}
+ihw_maf_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_sample_bin, alpha = 0.05, lambdas = Inf, nfolds = 3)
+rejections(ihw_maf_equal)
+```
+Gives "Error: cannot allocate vector of size 687.9 Mb"
