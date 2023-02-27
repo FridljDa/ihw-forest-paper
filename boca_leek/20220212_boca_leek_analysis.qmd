@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message = FALSE}
 library(ggplot2)
 library(here)
 library(dplyr)
@@ -23,7 +23,7 @@ https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_da
 All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq
 
 ```{r}
-load(here("data/BMI_GIANT_GWAS.RData"))
+load(here("boca_leek/BMI_GIANT_GWAS.RData"))
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(100000)
 head(BMI_GIANT_GWAS)
@@ -91,7 +91,7 @@ ggplot(BMI_GIANT_GWAS,
 
 ## Run IHW
 
-Benjamini Hochber
+Benjamini Hochberg
 
 ```{r}
 BMI_GIANT_GWAS_p_adjust <- p.adjust(BMI_GIANT_GWAS$p, method = "BH")
@@ -122,11 +122,31 @@ ihw_forest_n_maf <-
           alpha = 0.05,
           #lambdas = Inf,
           stratification_method = "forest",
-           n_censor_thres = 3, ntrees = 3, nodedepth = 4, nodesize = 4000
+           n_censor_thres = 3, ntrees = 4, nodedepth = 4, nodesize = 4000
         )
       
 ```
 
 ```{r}
 rejections(ihw_forest_n_maf)
+```
+
+```{r}
+ihw_forest_all <- 
+        IHW::ihw(
+          p ~ Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start,
+          data = BMI_GIANT_GWAS,
+          alpha = 0.05,
+          #lambdas = Inf,
+          stratification_method = "forest",
+           n_censor_thres = 3, ntrees = 3, nodedepth = 4, nodesize = 4000
+        )
+```
+
+```{r}
+rejections(ihw_forest_all)
+```
+
+```{r}
+save.image("boca_leek_analysis.RData")
 ```
