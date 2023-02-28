@@ -14,7 +14,8 @@ options(bitmapType ="cairo")
 ```
 
 ```{r}
-devtools::load_all("../../IHW")
+#devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 
 ```
 
