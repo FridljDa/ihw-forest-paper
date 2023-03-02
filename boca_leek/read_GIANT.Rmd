@@ -98,6 +98,7 @@ tot_annot %>%
   ggplot(aes(x = Freq_MAF_Hapmap, y = minor_allele_freq)) +
   geom_hex(bins = 100)
 ```
+
 ```{r}
 tot_annot <- tot_annot %>%
   filter(!is.na(minor_allele_freq))

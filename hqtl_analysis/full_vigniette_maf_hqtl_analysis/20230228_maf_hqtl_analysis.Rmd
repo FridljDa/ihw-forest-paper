@@ -25,6 +25,8 @@ chr <- 21
 ```{r}
 chr_pvalues_grubert <- fst::read.fst("chr_pvalues_grubert_chr21.fst")
 head(chr_pvalues_grubert)
+write.table(chr_pvalues_grubert, "chr_pvalues_grubert.txt")
+
 ```
 
 #histogram

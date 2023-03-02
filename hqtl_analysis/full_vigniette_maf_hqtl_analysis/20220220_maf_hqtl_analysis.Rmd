@@ -2,6 +2,7 @@
 title: "analyse relationship between p-values and maf"
 author: "Danie Fridljand"
 output: bookdown::html_document2
+fig_width: 6
 ---
 
 ```{r setup, include=FALSE}
@@ -88,6 +89,9 @@ chr_pvalues_grubert_p_adjust <- p.adjust(chr_pvalues_grubert$pvalue, method = "B
 sum(chr_pvalues_grubert_p_adjust <= 0.05)
 ```
 
+```{r}
+nrow(chr_pvalues_grubert)
+```
 
 ```{r, eval = FALSE}
 ihw_maf_equal <- ihw(chr_pvalues_grubert$pvalue, chr_pvalues_grubert$maf_sample_bin, alpha = 0.05, lambdas = Inf, nfolds = 3)

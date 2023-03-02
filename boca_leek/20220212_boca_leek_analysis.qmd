@@ -116,6 +116,10 @@ rejections(ihw_quantile_n_maf)
 ```
 
 ```{r}
+#IHW::weights(ihw_forest_n_maf)
+```
+
+```{r}
 ihw_forest_n_maf <- 
         IHW::ihw(
           p ~ Freq_MAF_Hapmap + N,
