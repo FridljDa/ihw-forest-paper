@@ -14,14 +14,18 @@ options(bitmapType ="cairo")
 ```
 
 ```{r}
-#devtools::load_all("../../IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 
 ```
 
 https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI
 
 All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq
+
+```{r}
+
+```
 
 ```{r}
 load(here("boca_leek/BMI_GIANT_GWAS.RData"))
@@ -92,7 +96,7 @@ ggplot(BMI_GIANT_GWAS,
 
 ## Run IHW
 
-Benjamini Hochberg
+### Benjamini Hochberg
 
 ```{r}
 BMI_GIANT_GWAS_p_adjust <- p.adjust(BMI_GIANT_GWAS$p, method = "BH")
@@ -100,19 +104,51 @@ BMI_GIANT_GWAS_p_adjust <- p.adjust(BMI_GIANT_GWAS$p, method = "BH")
 sum(BMI_GIANT_GWAS_p_adjust <= 0.05)
 ```
 
-```{r, eval = F}
-ihw_quantile_n <- IHW::ihw(p ~  N,data = BMI_GIANT_GWAS, alpha = 0.05, stratification_method = "quantiles")
+### IHW
+
+```{r}
+alpha <- 0.05
+nodedepth_forest <- 7
+nbins_quantile <- 2^nodedepth_forest
+```
+
+```{r}
+ihw_quantile_n <- IHW::ihw(p ~  N,
+                           data = BMI_GIANT_GWAS, 
+                           lambdas = Inf,
+                           alpha = alpha, 
+                           nbins = nbins_quantile,
+                           stratification_method = "quantiles")
+
 rejections(ihw_quantile_n) 
 ```
 
-```{r, eval = F}
-ihw_quantile_maf <- IHW::ihw(p ~ Freq_MAF_Hapmap,data = BMI_GIANT_GWAS, alpha = 0.05, stratification_method = "quantiles")
+```{r, eval = T}
+ihw_quantile_maf <- 
+  IHW::ihw(p ~ Freq_MAF_Hapmap,
+           data = BMI_GIANT_GWAS, 
+           lambdas = Inf,
+           alpha = alpha, 
+           nbins = nbins_quantile, 
+           stratification_method = "quantiles")
 rejections(ihw_quantile_maf) 
 ```
 
 ```{r}
-ihw_quantile_n_maf <- IHW::ihw(p ~ Freq_MAF_Hapmap + N,data = BMI_GIANT_GWAS, alpha = 0.05, stratification_method = "quantiles")
+ihw_quantile_n_maf <- 
+  IHW::ihw(
+    p ~ Freq_MAF_Hapmap + N,
+    data = BMI_GIANT_GWAS, 
+    lambdas = Inf,
+    alpha = alpha, 
+    nbins = nbins_quantile,  
+    stratification_method = "quantiles")
+
 rejections(ihw_quantile_n_maf) 
+```
+
+```{r}
+nbins(ihw_quantile_n_maf)
 ```
 
 ```{r}
@@ -121,11 +157,20 @@ ihw_forest_n_maf <-
           p ~ Freq_MAF_Hapmap + N,
           data = BMI_GIANT_GWAS,
           alpha = 0.05,
-          #lambdas = Inf,
+          lambdas = Inf,
           stratification_method = "forest",
-           n_censor_thres = 3, ntrees = 4, nodedepth = 4, nodesize = 4000
+          nodedepth = nodedepth_forest,
+          n_censor_thres = 4, ntrees = 4,  nodesize = 3000
         )
       
+```
+
+```{r}
+lengths <- lapply(ihw_forest_n_maf@weight_matrices_forest, function(weight_matrices_forest_fold){
+      sapply(weight_matrices_forest_fold, length)
+    })
+
+median(unlist(lengths))
 ```
 
 ```{r}
@@ -140,7 +185,8 @@ ihw_forest_all <-
           alpha = 0.05,
           #lambdas = Inf,
           stratification_method = "forest",
-           n_censor_thres = 3, ntrees = 3, nodedepth = 4, nodesize = 4000
+          nodedepth = nodedepth_forest,
+          n_censor_thres = 4, ntrees = 4,  nodesize = 3000
         )
 ```
 
@@ -149,5 +195,5 @@ rejections(ihw_forest_all)
 ```
 
 ```{r}
-save.image("boca_leek_analysis.RData")
+save.image(paste0(Sys.Date(),"_boca_leek_analysis.RData"))
 ```

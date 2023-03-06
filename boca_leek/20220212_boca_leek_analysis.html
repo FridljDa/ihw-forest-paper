@@ -134,14 +134,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell-output cell-output-stderr">
 <pre><code>Creating a generic function for 'nrow' from package 'base' in package 'IHW'</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI</p>
 <p>All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"boca_leek/BMI_GIANT_GWAS.RData"</span>))</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#BMI_GIANT_GWAS &lt;- BMI_GIANT_GWAS %&gt;% rename(pvalue = p)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#BMI_GIANT_GWAS &lt;- BMI_GIANT_GWAS %&gt;% sample_n(100000)</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(BMI_GIANT_GWAS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"boca_leek/BMI_GIANT_GWAS.RData"</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#BMI_GIANT_GWAS &lt;- BMI_GIANT_GWAS %&gt;% rename(pvalue = p)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#BMI_GIANT_GWAS &lt;- BMI_GIANT_GWAS %&gt;% sample_n(100000)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(BMI_GIANT_GWAS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 13
   refsnp_id  minor_…¹ chr_n…² chrom…³ chrom…⁴ A1    A2    Freq_…⁵       b     se
@@ -159,49 +163,49 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>https://github.com/SiminaB/Fdr-regression/blob/master/BMI%20GIANT%20meta-analysis/2.make_Figure_1.Rmd</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>p, <span class="at">col=</span><span class="st">"grey"</span>, <span class="at">main=</span><span class="st">"All N"</span>, <span class="at">xlab=</span><span class="st">"P-value"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>p[BMI_GIANT_GWAS<span class="sc">$</span>N <span class="sc">&lt;</span> <span class="dv">200000</span>], </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span><span class="st">"grey"</span>, <span class="at">main=</span><span class="st">"N &lt; 200,000"</span>, <span class="at">xlab=</span><span class="st">"P-value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-4-1.svg" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>p, <span class="at">col=</span><span class="st">"grey"</span>, <span class="at">main=</span><span class="st">"All N"</span>, <span class="at">xlab=</span><span class="st">"P-value"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>p[BMI_GIANT_GWAS<span class="sc">$</span>N <span class="sc">&lt;</span> <span class="dv">200000</span>], </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span><span class="st">"grey"</span>, <span class="at">main=</span><span class="st">"N &lt; 200,000"</span>, <span class="at">xlab=</span><span class="st">"P-value"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-5-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>Freq_MAF_Hapmap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-6-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>groups_by_filter_local <span class="ot">&lt;-</span> <span class="cf">function</span>(covariate, nbins, <span class="at">ties.method=</span><span class="st">"random"</span>, <span class="at">seed=</span><span class="cn">NULL</span>){</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(seed) <span class="sc">&amp;&amp;</span> ties.method<span class="sc">==</span><span class="st">"random"</span>){</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    old <span class="ot">&lt;-</span> .Random.seed</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">on.exit</span>( { .Random.seed <span class="ot">&lt;&lt;-</span> old } )</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set.seed</span>(<span class="fu">as.integer</span>(seed)) </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(ties.method <span class="sc">==</span> <span class="st">"random"</span>){</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    rfs <span class="ot">&lt;-</span> <span class="fu">rank</span>(covariate, <span class="at">ties.method=</span>ties.method)<span class="sc">/</span><span class="fu">length</span>(covariate)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.factor</span>(<span class="fu">ceiling</span>( rfs<span class="sc">*</span> nbins))</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  }<span class="cf">else</span> <span class="cf">if</span>(ties.method <span class="sc">==</span> <span class="st">"systematic"</span>){</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#will lead to systematic bias with tias, but has more helpful factor labels</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">#breaks &lt;- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#cut(covariate, breaks=breaks, include.lowest=TRUE)</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#oneR::bin(covariate, method = "content", nbins = nbins)</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    Hmisc<span class="sc">::</span><span class="fu">cut2</span>(covariate, <span class="at">g=</span>nbins)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(BMI_GIANT_GWAS<span class="sc">$</span>Freq_MAF_Hapmap)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-7-1.svg" class="img-fluid" width="672"></p>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(BMI_GIANT_GWAS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>groups_by_filter_local <span class="ot">&lt;-</span> <span class="cf">function</span>(covariate, nbins, <span class="at">ties.method=</span><span class="st">"random"</span>, <span class="at">seed=</span><span class="cn">NULL</span>){</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(seed) <span class="sc">&amp;&amp;</span> ties.method<span class="sc">==</span><span class="st">"random"</span>){</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    tmp <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    old <span class="ot">&lt;-</span> .Random.seed</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">on.exit</span>( { .Random.seed <span class="ot">&lt;&lt;-</span> old } )</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set.seed</span>(<span class="fu">as.integer</span>(seed)) </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(ties.method <span class="sc">==</span> <span class="st">"random"</span>){</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    rfs <span class="ot">&lt;-</span> <span class="fu">rank</span>(covariate, <span class="at">ties.method=</span>ties.method)<span class="sc">/</span><span class="fu">length</span>(covariate)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.factor</span>(<span class="fu">ceiling</span>( rfs<span class="sc">*</span> nbins))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  }<span class="cf">else</span> <span class="cf">if</span>(ties.method <span class="sc">==</span> <span class="st">"systematic"</span>){</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#will lead to systematic bias with tias, but has more helpful factor labels</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">#breaks &lt;- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#cut(covariate, breaks=breaks, include.lowest=TRUE)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#oneR::bin(covariate, method = "content", nbins = nbins)</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    Hmisc<span class="sc">::</span><span class="fu">cut2</span>(covariate, <span class="at">g=</span>nbins)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(BMI_GIANT_GWAS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "refsnp_id"           "minor_allele_freq"   "chr_name"           
  [4] "chrom_start"         "chrom_end"           "A1"                 
@@ -209,64 +213,108 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 [10] "se"                  "p"                   "N"                  
 [13] "Freq_MAF_Int_Hapmap"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>BMI_GIANT_GWAS <span class="ot">&lt;-</span> BMI_GIANT_GWAS <span class="sc">%&gt;%</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N_bin =</span> <span class="fu">groups_by_filter</span>(N, <span class="at">nbins =</span> <span class="dv">4</span>),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">MAF_bin =</span> <span class="fu">groups_by_filter</span>(Freq_MAF_Hapmap, <span class="at">nbins =</span> <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(BMI_GIANT_GWAS,  </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> p)) <span class="sc">+</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(N_bin), <span class="at">nrow =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-9-1.svg" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>BMI_GIANT_GWAS <span class="ot">&lt;-</span> BMI_GIANT_GWAS <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N_bin =</span> <span class="fu">groups_by_filter</span>(N, <span class="at">nbins =</span> <span class="dv">4</span>),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">MAF_bin =</span> <span class="fu">groups_by_filter</span>(Freq_MAF_Hapmap, <span class="at">nbins =</span> <span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(BMI_GIANT_GWAS,  </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> p)) <span class="sc">+</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(MAF_bin), <span class="at">nrow =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(N_bin), <span class="at">nrow =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-10-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(BMI_GIANT_GWAS,  </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> p)) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">boundary =</span> <span class="dv">0</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(MAF_bin), <span class="at">nrow =</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="20220212_boca_leek_analysis_files/figure-html/unnamed-chunk-11-1.svg" class="img-fluid" width="672"></p>
+</div>
+</div>
 <section id="run-ihw" class="level2">
 <h2 class="anchored" data-anchor-id="run-ihw">Run IHW</h2>
-<p>Benjamini Hochberg</p>
+<section id="benjamini-hochberg" class="level3">
+<h3 class="anchored" data-anchor-id="benjamini-hochberg">Benjamini Hochberg</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>BMI_GIANT_GWAS_p_adjust <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(BMI_GIANT_GWAS<span class="sc">$</span>p, <span class="at">method =</span> <span class="st">"BH"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(BMI_GIANT_GWAS_p_adjust <span class="sc">&lt;=</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>BMI_GIANT_GWAS_p_adjust <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(BMI_GIANT_GWAS<span class="sc">$</span>p, <span class="at">method =</span> <span class="st">"BH"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(BMI_GIANT_GWAS_p_adjust <span class="sc">&lt;=</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12400</code></pre>
 </div>
 </div>
+</section>
+<section id="ihw" class="level3">
+<h3 class="anchored" data-anchor-id="ihw">IHW</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ihw_quantile_n <span class="ot">&lt;-</span> IHW<span class="sc">::</span><span class="fu">ihw</span>(p <span class="sc">~</span>  N,<span class="at">data =</span> BMI_GIANT_GWAS, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">stratification_method =</span> <span class="st">"quantiles"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_quantile_n) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>nodedepth_forest <span class="ot">&lt;-</span> <span class="dv">7</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>nbins_quantile <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">^</span>nodedepth_forest</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ihw_quantile_maf <span class="ot">&lt;-</span> IHW<span class="sc">::</span><span class="fu">ihw</span>(p <span class="sc">~</span> Freq_MAF_Hapmap,<span class="at">data =</span> BMI_GIANT_GWAS, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">stratification_method =</span> <span class="st">"quantiles"</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_quantile_maf) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ihw_quantile_n_maf <span class="ot">&lt;-</span> IHW<span class="sc">::</span><span class="fu">ihw</span>(p <span class="sc">~</span> Freq_MAF_Hapmap <span class="sc">+</span> N,<span class="at">data =</span> BMI_GIANT_GWAS, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">stratification_method =</span> <span class="st">"quantiles"</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_quantile_n_maf) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ihw_quantile_n <span class="ot">&lt;-</span> IHW<span class="sc">::</span><span class="fu">ihw</span>(p <span class="sc">~</span>  N,</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data =</span> BMI_GIANT_GWAS, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">lambdas =</span> <span class="cn">Inf</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">alpha =</span> alpha, </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">nbins =</span> nbins_quantile,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">stratification_method =</span> <span class="st">"quantiles"</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_quantile_n) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 15887</code></pre>
+<pre><code>[1] 15536</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>ihw_forest_n_maf <span class="ot">&lt;-</span> </span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>        IHW<span class="sc">::</span><span class="fu">ihw</span>(</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>          p <span class="sc">~</span> Freq_MAF_Hapmap <span class="sc">+</span> N,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> BMI_GIANT_GWAS,</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.05</span>,</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#lambdas = Inf,</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">stratification_method =</span> <span class="st">"forest"</span>,</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_censor_thres =</span> <span class="dv">3</span>, <span class="at">ntrees =</span> <span class="dv">4</span>, <span class="at">nodedepth =</span> <span class="dv">4</span>, <span class="at">nodesize =</span> <span class="dv">4000</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>ihw_quantile_maf <span class="ot">&lt;-</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  IHW<span class="sc">::</span><span class="fu">ihw</span>(p <span class="sc">~</span> Freq_MAF_Hapmap,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> BMI_GIANT_GWAS, </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">lambdas =</span> <span class="cn">Inf</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">alpha =</span> alpha, </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">nbins =</span> nbins_quantile, </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">stratification_method =</span> <span class="st">"quantiles"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_quantile_maf) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14766</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ihw_quantile_n_maf <span class="ot">&lt;-</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  IHW<span class="sc">::</span><span class="fu">ihw</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    p <span class="sc">~</span> Freq_MAF_Hapmap <span class="sc">+</span> N,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> BMI_GIANT_GWAS, </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">lambdas =</span> <span class="cn">Inf</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> alpha, </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">nbins =</span> nbins_quantile,  </span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">stratification_method =</span> <span class="st">"quantiles"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_quantile_n_maf) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16317</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nbins</span>(ihw_quantile_n_maf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 128</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>ihw_forest_n_maf <span class="ot">&lt;-</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>        IHW<span class="sc">::</span><span class="fu">ihw</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>          p <span class="sc">~</span> Freq_MAF_Hapmap <span class="sc">+</span> N,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> BMI_GIANT_GWAS,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.05</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">lambdas =</span> <span class="cn">Inf</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">stratification_method =</span> <span class="st">"forest"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">nodedepth =</span> nodedepth_forest,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">n_censor_thres =</span> <span class="dv">4</span>, <span class="at">ntrees =</span> <span class="dv">4</span>,  <span class="at">nodesize =</span> <span class="dv">3000</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>For 2479544 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.</code></pre>
 </div>
@@ -275,21 +323,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_forest_n_maf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>lengths <span class="ot">&lt;-</span> <span class="fu">lapply</span>(ihw_forest_n_maf<span class="sc">@</span>weight_matrices_forest, <span class="cf">function</span>(weight_matrices_forest_fold){</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sapply</span>(weight_matrices_forest_fold, length)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(<span class="fu">unlist</span>(lengths))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 16225</code></pre>
+<pre><code>[1] 80</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ihw_forest_all <span class="ot">&lt;-</span> </span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>        IHW<span class="sc">::</span><span class="fu">ihw</span>(</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>          p <span class="sc">~</span> Freq_MAF_Hapmap <span class="sc">+</span> N <span class="sc">+</span>minor_allele_freq<span class="sc">+</span>chrom_start,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> BMI_GIANT_GWAS,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.05</span>,</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#lambdas = Inf,</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">stratification_method =</span> <span class="st">"forest"</span>,</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_censor_thres =</span> <span class="dv">3</span>, <span class="at">ntrees =</span> <span class="dv">3</span>, <span class="at">nodedepth =</span> <span class="dv">4</span>, <span class="at">nodesize =</span> <span class="dv">4000</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_forest_n_maf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16832</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>ihw_forest_all <span class="ot">&lt;-</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>        IHW<span class="sc">::</span><span class="fu">ihw</span>(</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>          p <span class="sc">~</span> Freq_MAF_Hapmap <span class="sc">+</span> N <span class="sc">+</span>minor_allele_freq<span class="sc">+</span>chrom_start,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> BMI_GIANT_GWAS,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.05</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>          <span class="co">#lambdas = Inf,</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">stratification_method =</span> <span class="st">"forest"</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">nodedepth =</span> nodedepth_forest,</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">n_censor_thres =</span> <span class="dv">4</span>, <span class="at">ntrees =</span> <span class="dv">4</span>,  <span class="at">nodesize =</span> <span class="dv">3000</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>        )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>For 2479544 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.</code></pre>
 </div>
@@ -298,14 +357,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_forest_all)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rejections</span>(ihw_forest_all)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 16301</code></pre>
+<pre><code>[1] 16717</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save.image</span>(<span class="st">"boca_leek_analysis.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save.image</span>(<span class="fu">paste0</span>(<span class="fu">Sys.Date</span>(),<span class="st">"_boca_leek_analysis.RData"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 </section>
 
 </main>

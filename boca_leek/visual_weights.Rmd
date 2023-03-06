@@ -1,0 +1,88 @@
+---
+title: "IHW visualise weights"
+output: html_document
+---
+
+
+Loading packages.
+```{r setup, message = F}
+library(magrittr)
+library(ggplot2)
+library(dplyr)
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(1234)
+theme_set(theme_bw())
+
+options(bitmapType ="cairo")
+```
+
+```{r}
+load(here::here("boca_leek/20230220_boca_leel_environment.RData"))
+```
+
+# Quantile
+
+```{r}
+df_weights_quantile <- ihw_quantile_n_maf@df %>%
+  filter(fold == 1) %>%
+  select(weight, covariate.1, covariate.2, fold)
+```
+
+```{r, fig.cap="IHW quantile"}
+ggplot(df_weights_quantile, aes(x = covariate.1, y = covariate.2, color = weight)) +
+  geom_point() +
+  scale_color_gradient(low = "yellow", high = "red")+
+  xlab("MAF")+
+  ylab("Sample size")
+```
+
+```{r}
+# Create a ggplot object and specify the data and mapping
+ggplot(data = df_weights_quantile, aes(x = covariate.1, y = covariate.2, color = weight)) +
+
+  # Add points to the plot using the geom_point() function
+  #geom_point() +
+
+  # Add a kernel-smoothed line to the plot using the geom_smooth() function
+  geom_smooth(method = "loess", se = FALSE) +
+
+  # Add a color scale legend to the plot
+  scale_color_continuous() +
+  
+  # Add x and y axis labels
+  xlab("Covariate 1") + ylab("Covariate 2")
+```
+
+```{r, fig.cap="IHW quantile log trans"}
+ggplot(df_weights_quantile, aes(x = covariate.1, y = covariate.2, color = weight)) +
+  geom_point() +
+  scale_color_gradient(low = "yellow", high = "red", trans = "pseudo_log")+
+  xlab("MAF")+
+  ylab("Sample size")
+```
+
+# Forest
+```{r}
+df_weights_forest <- ihw_forest_n_maf@df %>%
+  filter(fold == 1) %>%
+  select(weight, covariate.1, covariate.2, fold)
+```
+
+```{r, fig.cap="IHW forest"}
+ggplot(df_weights_forest, aes(x = covariate.1, y = covariate.2, color = weight)) +
+  geom_point() +
+  scale_color_gradient(low = "yellow", high = "red")+
+  xlab("MAF")+
+  ylab("Sample size")
+```
+
+
+```{r, fig.cap="IHW forest log"}
+ggplot(df_weights_forest, aes(x = covariate.1, y = covariate.2, color = weight)) +
+  geom_point() +
+  xlab("MAF")+
+  scale_color_gradient(low = "yellow", high = "red", trans = "pseudo_log")+
+  ylab("Sample size")
+```
+```
+
