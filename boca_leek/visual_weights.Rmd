@@ -25,7 +25,17 @@ load(here::here("boca_leek/20230220_boca_leel_environment.RData"))
 ```{r}
 df_weights_quantile <- ihw_quantile_n_maf@df %>%
   filter(fold == 1) %>%
-  select(weight, covariate.1, covariate.2, fold)
+  dplyr::select(weight, covariate.1, covariate.2, fold)
+```
+
+```{r}
+df_weights_quantile_sub <- df_weights_quantile %>%  
+  sample_n(100)
+ggplot(df_weights_quantile_sub, aes(x = covariate.1, y = covariate.2)) +
+  geom_tile(aes(fill=weight)) + #, interpolate = TRUE
+  geom_point() +
+  xlab("MAF")+
+  ylab("Sample size")
 ```
 
 ```{r, fig.cap="IHW quantile"}
