@@ -8,11 +8,15 @@ Loading packages.
 ```{r setup, message = F}
 library(magrittr)
 library(ggplot2)
-library(IHW)
+#library(IHW)
 library(dplyr)
 knitr::opts_chunk$set(echo = TRUE)
 set.seed(1234)
 theme_set(theme_bw())
+```
+
+```{r}
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 ```
 
 Generate simulation from https://support.bioconductor.org/p/90005/#9137847. 
