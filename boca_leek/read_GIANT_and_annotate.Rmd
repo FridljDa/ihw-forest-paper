@@ -43,20 +43,6 @@ head(tot)
 dim(tot)
 ```
 
-```{r, eval = FALSE}
-ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
-#download data
-annotations_locke <- biomaRt::getBM(
-  attributes = c("refsnp_id", "minor_allele_freq","chr_name", "chrom_start","chrom_end"),
-  filters = "snp_filter", values = unique(tot$SNP),
-  mart = ensembl, uniqueRows = TRUE
-)
-saveRDS(annotations_locke, "annotations_locke.Rds")
-```
-```{r}
-annotations_locke <- readRDS(here("boca_leek/annotations_locke.Rds"))
-head(annotations_locke)
-```
 
 Do some basic data filtering (to remove missing values) and data cleaning (switch to minor allele from effect allele, add variable with frequency intervals):
 ```{r,cache=TRUE}
@@ -70,13 +56,36 @@ tot$Freq1.Hapmap[changeWhich] <- 1-tot$Freq1.Hapmap[changeWhich]
 colnames(tot)[colnames(tot)=="Freq1.Hapmap"] <- "Freq_MAF_Hapmap"
 ##also need to change the coefficient sign for these alleles
 tot$b[changeWhich] <- -tot$b[changeWhich]
-tot = mutate(tot,Freq_MAF_Int_Hapmap=cut2(Freq_MAF_Hapmap,g=3)) ##added a new variable with frequency intervals for HapMap CEU frequencies
+tot = mutate(tot,Freq_MAF_Int_Hapmap=cut2(Freq_MAF_Hapmap, g=3)) ##added a new variable with frequency intervals for HapMap CEU frequencies
 table(tot$Freq_MAF_Int_Hapmap)
 ##also get the distributions of MAFs
 quantile(tot$Freq_MAF_Hapmap)
 ```
 
-## Additional annotation
+## add annotation rtracklayer
+
+```{r}
+
+```
+
+
+## Additional annotation biomaRt
+```{r, eval = FALSE}
+ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
+#download data
+annotations_locke <- biomaRt::getBM(
+  attributes = c("refsnp_id", "minor_allele_freq", "chr_name", "chrom_start","chrom_end"),
+  filters = "snp_filter", values = unique(tot$SNP),
+  mart = ensembl, uniqueRows = TRUE
+)
+saveRDS(annotations_locke, "annotations_locke.Rds")
+```
+
+```{r}
+annotations_locke <- readRDS(here("boca_leek/annotations_locke.Rds"))
+head(annotations_locke)
+```
+
 ```{r}
 annotations_locke <- annotations_locke %>%
   group_by(refsnp_id) %>%

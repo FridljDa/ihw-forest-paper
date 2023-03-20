@@ -6,6 +6,11 @@ editor: visual
 
 ```{r}
 library("dplyr")
+library("reshape2")
+library("ggplot2")
+library("caret")
+
+options(bitmapType ="cairo")
 ```
 
 ```{r}
@@ -19,18 +24,13 @@ df_weights_quantile <- ihw_quantile_n_maf@df %>%
 ```
 
 ```{r}
-data("diabetes", package = "rrcov")
-head(diabetes)
-options(bitmapType ="cairo")
+df_weights_quantile_sub <- df_weights_quantile# %>%
+  #sample_n(1000)
 ```
 
 ```{r}
-library("reshape2")
-library("ggplot2")
-```
-
-```{r}
-ggdb = ggplot(data = df_weights_quantile, mapping = aes(x = covariate.1, y = covariate.2)) 
+ggdb = ggplot(data = df_weights_quantile_sub, mapping = aes(x = covariate.1, y = covariate.2))
+ggdb
 ```
 
 ```{r}
@@ -47,10 +47,10 @@ ihw_grid = with(df_weights_quantile,
 ```
 
 ```{r}
-library("caret")
+
 ihw_rf_default <- train(weight ~ covariate.1 + covariate.2, 
-                      data=df_weights_quantile, 
-                      method='rf')
+                      data=df_weights_quantile_sub, 
+                      method='rf') #gamboost
 ```
 
 ```{r}

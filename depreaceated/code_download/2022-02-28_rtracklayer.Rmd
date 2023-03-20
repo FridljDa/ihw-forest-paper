@@ -42,6 +42,7 @@ genome(mySession) <- "hg19"
 track.names.all <- trackNames(ucscTableQuery(mySession))
 table.names.all <- tableNames(ucscTableQuery(mySession, track = track_name_hist_10))
 ```
+
 We can explore available data with `track.names.all` or on
 http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. I picked some arbitrary `track_name` and `table_name` which sounded like they relate to what Wolfgang suggested. I can use this code, even if it later turns out to be wrong. 
 ```{r}

@@ -1,0 +1,253 @@
+---
+title: "boca_leek_dataset"
+format: html
+editor: visual
+---
+
+```{r, echo=FALSE, message = FALSE}
+library(ggplot2)
+library(here)
+library(dplyr)
+
+library(doRNG)
+library(doParallel)
+library(parallel)
+
+set.seed(4)
+options(bitmapType ="cairo")
+
+registerDoParallel(cores=4)
+```
+
+```{r}
+devtools::load_all("../../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+
+```
+
+<https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI>
+
+All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq
+
+```{r}
+error_handler <- function(x) { # TODO
+  if (inherits(x, "try-error")) {
+    x <- NA
+  }
+  x
+}
+
+rejections_na <- function(ihw) { # TODO
+  if (is.na(ihw)) {
+    return(NA)
+  } else {
+    rejections(ihw)
+  }
+}
+```
+
+```{r}
+load(here("boca_leek/BMI_GIANT_GWAS.RData"))
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(100000)
+head(BMI_GIANT_GWAS)
+```
+
+<https://github.com/SiminaB/Fdr-regression/blob/master/BMI%20GIANT%20meta-analysis/2.make_Figure_1.Rmd>
+
+```{r}
+par(mfrow=c(1,2))
+hist(BMI_GIANT_GWAS$p, col="grey", main="All N", xlab="P-value")
+hist(BMI_GIANT_GWAS$p[BMI_GIANT_GWAS$N < 200000], 
+     col="grey", main="N < 200,000", xlab="P-value")
+```
+
+```{r}
+hist(BMI_GIANT_GWAS$N)
+```
+
+```{r}
+hist(BMI_GIANT_GWAS$Freq_MAF_Hapmap)
+```
+
+```{r, eval = FALSE}
+groups_by_filter_local <- function(covariate, nbins, ties.method="random", seed=NULL){
+  if (!is.null(seed) && ties.method=="random"){
+    #http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1
+    tmp <- runif(1)
+    old <- .Random.seed
+    on.exit( { .Random.seed <<- old } )
+    set.seed(as.integer(seed)) 
+  }
+  if(ties.method == "random"){
+    rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
+	  as.factor(ceiling( rfs* nbins))
+  }else if(ties.method == "systematic"){
+    #will lead to systematic bias with tias, but has more helpful factor labels
+    #breaks <- quantile(covariate, probs = seq(0, 1, length.out = nbins+1))
+    #cut(covariate, breaks=breaks, include.lowest=TRUE)
+    #oneR::bin(covariate, method = "content", nbins = nbins)
+    Hmisc::cut2(covariate, g=nbins)
+  }
+}
+```
+
+```{r, eval = FALSE}
+names(BMI_GIANT_GWAS)
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  mutate(N_bin = groups_by_filter(N, nbins = 4),
+         MAF_bin = groups_by_filter(Freq_MAF_Hapmap, nbins = 4))
+```
+
+```{r, eval = FALSE}
+ggplot(BMI_GIANT_GWAS,  
+       aes(x = p)) +
+  geom_histogram(boundary = 0, bins = 50) +
+  facet_wrap(vars(N_bin), nrow = 2) 
+```
+
+```{r, eval = FALSE}
+ggplot(BMI_GIANT_GWAS,  
+       aes(x = p)) +
+  geom_histogram(boundary = 0, bins = 50) +
+  facet_wrap(vars(MAF_bin), nrow = 2) 
+```
+
+# Run Multiple Testing
+
+## Parameters
+
+```{r}
+formulas_mt <- c(
+  "Freq_MAF_Hapmap",
+  "N",
+  "Freq_MAF_Hapmap + N",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start"
+)
+
+formulas_mt <- paste0("p ~ ", formulas_mt)
+formulas_mt <- sapply(formulas_mt, as.formula)
+```
+
+```{r}
+parameters_run_quantile <- expand.grid(
+  formulas = formulas_mt,
+  alphas = seq(0.01, 0.1, length.out = 4),
+  lambdas = Inf,
+  stratification_method = c("quantiles"),
+  #parameters for quantile
+  nbins_quantile = 2^7, 
+  #parameters for forest 
+  nodedepth_forest = NA,
+  n_censor_thres = NA, 
+  ntrees = NA,  
+  nodesize = NA
+)
+
+parameters_run_forest <- expand.grid(
+  formulas = formulas_mt,
+  alphas = seq(0.01, 0.1, length.out = 4),
+  lambdas = Inf,
+  stratification_method = c("quantiles"),
+  #parameters for quantile
+  nbins_quantile = "auto", 
+  #parameters for forest 
+  nodedepth_forest = 2^7,
+  n_censor_thres = 4, 
+  ntrees = 4,  
+  nodesize = 3000
+)
+
+parameters_run <- rbind(parameters_run_quantile, parameters_run_forest)
+```
+
+```{r}
+parameters_run <- parameters_run %>%
+  mutate(
+    number_covariates = 1 + stringr::str_count(formulas, "\\+"),
+    formula_string = format(formulas),
+    stratification_method = as.character(stratification_method)
+  )
+
+head(parameters_run)
+```
+
+### Benjamini Hochberg
+
+```{r}
+# run for all alpha-formula combinations (in parallel)
+alpha_levels <- parameters_run %>%
+  select(alphas) %>%
+  distinct()
+
+bh_rejections <- foreach(i = seq_len(nrow(alpha_levels))) %dorng% { 
+  print(paste0("run:", i))
+
+  alpha_i <- alpha_levels$alphas[[i]]
+
+  bh_rejections_i <- sum(p.adjust(na.exclude(BMI_GIANT_GWAS$p), method = "BH") <= alpha_i)
+  # evaluate number of rejections
+  data.frame(
+    method = "BH",
+    formula = "pvalue ~ 1",
+    number_covariates = 0,
+    alpha = alpha_i,
+    rejections = bh_rejections_i,
+    nbins_covariates = 0
+  )
+}
+bh_rejections <- bind_rows(bh_rejections)
+head(bh_rejections)
+```
+
+### IHW
+
+```{r}
+# only rerun, if changes to global variables or code
+ihw_rej <- xfun::cache_rds(
+  {
+    # run for all alpha-formula combinations (in parallel)
+    ihw_rej <- foreach(i = seq_len(nrow(parameters_run))) %dorng% {
+      #print(paste0("run:", i))
+      cat("run:", i)
+      
+      nbins = parameters_run$nbins_quantile[[i]]
+      if(nbins != "auto") nbins <- as.numeric(nbins)
+
+      ihw_i <- error_handler(try(
+        ihw(
+          parameters_run$formulas[[i]],
+          data = BMI_GIANT_GWAS,
+          alpha = parameters_run$alphas[[i]],
+          lambdas = parameters_run$lambdas[[i]],
+          stratification_method = parameters_run$stratification_method[[i]],
+          #quantile
+          nbins = nbins,
+          #forest
+          n_censor_thres = parameters_run$n_censor_thres[[i]],
+          ntrees = parameters_run$ntrees[[i]],
+          nodedepth = parameters_run$nodedepth[[i]],
+          nodesize = parameters_run$nodesize[[i]]
+        )
+      ))
+      #TODO
+      #effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
+      
+      res_i <- parameters_run[i, ]
+      res_i <- res_i %>%
+        mutate(rejections = rejections_na(ihw_i)#,
+        #nbins_covariates = effective_nbins
+        )
+      
+    }
+    ihw_rej <- bind_rows(ihw_rej)
+  },
+  file = "locke_ihw_rej.rds",
+  hash = list(parameters_run)
+)
+ihw_rej
+```
+
+```{r}
+saveRDS(ihw_rej, paste0(Sys.Date(),"data/",Sys.Date(),"_boca_leek_analysis.RDS"))
+```

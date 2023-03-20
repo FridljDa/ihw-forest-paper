@@ -30,6 +30,11 @@ set.seed(1)
 ```
 
 ```{r}
+no_cores <- detectCores() - 1  
+registerDoParallel(cores=no_cores)  
+```
+
+```{r}
 error_handler <- function(x) { # TODO
   if (inherits(x, "try-error")) {
     x <- NA
