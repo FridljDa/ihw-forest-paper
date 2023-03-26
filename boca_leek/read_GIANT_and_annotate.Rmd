@@ -9,15 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-<!--
-%% \VignetteEngine{knitr::rmarkdown}
--->
-
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.path='Figures/')
 ```
 
-```{r style, echo = FALSE, results = 'asis'}
+```{r style, echo = FALSE, results = 'asis', message = FALSE}
 BiocStyle::markdown()
 ```
 
@@ -31,11 +27,16 @@ library(curl)
 library(Hmisc)
 library(here)
 library(biomaRt)
+library(rtracklayer)
+library(tidygenomics)
+library(purrr)
+library(tidyr)
 ```
 
-Now load the data (first need to download the file from https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI):
+Now load the data (first need to download the file from <https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI>):
 
-https://portals.broadinstitute.org/collaboration/giant/images/f/f0/All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq.gz
+<https://portals.broadinstitute.org/collaboration/giant/images/f/f0/All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq.gz>
+
 ```{r,cache=TRUE}
 ##change the directory name
 tot = read_tsv(here("boca_leek/All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq"))
@@ -43,8 +44,8 @@ head(tot)
 dim(tot)
 ```
 
-
 Do some basic data filtering (to remove missing values) and data cleaning (switch to minor allele from effect allele, add variable with frequency intervals):
+
 ```{r,cache=TRUE}
 tot = filter(tot,!is.na(Freq1.Hapmap))
 dim(tot)
@@ -62,14 +63,8 @@ table(tot$Freq_MAF_Int_Hapmap)
 quantile(tot$Freq_MAF_Hapmap)
 ```
 
-## add annotation rtracklayer
-
-```{r}
-
-```
-
-
 ## Additional annotation biomaRt
+
 ```{r, eval = FALSE}
 ensembl <- biomaRt::useMart("ENSEMBL_MART_SNP", dataset = "hsapiens_snp")
 #download data
@@ -127,11 +122,135 @@ ggplot(quantiles_df, aes(x = Freq_MAF_Hapmap, y = minor_allele_freq)) +
   geom_abline(slope=1, intercept = 0)
 ```
 
-Save in a data frame in a .RData file:
-
 ```{r}
 BMI_GIANT_GWAS <- tot_annot
 save(x=BMI_GIANT_GWAS, file="BMI_GIANT_GWAS.RData")
+```
+
+## add annotation rtracklayer
+
+```{r}
+annotations_locke <- readRDS(here("boca_leek/annotations_locke.Rds"))
+annotations_locke <- annotations_locke %>%
+  mutate(chrom_start = as.numeric(chrom_start),
+         chrom_end = as.numeric(chrom_end))
+head(annotations_locke)
+```
+
+```{r}
+annotations_locke_filtered <- annotations_locke %>%
+  filter(chr_name %in% c(1,10)) #c(1,10,11,12,13)
+```
+
+```{r}
+ranges_by_chr <- annotations_locke_filtered %>%
+  group_by(chr_name) %>%
+  summarise(min(chrom_start),
+            max(chrom_end))
+ranges_by_chr
+```
+
+```{r}
+chr1_grange <- GRanges("chr1", IRanges(100000723 *0.8, 99997866 *1.2))
+chr10_grange <- GRanges("chr10", IRanges(100002012 *0.8, 99999225 *1.2))
+```
+
+```{r}
+mySession <- browserSession()
+# can also use hg38 the newer human genome
+genome(mySession) <- "hg19"
+track.names.all <- trackNames(ucscTableQuery(mySession))
+```
+
+```{r}
+track_table_ucsc <- tribble(
+  ~track, ~table,
+  "wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig",
+  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneGm12878H3k4me3StdSig",
+  "wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1",
+  "wgEncodeUwDnase", "wgEncodeUwDnaseGm12878HotspotsRep1",
+  "wgEncodeRegMarkH3k4me1", "wgEncodeBroadHistoneGm12878H3k4me1StdSig"
+)
+```
+
+```{r}
+#for each additional dimension, 
+ucsc_additional_covariates <- pmap(track_table_ucsc, 
+                function(track, table){
+                  chr1_additional_covariates <- ucscTableQuery(mySession, 
+                                                               track, 
+                                                               table, 
+                                                               range = chr1_grange) %>%
+                    getTable() %>%
+                    #add table and track information
+                    mutate(chr_name = "1")
+                  
+                  chr10_additional_covariates <- ucscTableQuery(mySession, 
+                                                               track, 
+                                                               table, 
+                                                               range = chr10_grange) %>%
+                    getTable() %>%
+                    
+                    mutate(chr_name = "10")
+                  
+                  #combine both chromosomes
+                  ucsc_additional_covariates <- rbind(chr1_additional_covariates, chr10_additional_covariates) 
+                  
+                  if("chromStart" %in% names(ucsc_additional_covariates)){
+                    ucsc_additional_covariates <- ucsc_additional_covariates %>%
+                      dplyr::select(chr_name, start = chromStart, end = chromEnd, value = signalValue)
+                  } 
+                  #add table and track information
+                  ucsc_additional_covariates %>%
+                        mutate(track = track, table = table)
+                })
+
+```
+
+join via genomic region
+
+```{r}
+ucsc_additional_covariates <- map_dfr(ucsc_additional_covariates, 
+                function(ucsc_additional_covariates_i){
+                  annotations_locke_filtered %>%
+                    genome_left_join_closest(ucsc_additional_covariates_i, by = c("chr_name","chrom_start" = "start","chrom_end" = "end"))
+                })
+
+```
+
+```{r}
+ucsc_additional_covariates <- ucsc_additional_covariates %>%
+  select(refsnp_id, chr_name= chr_name.x,value, track, table) %>%
+  tidyr::unite("track_table", track:table) 
+
+head(ucsc_additional_covariates)
+```
+
+```{r}
+ucsc_additional_covariates <- ucsc_additional_covariates %>%
+  mutate(covariate_abbr = forcats::fct_recode(track_table,
+  "covariate1"="wgEncodeRegMarkH3k27ac_wgEncodeBroadHistoneGm12878H3k27acStdSig",
+  "covariate2"= "wgEncodeRegMarkH3k4me3_wgEncodeBroadHistoneGm12878H3k4me3StdSig",
+  "covariate3"= "wgEncodeUwTfbs_wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1",
+  "covariate4" = "wgEncodeUwDnase_wgEncodeUwDnaseGm12878HotspotsRep1",
+  "covariate5" = "wgEncodeRegMarkH3k4me1_wgEncodeBroadHistoneGm12878H3k4me1StdSig"
+  ))
+
+ucsc_additional_covariates <- ucsc_additional_covariates %>%
+  select(-c(track_table)) %>%
+  pivot_wider(
+    names_from = covariate_abbr,
+    values_from = value,
+    values_fn = mean
+  )
+
+head(ucsc_additional_covariates)
+```
+
+Save in a data frame in a .RData file:
+
+```{r}
+save(x = ucsc_additional_covariates, file = here("boca_leek/data/locke_ucsc_additional_covariates.RData"))
 ```
 
 ### Session Information

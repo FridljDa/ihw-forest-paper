@@ -20,8 +20,8 @@ registerDoParallel(cores=6)
 ```
 
 ```{r}
-devtools::load_all("../../IHW")
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 
 ```
 
@@ -48,9 +48,18 @@ rejections_na <- function(ihw) { # TODO
 
 ```{r}
 load(here("boca_leek/BMI_GIANT_GWAS.RData"))
+load(here("boca_leek/data/locke_ucsc_additional_covariates.RData"))
+
+test <- BMI_GIANT_GWAS %>%
+  filter(chr_name %in% c("1","10"))
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(100000)
 head(BMI_GIANT_GWAS)
+```
+
+```{r}
+BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
+                   by = c("refsnp_id","chr_name"))
 ```
 
 # Run Multiple Testing
@@ -59,12 +68,14 @@ head(BMI_GIANT_GWAS)
 
 ```{r}
 formulas_mt <- c(
-  #"p ~ Freq_MAF_Hapmap",
-  #"p ~ N",
-  "p ~ Freq_MAF_Hapmap + N",
-  "p ~ Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start"
+  #"Freq_MAF_Hapmap",
+  #"N",
+  #"Freq_MAF_Hapmap + N",
+  #"Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start"
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3+covariate4+covariate5"
 )
 
+formulas_mt <- paste0("p ~ ", formulas_mt)
 formulas_mt <- sapply(formulas_mt, as.formula)
 ```
 
@@ -148,7 +159,7 @@ head(bh_rejections)
 #  {
     # run for all alpha-formula combinations (in parallel)
     ihw_rej <- foreach(i = seq_len(nrow(parameters_run))) %dorng% {
-      #i <- 27
+      #i <- 3
       print(paste0("run:", i))
       #cat("run:", i)
       

@@ -54,16 +54,17 @@ rejections_na <- function(ihw) { # TODO
 ```
 
 ```{r setup, include=FALSE, cache = FALSE}
-knitr::opts_knit$set(root_dir = "/g/huber/users/fridljand/R/ihw-forest-paper/") # TODO
+#knitr::opts_knit$set(root_dir = "/g/huber/users/fridljand/R/ihw-forest-paper/") # TODO
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 ```{r hard_coding_path}
 # file_loc <- system.file("extdata", "real_data", "hqtl_chrom1_chrom2", package = "IHWpaper")
 # file_loc <- "/g/huber/users/fridljand/R/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
-root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
+#root_dir <- "/g/huber/users/fridljand/R/ihw-forest-paper/"
 # root_dir <- "/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/ihw-forest-paper/data/hqtl_chrom1_chrom2/"
 # root_dir <- "/Volumes/huber/users/fridljand/R/ihw-forest-paper"
+root_dir <- here::here()
 options(bitmapType = "cairo")
 ```
 

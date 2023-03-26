@@ -31,21 +31,6 @@ df_weights_quantile_sub <- df_weights_quantile %>%
 ```
 
 ```{r}
-bw0 <- np::npregbw(xdat = X, ydat = Y, regtype = "lc")
-kre0 <- np::npreg(bws = bw0, exdat = xy_grid) # Evaluation grid is now a matrix
-```
-
-```{r}
-require(graphics)
-
-with(cars, {
-    plot(speed, dist)
-    lines(ksmooth(speed, dist, "normal", bandwidth = 2), col = 2)
-    lines(ksmooth(speed, dist, "normal", bandwidth = 5), col = 3)
-})
-```
-
-```{r}
 ggdb = ggplot(data = df_weights_quantile_sub, mapping = aes(x = covariate.1, y = covariate.2)) 
 ggdb +
   geom_point(aes(color = weight))
@@ -62,6 +47,12 @@ make1Dgrid = function(x) {
 ihw_grid = with(df_weights_quantile,
   expand.grid(covariate.1 = make1Dgrid(covariate.1),
               covariate.2 = make1Dgrid(covariate.2)))
+```
+
+```{r}
+bw0 <- np::npregbw(weight ~ covariate.1 + covariate.2, 
+                      data = df_weights_quantile_sub, regtype = "lc")
+kre0 <- np::npreg(bws = bw0, exdat = ihw_grid) # Evaluation grid is now a matrix
 ```
 
 ```{r}

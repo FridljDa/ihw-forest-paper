@@ -43,6 +43,13 @@ track.names.all <- trackNames(ucscTableQuery(mySession))
 table.names.all <- tableNames(ucscTableQuery(mySession, track = track_name_hist_10))
 ```
 
+```{r}
+"wgEncodeRegMarkH3k27ac", "wgEncodeBroadHistoneGm12878H3k27acStdSig",
+  "wgEncodeRegMarkH3k4me3", "wgEncodeBroadHistoneGm12878H3k4me3StdSig",
+  "wgEncodeUwTfbs", "wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1",
+  "wgEncodeUwDnase", "wgEncodeUwDnaseGm12878HotspotsRep1"
+```
+
 We can explore available data with `track.names.all` or on
 http://genome.ucsc.edu/cgi-bin/hgTables?org=Human&db=hg19. I picked some arbitrary `track_name` and `table_name` which sounded like they relate to what Wolfgang suggested. I can use this code, even if it later turns out to be wrong. 
 ```{r}
@@ -88,7 +95,6 @@ track_name_hist_14 <- "wgEncodeUwDnase"
 track_name_hist_15 <- "wgEncodeUwDnase" 
 
 table_name_hist_10 <- "wgEncodeUwDnaseGm12878HotspotsRep1" # arbitrary table from this track
-
 ```
 
 ```{r}
@@ -121,7 +127,7 @@ we interpret it, that the histone should come before the SNP.
 findInterval(
   c(60725, 60729),
   c(60720, 60724, 60725, 60728),
-  left.open = T,
+  left.open = T, 
   all.inside = T,
   rightmost.closed = F
 ) + 1
@@ -151,6 +157,7 @@ For `cov1` and `cov2` this works fine.
 snp_chr1_cov1 <- custom_join(snp_chr1, chr1_cov1, chr1_cov1$end)
 head(snp_chr1_cov1)
 ```
+
 ```{r}
 length(unique(snp_chr1_cov1$value))#/nrow(snp_chr1_cov1)
 ```
