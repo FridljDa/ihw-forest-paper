@@ -1,5 +1,5 @@
 ---
-title: "delete_weight"
+title: "plot_smooth_weight"
 format: html
 editor: visual
 ---
@@ -49,16 +49,20 @@ ihw_grid = with(df_weights_quantile,
               covariate.2 = make1Dgrid(covariate.2)))
 ```
 
-```{r}
+```{r, eval = FALSE}
 bw0 <- np::npregbw(weight ~ covariate.1 + covariate.2, 
                       data = df_weights_quantile_sub, regtype = "lc")
 kre0 <- np::npreg(bws = bw0, exdat = ihw_grid) # Evaluation grid is now a matrix
 ```
 
-```{r}
+List of all available regression models
+
+https://topepo.github.io/caret/available-models.html
+
+```{r, message=FALSE}
 ihw_rf_default <- train(weight ~ covariate.1 + covariate.2, 
                       data = df_weights_quantile_sub, 
-                      method='gaussprPoly') #gamboost
+                      method='xgbTree') #gamboost xgbTree
 ```
 
 ```{r}
