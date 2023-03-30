@@ -8,6 +8,7 @@ editor: visual
 library(ggplot2)
 library(here)
 library(dplyr)
+library(magrittr)
 
 library(doRNG)
 library(doParallel)
@@ -62,10 +63,6 @@ BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
                    by = c("refsnp_id","chr_name"))
 ```
 
-```{r}
-
-```
-
 # Run Multiple Testing
 
 ## Parameters
@@ -76,12 +73,12 @@ formulas_mt <- c(
   "N",
   "Freq_MAF_Hapmap + N",
   "Freq_MAF_Hapmap + N +minor_allele_freq",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start",
-   "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3+covariate4",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3+covariate4+covariate5"
+  "Freq_MAF_Hapmap + N +minor_allele_freq",
+   "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4+covariate5"
 )
 
 formulas_mt <- paste0("p ~ ", formulas_mt)
@@ -93,9 +90,9 @@ parameters_run_quantile <- expand.grid(
   formulas = formulas_mt,
   alphas = seq(0.01, 0.1, length.out = 4),
   lambdas = Inf,
-  stratification_method = c("quantiles"),
+  stratification_method = "quantiles",
   #parameters for quantile
-  nbins_quantile = 2^8, 
+  nbins_quantile = NA,  #2^8
   #parameters for forest 
   nodedepth_forest = NA,
   n_censor_thres = NA, 
@@ -111,7 +108,7 @@ parameters_run_forest <- expand.grid(
   #parameters for quantile
   nbins_quantile = "auto", 
   #parameters for forest 
-  nodedepth_forest = 8,
+  nodedepth_forest = NA, #8
   n_censor_thres = 3, 
   ntrees = 3,  
   nodesize = 3000
@@ -126,6 +123,21 @@ parameters_run <- parameters_run %>%
     number_covariates = 1 + stringr::str_count(formulas, "\\+"),
     formula_string = as.character(parameters_run$formulas), 
     stratification_method = as.character(stratification_method)
+  )
+
+parameters_run <- parameters_run %>%
+  mutate(
+    nodedepth_forest = ifelse(
+      stratification_method == "quantiles",
+      number_covariates,
+      NA
+    ),
+    
+    nbins_quantile = ifelse(
+      stratification_method == "forest",
+      2^number_covariates,
+      NA
+    ) 
   )
 
 head(parameters_run)
@@ -213,41 +225,35 @@ head(bh_rejections)
 head(ihw_rej)
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 saveRDS(ihw_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
-```{r}
-ihw_rej <- `2023-03-27_boca_leek_analysis`
+```{r, eval = FALSE}
+ihw_rej <- readRDS("data/2023-03-27_boca_leek_analysis.RDS")
 ```
 
 ## plot
 
 add BH to every subpanel
-
 ```{r}
-# create data frame and vector with different lengths
-x <- data.frame(a = c(1, 2, 3), b = c("A", "B", "C"))
-y <- c(TRUE, FALSE)
+number_covariates_all <- unique(ihw_rej$number_covariates)
 
-# repeat elements in y to match number of rows in x
-y_rep <- rep(y, length.out = nrow(x))
+bh_rejections_copied <- replicate(length(number_covariates_all), 
+                          bh_rejections, 
+                          simplify = FALSE) %>%
+  data.table::rbindlist() %>%
+  select(-c(number_covariates))
 
-# bind y_rep to x
-xy <- cbind(x, y_rep)
+number_covariates_all_rep <- rep(number_covariates_all, each= nrow(bh_rejections))
 
-# apply expand.grid() to xy
-df <- as.data.frame(do.call(expand.grid, lapply(xy, unique)))
+bh_rejections_copied <- cbind(bh_rejections_copied, number_covariates = number_covariates_all_rep)
 
-df
+rm(number_covariates_all, number_covariates_all_rep)
 ```
 
 ```{r}
-expand.grid(bh_rejections, test = c(1,2))
-```
-
-```{r}
-ihw_bh_rej <- plyr::rbind.fill(bh_rejections, ihw_rej)
+ihw_bh_rej <- plyr::rbind.fill(bh_rejections_copied, ihw_rej)
 ```
 
 ```{r}
@@ -263,7 +269,8 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
  ) +
 # scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
  scale_y_log10() +
-  facet_wrap(vars(number_covariates))+
+  facet_wrap(~number_covariates) +
+  #facet_wrap(vars(number_covariates))+
   scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
   ylim(0,NA)
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
@@ -271,13 +278,3 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
 
 ```
 
-```{r}
-ggplot(ihw_bh_rej, aes(x = number_covariates, y = rejections, col = stratification_method)) +
-  geom_line() +
-  geom_point(size = 2) +
-  ylab("Number of rejections") +
-  xlab("number of covariates")+
-  facet_wrap(vars(alphas))+
-  scale_x_continuous(breaks = unique(ihw_rej$number_covariates)) +
-  ylim(0,NA)
-```
