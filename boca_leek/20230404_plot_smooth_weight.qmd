@@ -18,21 +18,73 @@ source(here("IHWForestPaper/R/predict_weight.R"))
 options(bitmapType ="cairo")
 ```
 
+## generate data
+
 ```{r}
 #save.seed <- .Random.seed
 set.seed(1)
 X <- runif(20000, min = 0, max = 2.5) # covariate
 H <- rbinom(20000, 1, 0.1) # hypothesis true or false
 Z <- rnorm(20000, H * X) # Z-score
+
 folds <- sample(1:5, 20000, replace = TRUE)
 #.Random.seed <- save.seed
 pvalue <- 1 - pnorm(Z) # pvalue
 ```
 
 ```{r}
+X <- cbind(X, rnorm(2000))
+```
+
+```{r}
 n_censor_thres = 1
 ntrees = 1
 ```
+
+## quantile
+
+```{r}
+covariates <- matrix(runif(300), ncol = 3)
+groups <- groups_by_filter_multivariate(covariates, 10)
+```
+
+```{r}
+groups_quantile1 <- groups_by_filter_multivariate(as.matrix(X), 10, seed = 1)
+head(groups_quantile1)
+```
+
+```{r}
+ihw_quantile <- ihw(pvalue, as.matrix(X), alpha = 0.1, stratification_method ="quantiles", folds = folds, nbins = 10, seed = 1)
+groups_quantile2 <- ihw_quantile@df[["group"]]
+head(groups_quantile2)
+```
+
+```{r}
+weight3 <- get_weight_quantile(ihw_quantile, as.matrix(X), folds, seed = 1)
+```
+
+```{r}
+all(groups_quantile1 == groups_quantile2)
+```
+
+```{r}
+weight_matrix <- ihw_quantile@weights
+#folds
+#groups_quantile1
+#weight_matrix
+
+weight1 <- map2_dbl(folds, groups_quantile1, 
+     function(folds_i, groups_quantile_i){
+       weight_matrix[groups_quantile_i,folds_i]
+     })
+```
+
+```{r}
+weight2 <- ihw_quantile@df["weight"]
+all(weight1 == weight2)
+```
+
+## Forest
 
 ```{r}
 set.seed(1)
@@ -99,42 +151,3 @@ weights3 <- get_weight_forest_averaged_full(pvalue,
                                 folds, 
                                 seed = 1)
 ```
-## quantile
-
-```{r}
-covariates <- matrix(runif(300), ncol = 3)
-groups <- groups_by_filter_multivariate(covariates, 10)
-```
-
-```{r}
-groups_quantile1 <- groups_by_filter_multivariate(as.matrix(X), 10, seed = 1)
-head(groups_quantile1)
-```
-
-```{r}
-ihw_quantile <- ihw(pvalue, as.matrix(X), alpha = 0.1, stratification_method ="quantiles", folds = folds, nbins = 10, seed = 1)
-groups_quantile2 <- ihw_quantile@df[["group"]]
-head(groups_quantile2)
-```
-
-```{r}
-weight3 <- get_weight_quantile(ihw_quantile, as.matrix(X), folds, seed = 1)
-```
-
-```{r}
-all(groups_quantile1 == groups_quantile2)
-```
-
-```{r}
-weight_matrix <- ihw_quantile@weights
-folds
-groups_quantile1
-weight_matrix
-
-weight1 <- map2_dbl(folds, groups_quantile1, 
-     function(folds_i, groups_quantile_i){
-       weight_matrix[groups_quantile_i,folds_i]
-     })
-```
-
-

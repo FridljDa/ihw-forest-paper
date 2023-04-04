@@ -1,7 +1,7 @@
 
 #' @import stats
 #' @import randomForestSRC
-get_forest <- function(pvalues, covariates, folds, ntrees = 2, n_censor_thres = 2, nodedepth = 4, nodesize = 1000, mtry = "auto", seed = NULL) {
+get_forest <- function(pvalues, covariates, folds, ntrees = 2, n_censor_thres = 2, nodedepth = 4, nodesize = 1000, mtry = "auto", seed = 1) {
   m <- length(pvalues)
   nfolds <- length(unique(folds))
   
@@ -98,11 +98,56 @@ get_weights_trees_individual <- function(ihw_forest, groups){
   weights
 }
 
-get_weight_averaged <- function(folds, weights_indiv_trees){
+get_weight_forest_averaged <- function(folds, weights_indiv_trees){
   weight_sum <- imap_dbl(folds,
                           function(fold_i, i){
                             weights_indiv_trees[[fold_i]][[1]][i]
                             #TODO average out from different trees
                           })
   weight_sum
+}
+
+
+#get weights from forest 
+get_weight_forest_averaged_full <- function(pvalues, 
+                                covariates, 
+                                folds, 
+                                #new_covariates, #TODO
+                                ntrees = 2, 
+                                n_censor_thres = 2, 
+                                nodedepth = 4, 
+                                nodesize = 1000, 
+                                mtry = "auto", 
+                                seed = 1){
+  
+  
+  forests <- get_forest(pvalue, as.matrix(X), folds = folds, 
+                        ntrees = ntrees, n_censor_thres = n_censor_thres, 
+                        nodedepth = nodedepth, seed = seed)
+  
+  ihw_forest <- ihw(pvalue, as.matrix(X), alpha = 0.1, stratification_method = "forest", 
+                    folds = folds, ntrees = ntrees, n_censor_thres = n_censor_thres, 
+                    nodedepth = nodedepth, nodesize = nodesize, seed = seed)
+
+  
+  data <- data.frame(covariates = covariates)
+  
+  groups <- predict_group_forest(data, forests)
+  
+  weights1_unsum <- get_weights_trees_individual(ihw_forest, groups)
+  
+  weight1_sum <- get_weight_forest_averaged(folds = folds, weights1_unsum)
+}
+
+###-----quantile----
+get_weight_quantile <- function(ihw_quantile, new_data, new_fold, seed = 1){
+  weight_matrix <- ihw_quantile@weights
+  nbins <- ihw_quantile@nbins
+  groups_quantile <- IHW::groups_by_filter_multivariate(as.matrix(new_data), nbins, seed = seed)
+  
+  weight <- purrr::map2_dbl(new_fold, groups_quantile, 
+                            function(folds_i, groups_quantile_i){
+                              weight_matrix[groups_quantile_i,folds_i]
+                            })
+  weight
 }
