@@ -236,6 +236,7 @@ ihw_rej <- readRDS("data/2023-03-27_boca_leek_analysis.RDS")
 ## plot
 
 add BH to every subpanel
+
 ```{r}
 number_covariates_all <- unique(ihw_rej$number_covariates)
 
@@ -277,4 +278,3 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 
 ```
-

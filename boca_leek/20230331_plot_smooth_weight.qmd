@@ -1,0 +1,161 @@
+---
+title: "plot_smooth_weight"
+format: html
+editor: visual
+---
+
+```{r}
+library("dplyr")
+library("reshape2")
+library("ggplot2")
+library(here)
+library(purrr)
+
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../IHWForestPaper")
+
+source(here("IHWForestPaper/R/predict_weight.R"))
+options(bitmapType ="cairo")
+```
+
+```{r}
+#save.seed <- .Random.seed
+set.seed(1)
+X <- runif(20000, min = 0, max = 2.5) # covariate
+H <- rbinom(20000, 1, 0.1) # hypothesis true or false
+Z <- rnorm(20000, H * X) # Z-score
+folds <- sample(1:5, 20000, replace = TRUE)
+#.Random.seed <- save.seed
+pvalue <- 1 - pnorm(Z) # pvalue
+```
+
+```{r}
+n_censor_thres = 1
+ntrees = 1
+```
+
+```{r}
+set.seed(1)
+forests <- get_forest(pvalue, as.matrix(X), folds, ntrees = ntrees, n_censor_thres = n_censor_thres, nodedepth = 3, seed = 1)
+```
+
+```{r}
+set.seed(1)
+ihw_forest <- ihw(pvalue, as.matrix(X), alpha = 0.1,stratification_method ="forest", folds = folds, ntrees = ntrees, n_censor_thres = n_censor_thres, nodedepth = 3, nodesize = 1000, seed = 1)
+```
+
+```{r}
+data <- data.frame(covariates = X)
+groups1 <- predict_group_forest(data, forests)
+weights1_unsum <- get_weights_trees_individual(ihw_forest, groups1)
+```
+
+```{r, eval = FALSE}
+weights_fold_i <- matrix(NA, nrow = nrow(data), ncol = n_censor_thres * ntrees)
+
+i <- 1 #nfolds
+j <- 1 #n_censor_thres
+k <- 1 #ntrees
+groups_i_j <- groups1[[i]][[j]][, k, drop = TRUE]
+groups_i_j <- as.integer(groups_i_j)
+#TODO k
+
+weights_fold_i[,t] <- ihw_forest@weight_matrices_forest[[i]][[t]][groups_i_j]
+#groups1_i_j
+#weights_i_j
+```
+
+```{r, eval = FALSE}
+weights1 <- lapply(seq_len(nfolds),
+       function(i){
+         weights_fold_i <- matrix(NA, nrow = nrow(data), ncol = n_censor_thres * ntrees)
+         for(j in seq_len(n_censor_thres)){
+           for(k in seq_len(ntrees)){
+             groups_i_j_k <- groups1[[i]][[j]][, k, drop = TRUE]
+             groups_i_j_k <- as.integer(groups_i_j_k)
+             
+             #t <- (k - 1) * n_censor_thres + j
+t <- (j - 1) * ntrees + k
+             weights_fold_i[,t] <- ihw_forest@weight_matrices_forest[[i]][[t]][groups_i_j]
+           }
+         }
+         weights_fold_i
+       })
+```
+
+```{r, eval = FALSE}
+ntrees_all_comb <- n_censor_thres * ntrees
+nfolds <- folds %>%
+  unique %>%
+  length
+```
+
+```{r}
+# extract sorted weights
+sorted_weights_fold_i <- matrix(NA, nrow = length(pvalues), ncol = n_censor_thres * ntrees)
+
+  for (i in seq_len(nfolds)) {
+    for (t in seq_len(ntrees_all_comb)) {
+      sorted_weights[, (i - 1) * ntrees_all_comb + t] <- res[[i]][[t]]$sorted_weights
+    }
+  }
+
+groups <- groups1
+#get_weights_trees_individual <- function(ihw_forest, groups){
+  ind_i <- seq_along(groups)
+  weights <- map(
+    ind_i,
+    function(i){
+      ind_i_j <- seq_along(groups[[i]])
+      map(
+        ind_i_j,
+        function(j){
+          groups_i_j <- as.integer(groups[[i]][[j]])
+          ihw_forest@weight_matrices_forest[[i]][[j]][groups_i_j]  
+        }
+      )
+    }
+  )
+  weights
+#}
+```
+
+```{r}
+groups2 <- ihw_forest@df %>%
+  select(starts_with("fold")) %>%
+  select(-c("fold"))
+#select columns starting with 
+```
+
+```{r}
+weight1_sum <- imap_dbl(folds,
+     function(fold_i, i){
+       weights1[[fold_i]][[1]][i]
+       #average out from different trees
+     })
+```
+
+```{r}
+weight1_sum <- imap_dbl(folds,
+     function(fold_i, i){
+       #average out from different trees
+       weights1_fold_i <- weights1[[fold_i]]
+       weights1_fold_i_js <- sapply(weights1_fold_i, 
+              function(weights1_fold_i_j){
+                weights1_fold_i_j[i]
+              })
+       #TODO mean over them
+       #weights1[[fold_i]][[1]][i]
+       mean(weights1_fold_i_js)
+     })
+```
+
+```{r}
+weights2 <- ihw_forest@df[["weight"]]
+```
+
+awesome, they are indeed the same
+
+```{r}
+sum(weight1_sum != weights2)
+```
