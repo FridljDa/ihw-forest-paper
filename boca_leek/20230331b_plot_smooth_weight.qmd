@@ -1,0 +1,140 @@
+---
+title: "plot_smooth_weight"
+format: html
+editor: visual
+---
+
+```{r}
+library("dplyr")
+library("reshape2")
+library("ggplot2")
+library(here)
+library(purrr)
+
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../IHWForestPaper")
+
+source(here("IHWForestPaper/R/predict_weight.R"))
+options(bitmapType ="cairo")
+```
+
+```{r}
+#save.seed <- .Random.seed
+set.seed(1)
+X <- runif(20000, min = 0, max = 2.5) # covariate
+H <- rbinom(20000, 1, 0.1) # hypothesis true or false
+Z <- rnorm(20000, H * X) # Z-score
+folds <- sample(1:5, 20000, replace = TRUE)
+#.Random.seed <- save.seed
+pvalue <- 1 - pnorm(Z) # pvalue
+```
+
+```{r}
+n_censor_thres = 1
+ntrees = 1
+```
+
+```{r}
+set.seed(1)
+forests <- get_forest(pvalue, as.matrix(X), folds, ntrees = ntrees, n_censor_thres = n_censor_thres, nodedepth = 3, seed = 1)
+```
+
+```{r}
+set.seed(1)
+ihw_forest <- ihw(pvalue, as.matrix(X), alpha = 0.1, stratification_method ="forest", folds = folds, ntrees = ntrees, n_censor_thres = n_censor_thres, nodedepth = 3, nodesize = 1000, seed = 1)
+```
+
+```{r}
+data <- data.frame(covariates = X)
+groups1 <- predict_group_forest(data, forests)
+weights1_unsum <- get_weights_trees_individual(ihw_forest, groups1)
+```
+
+```{r}
+groups2 <- ihw_forest@df %>%
+  select(starts_with("fold")) %>%
+  select(-c("fold"))
+#select columns starting with 
+```
+
+```{r, eval = FALSE}
+i <- 1
+j <- 2
+k <- 1
+
+#t <- (k - 1) * n_censor_thres + j
+t <- (j - 1) * ntrees + k #correct one
+groups1_i_j_k <- groups1[[i]][[j]][, k, drop = TRUE]
+groups2_i_j_k <- groups2[, t, drop = TRUE]
+
+sum(groups1_i_j_k != groups2_i_j_k)
+```
+
+```{r}
+weight1_sum <- get_weight_forest_averaged(folds, weights1_unsum)
+```
+
+```{r}
+weights2 <- ihw_forest@df[["weight"]]
+```
+
+awesome, they are indeed the same
+
+```{r}
+sum(weight1_sum != weights2)
+```
+
+```{r}
+ihw_forest <- ihw(pvalue, as.matrix(X), alpha = 0.1,stratification_method ="forest", folds = folds, ntrees = ntrees, n_censor_thres = n_censor_thres, nodedepth = 3, nodesize = 1000, seed = 1)
+
+data <- data.frame(covariates = X)
+groups1 <- predict_group_forest(data, forests)
+weights1_unsum <- get_weights_trees_individual(ihw_forest, groups1)
+weight1_sum <- get_weight_forest_averaged(folds, weights1_unsum)
+```
+
+```{r}
+weights3 <- get_weight_forest_averaged_full(pvalue, 
+                                X, 
+                                folds, 
+                                seed = 1)
+```
+## quantile
+
+```{r}
+covariates <- matrix(runif(300), ncol = 3)
+groups <- groups_by_filter_multivariate(covariates, 10)
+```
+
+```{r}
+groups_quantile1 <- groups_by_filter_multivariate(as.matrix(X), 10, seed = 1)
+head(groups_quantile1)
+```
+
+```{r}
+ihw_quantile <- ihw(pvalue, as.matrix(X), alpha = 0.1, stratification_method ="quantiles", folds = folds, nbins = 10, seed = 1)
+groups_quantile2 <- ihw_quantile@df[["group"]]
+head(groups_quantile2)
+```
+
+```{r}
+weight3 <- get_weight_quantile(ihw_quantile, as.matrix(X), folds, seed = 1)
+```
+
+```{r}
+all(groups_quantile1 == groups_quantile2)
+```
+
+```{r}
+weight_matrix <- ihw_quantile@weights
+folds
+groups_quantile1
+weight_matrix
+
+weight1 <- map2_dbl(folds, groups_quantile1, 
+     function(folds_i, groups_quantile_i){
+       weight_matrix[groups_quantile_i,folds_i]
+     })
+```
+
+
