@@ -21,8 +21,8 @@ registerDoParallel(cores=3)
 ```
 
 ```{r}
-#devtools::load_all("../../IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 
 ```
 
@@ -128,15 +128,15 @@ parameters_run <- parameters_run %>%
 parameters_run <- parameters_run %>%
   mutate(
     nodedepth_forest = ifelse(
-      stratification_method == "quantiles",
+      stratification_method == "forest",
       number_covariates,
       NA
     ),
     
     nbins_quantile = ifelse(
-      stratification_method == "forest",
+      stratification_method == "quantiles",
       2^number_covariates,
-      NA
+      "auto"
     ) 
   )
 
@@ -175,14 +175,14 @@ head(bh_rejections)
 
 ### IHW
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 #parameters_run <- parameters_run[c(2,60), ]
 # only rerun, if changes to global variables or code
 #ihw_rej <- xfun::cache_rds(
 #  {
     # run for all alpha-formula combinations (in parallel)
     ihw_rej <- foreach(i = seq_len(nrow(parameters_run))) %dorng% {
-      #i <- 60
+      #i <- 37
       print(paste0("run:", i))
       #cat("run:", i)
       
@@ -236,6 +236,7 @@ ihw_rej <- readRDS("data/2023-03-27_boca_leek_analysis.RDS")
 ## plot
 
 add BH to every subpanel
+
 ```{r}
 number_covariates_all <- unique(ihw_rej$number_covariates)
 
@@ -277,4 +278,3 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 
 ```
-
