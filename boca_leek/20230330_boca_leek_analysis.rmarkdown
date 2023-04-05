@@ -125,17 +125,21 @@ parameters_run <- parameters_run %>%
     stratification_method = as.character(stratification_method)
   )
 
+per_covariate_bins <- 5
+#make sure we have the same number of total bins between forest and quantiles
 parameters_run <- parameters_run %>%
   mutate(
     nodedepth_forest = ifelse(
       stratification_method == "forest",
-      number_covariates,
+      number_covariates * log2(per_covariate_bins) %>% 
+        ceiling() %>%
+        as.integer(),
       NA
     ),
     
     nbins_quantile = ifelse(
       stratification_method == "quantiles",
-      2^number_covariates,
+      per_covariate_bins^number_covariates,
       "auto"
     ) 
   )

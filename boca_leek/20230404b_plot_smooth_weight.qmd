@@ -22,7 +22,9 @@ myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))
 ```
 
 ## generate data
-Generate simulation from https://support.bioconductor.org/p/90005/#9137847. 
+
+Generate simulation from https://support.bioconductor.org/p/90005/#9137847.
+
 ```{r}
 # test data
 m_test <- 100
@@ -77,6 +79,7 @@ head(data_train_test)
 ```
 
 ## True contours
+
 ```{r}
 data_true <- expand.grid(
   covariate.1 = seq(-1, 1, length.out = m_test),
@@ -120,6 +123,7 @@ ggplot(ihw_quantiles_df_test, aes(x = covariate.1, y = covariate.2, color = weig
 ```
 
 ## Tree
+
 ```{r}
 ihw_tree <- ihw(formula = pvalue ~ covariate.1 + covariate.2, 
                   data = data_train_test, 
@@ -165,4 +169,3 @@ ggplot(ihw_forest_df_test, aes(x = covariate.1, y = covariate.2, color = weight)
   geom_point() +
   scale_colour_gradientn(colours = myPalette(100))
 ```
-
