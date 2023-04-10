@@ -132,41 +132,6 @@ ihw_quantiles_df_test <- ihw_quantiles@df %>%
   filter(fold == 2)
 ```
 
-```{r, eval = FALSE}
-weight_matrix <- ihw_quantiles@weights
-nbins <- ihw_quantiles@nbins
-ihw_quantiles_df <- ihw_quantiles@df
-ihw_quantiles_df$groups_population <- IHW::groups_by_filter_multivariate(ihw_quantiles_df %>%
-  select(covariate.1, covariate.2), 
-                                                      nbins, 
-                                                      seed = 1)
-  
-ihw_quantiles_df$weight_quantile <- purrr::map2_dbl(folds, 
-                                                    ihw_quantiles_df$groups_population, 
-                            function(folds_i, groups_quantile_i){
-                              weight_matrix[groups_quantile_i,folds_i]
-                            })
-```
-
-```{r, eval = FALSE}
-covariates <- ihw_quantiles_df_test %>%
-  select(covariate.1, covariate.2)
-group_quantile <- groups_by_filter_multivariate(covariates,
-                              nbins = 36, 
-                              seed = 1)
-
-sum(group_quantile != ihw_quantiles_df_test$group)
-head(ihw_quantiles_df)
-```
-
-```{r}
-ihw_quantiles_df %>%
-  filter(fold == 2) %>%
-  ggplot(aes(x = covariate.1, y = covariate.2, color = weight_quantile))+
-  geom_point() +
-  scale_colour_gradientn(colours = myPalette(100))
-```
-
 ```{r}
 ggplot(ihw_quantiles_df_test, aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +

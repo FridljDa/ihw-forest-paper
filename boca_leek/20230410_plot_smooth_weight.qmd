@@ -45,12 +45,10 @@ prop_alt <- function(covariate.1, covariate.2) {
 generate training data
 
 ```{r}
-#data_train <- data.frame(
-#  covariate.1 = runif(m, -1, 1), #TODO
-#  covariate.2 = runif(m, -1, 1)
-  #covariate.1 = seq(-1, 1, length.out = m),
-  #covariate.2 = seq(-1, 1, length.out = m)
-#)
+data_train <- data.frame(
+  covariate.1 = runif(m, -1, 1),
+  covariate.2 = runif(m, -1, 1)
+)
 
 data_train <- expand.grid(
   covariate.1 = seq(-1, 1, length.out = sqrt(m)),
