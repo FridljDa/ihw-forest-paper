@@ -132,7 +132,7 @@ ihw_quantiles_df_test <- ihw_quantiles@df %>%
   filter(fold == 2)
 ```
 
-```{r, eval = FALSE}
+```{r}
 weight_matrix <- ihw_quantiles@weights
 nbins <- ihw_quantiles@nbins
 ihw_quantiles_df <- ihw_quantiles@df
