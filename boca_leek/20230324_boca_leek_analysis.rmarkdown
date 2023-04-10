@@ -62,6 +62,10 @@ BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
                    by = c("refsnp_id","chr_name"))
 ```
 
+```{r}
+
+```
+
 # Run Multiple Testing
 
 ## Parameters

@@ -1,0 +1,77 @@
+---
+title: "plot_smooth_weight"
+format: html
+editor: visual
+---
+
+```{r}
+library("dplyr")
+library("reshape2")
+library("ggplot2")
+library("caret")
+
+options(bitmapType ="cairo")
+```
+
+```{r}
+load(here::here("boca_leek/20230220_boca_leel_environment.RData"))
+#ihw_quantile_n_maf
+#ihw_forest_n_maf
+```
+
+```{r}
+df_weights_quantile <- ihw_quantile_n_maf@df %>%
+  filter(fold == 1) %>%
+  dplyr::select(weight, covariate.1, covariate.2, fold)
+```
+
+```{r}
+df_weights_quantile_sub <- df_weights_quantile %>%
+  sample_n(1000)
+```
+
+```{r}
+ggdb = ggplot(data = df_weights_quantile_sub, mapping = aes(x = covariate.1, y = covariate.2)) 
+ggdb +
+  geom_point(aes(color = weight))
+```
+
+```{r}
+make1Dgrid = function(x) {
+  rg = grDevices::extendrange(x)
+  seq(from = rg[1], to = rg[2], length.out = 100)
+}
+```
+
+```{r}
+ihw_grid = with(df_weights_quantile,
+  expand.grid(covariate.1 = make1Dgrid(covariate.1),
+              covariate.2 = make1Dgrid(covariate.2)))
+```
+
+```{r, eval = FALSE}
+bw0 <- np::npregbw(weight ~ covariate.1 + covariate.2, 
+                      data = df_weights_quantile_sub, regtype = "lc")
+kre0 <- np::npreg(bws = bw0, exdat = ihw_grid) # Evaluation grid is now a matrix
+```
+
+List of all available regression models
+
+<https://topepo.github.io/caret/available-models.html>
+
+```{r, message=FALSE}
+ihw_rf_default <- train(weight ~ covariate.1 + covariate.2, 
+                      data = df_weights_quantile_sub, 
+                      method='xgbTree') #gamboost xgbTree
+```
+
+```{r}
+ihw_grid$ghat <- predict(ihw_rf_default, newdata = ihw_grid)
+```
+
+```{r}
+ggdb + geom_raster(aes(fill = ghat),
+            data = ihw_grid, alpha = 0.25, interpolate = TRUE) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0))
+```

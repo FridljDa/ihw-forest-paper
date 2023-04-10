@@ -2,14 +2,12 @@
 title: "boca_leek_dataset"
 format: html
 editor: visual
-bibliography: references.bib
 ---
 
 ```{r, echo=FALSE, message = FALSE}
 library(ggplot2)
 library(here)
 library(dplyr)
-library(magrittr)
 
 library(doRNG)
 library(doParallel)
@@ -64,13 +62,8 @@ BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
                    by = c("refsnp_id","chr_name"))
 ```
 
-# analyse data set itself
-
-"In these studies, the sample size may not be the same for each SNP, for example, if different individuals are measured with different technologies which measure different SNPs."[@boca2018]
-
 ```{r}
-ggplot(BMI_GIANT_GWAS, aes(x = N)) +
-  geom_histogram()
+
 ```
 
 # Run Multiple Testing
@@ -83,12 +76,12 @@ formulas_mt <- c(
   "N",
   "Freq_MAF_Hapmap + N",
   "Freq_MAF_Hapmap + N +minor_allele_freq",
-  "Freq_MAF_Hapmap + N +minor_allele_freq",
-   "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4+covariate5"
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start",
+   "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3+covariate4",
+  "Freq_MAF_Hapmap + N +minor_allele_freq+chrom_start+covariate1+covariate2+covariate3+covariate4+covariate5"
 )
 
 formulas_mt <- paste0("p ~ ", formulas_mt)
@@ -100,9 +93,9 @@ parameters_run_quantile <- expand.grid(
   formulas = formulas_mt,
   alphas = seq(0.01, 0.1, length.out = 4),
   lambdas = Inf,
-  stratification_method = "quantiles",
+  stratification_method = c("quantiles"),
   #parameters for quantile
-  nbins_quantile = NA,  #2^8
+  nbins_quantile = 2^8, 
   #parameters for forest 
   nodedepth_forest = NA,
   n_censor_thres = NA, 
@@ -118,7 +111,7 @@ parameters_run_forest <- expand.grid(
   #parameters for quantile
   nbins_quantile = "auto", 
   #parameters for forest 
-  nodedepth_forest = NA, #8
+  nodedepth_forest = 8,
   n_censor_thres = 3, 
   ntrees = 3,  
   nodesize = 3000
@@ -128,30 +121,15 @@ parameters_run <- rbind(parameters_run_quantile, parameters_run_forest)
 ```
 
 ```{r}
+
+```
+
+```{r}
 parameters_run <- parameters_run %>%
   mutate(
     number_covariates = 1 + stringr::str_count(formulas, "\\+"),
     formula_string = as.character(parameters_run$formulas), 
     stratification_method = as.character(stratification_method)
-  )
-
-per_covariate_bins <- 5
-#make sure we have the same number of total bins between forest and quantiles
-parameters_run <- parameters_run %>%
-  mutate(
-    nodedepth_forest = ifelse(
-      stratification_method == "forest",
-      number_covariates * log2(per_covariate_bins) %>% 
-        ceiling() %>%
-        as.integer(),
-      NA
-    ),
-    
-    nbins_quantile = ifelse(
-      stratification_method == "quantiles",
-      per_covariate_bins^number_covariates,
-      "auto"
-    ) 
   )
 
 head(parameters_run)
@@ -189,14 +167,14 @@ head(bh_rejections)
 
 ### IHW
 
-```{r, eval = TRUE}
+```{r}
 #parameters_run <- parameters_run[c(2,60), ]
 # only rerun, if changes to global variables or code
 #ihw_rej <- xfun::cache_rds(
 #  {
     # run for all alpha-formula combinations (in parallel)
     ihw_rej <- foreach(i = seq_len(nrow(parameters_run))) %dorng% {
-      #i <- 37
+      #i <- 60
       print(paste0("run:", i))
       #cat("run:", i)
       
@@ -239,36 +217,14 @@ head(bh_rejections)
 head(ihw_rej)
 ```
 
-```{r, eval = TRUE}
+```{r}
 saveRDS(ihw_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
-```
-
-```{r, eval = FALSE}
-ihw_rej <- readRDS("data/2023-03-27_boca_leek_analysis.RDS")
 ```
 
 ## plot
 
-add BH to every subpanel
-
 ```{r}
-number_covariates_all <- unique(ihw_rej$number_covariates)
-
-bh_rejections_copied <- replicate(length(number_covariates_all), 
-                          bh_rejections, 
-                          simplify = FALSE) %>%
-  data.table::rbindlist() %>%
-  select(-c(number_covariates))
-
-number_covariates_all_rep <- rep(number_covariates_all, each= nrow(bh_rejections))
-
-bh_rejections_copied <- cbind(bh_rejections_copied, number_covariates = number_covariates_all_rep)
-
-rm(number_covariates_all, number_covariates_all_rep)
-```
-
-```{r}
-ihw_bh_rej <- plyr::rbind.fill(bh_rejections_copied, ihw_rej)
+ihw_bh_rej <- plyr::rbind.fill(bh_rejections, ihw_rej)
 ```
 
 ```{r}
@@ -282,12 +238,9 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
   color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
   shape = "none"
  ) +
+# scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
  scale_y_log10() +
-  facet_wrap(~number_covariates, labeller = labeller(number_covariates = function(number_covariates_i){
-    ifelse(number_covariates_i == 1,
-           "1 Covariate",
-           paste(number_covariates_i, "Covariates"))
-  }) ) +
+  facet_wrap(vars(number_covariates))+
   scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
   ylim(0,NA)
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
@@ -295,32 +248,13 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
 
 ```
 
-+------------------+-------------------+-------------------------------------------------+
-| Number covariate | variable name     | explination                                     |
-+==================+===================+=================================================+
-| 1                | N                 |                                                 |
-+------------------+-------------------+-------------------------------------------------+
-| 2                | Freq_MAF_Hapmap   |                                                 |
-+------------------+-------------------+-------------------------------------------------+
-| 3                | minor_allele_freq |                                                 |
-+------------------+-------------------+-------------------------------------------------+
-| 4                | covariate1        | track: wgEncodeRegMarkH3k27ac                   |
-|                  |                   |                                                 |
-|                  |                   | table: wgEncodeBroadHistoneGm12878H3k27acStdSig |
-+------------------+-------------------+-------------------------------------------------+
-| 5                | covariate2        | track: wgEncodeRegMarkH3k4me3                   |
-|                  |                   |                                                 |
-|                  |                   | table: wgEncodeBroadHistoneGm12878H3k4me3StdSig |
-+------------------+-------------------+-------------------------------------------------+
-| 6                | covariate3        | track: wgEncodeUwTfbs                           |
-|                  |                   |                                                 |
-|                  |                   | table: wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1 |
-+------------------+-------------------+-------------------------------------------------+
-| 7                | covariate4        | track: wgEncodeUwDnase                          |
-|                  |                   |                                                 |
-|                  |                   | table: wgEncodeUwDnaseGm12878HotspotsRep1       |
-+------------------+-------------------+-------------------------------------------------+
-| 8                | covariate5        | track: wgEncodeRegMarkH3k4me1                   |
-|                  |                   |                                                 |
-|                  |                   | table: wgEncodeBroadHistoneGm12878H3k4me1StdSig |
-+------------------+-------------------+-------------------------------------------------+
+```{r}
+ggplot(ihw_bh_rej, aes(x = number_covariates, y = rejections, col = stratification_method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("number of covariates")+
+  facet_wrap(vars(alphas))+
+  scale_x_continuous(breaks = unique(ihw_rej$number_covariates)) +
+  ylim(0,NA)
+```
