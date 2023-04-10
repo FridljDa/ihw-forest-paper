@@ -180,7 +180,7 @@ head(bh_rejections)
 ### IHW
 
 ```{r, eval = TRUE}
-#parameters_run <- parameters_run[c(2,60), ]
+#parameters_run <- parameters_run[c(1,47), ]
 # only rerun, if changes to global variables or code
 #ihw_rej <- xfun::cache_rds(
 #  {
@@ -203,7 +203,6 @@ head(bh_rejections)
           stratification_method = parameters_run$stratification_method[[i]],
           #quantile
           nbins = nbins,
-          #nbins = 5,
           #forest
           n_censor_thres = parameters_run$n_censor_thres[[i]],
           ntrees = parameters_run$ntrees[[i]],
@@ -212,12 +211,12 @@ head(bh_rejections)
         )
       ))
       #TODO
-      #effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
+      effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
       
       res_i <- parameters_run[i, ]
       res_i <- res_i %>%
-        mutate(rejections = rejections_na(ihw_i)#,
-        #nbins_covariates = effective_nbins
+        mutate(rejections = rejections_na(ihw_i),
+        nbins_covariates = effective_nbins
         )
       
     }
