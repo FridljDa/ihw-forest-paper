@@ -86,16 +86,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </style>
 
 
-<script src="20230410_plot_smooth_weight_files/libs/clipboard/clipboard.min.js"></script>
-<script src="20230410_plot_smooth_weight_files/libs/quarto-html/quarto.js"></script>
-<script src="20230410_plot_smooth_weight_files/libs/quarto-html/popper.min.js"></script>
-<script src="20230410_plot_smooth_weight_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="20230410_plot_smooth_weight_files/libs/quarto-html/anchor.min.js"></script>
-<link href="20230410_plot_smooth_weight_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="20230410_plot_smooth_weight_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="20230410_plot_smooth_weight_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="20230410_plot_smooth_weight_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="20230410_plot_smooth_weight_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="20230410b_plot_smooth_weight_files/libs/clipboard/clipboard.min.js"></script>
+<script src="20230410b_plot_smooth_weight_files/libs/quarto-html/quarto.js"></script>
+<script src="20230410b_plot_smooth_weight_files/libs/quarto-html/popper.min.js"></script>
+<script src="20230410b_plot_smooth_weight_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="20230410b_plot_smooth_weight_files/libs/quarto-html/anchor.min.js"></script>
+<link href="20230410b_plot_smooth_weight_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="20230410b_plot_smooth_weight_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="20230410b_plot_smooth_weight_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="20230410b_plot_smooth_weight_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="20230410b_plot_smooth_weight_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -158,25 +158,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>generate training data</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_train <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate.1 =</span> <span class="fu">runif</span>(m, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate.2 =</span> <span class="fu">runif</span>(m, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#data_train &lt;- expand.grid(</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  covariate.1 = seq(-1, 1, length.out = sqrt(m)),</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  covariate.2 = seq(-1, 1, length.out = sqrt(m))</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#)</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>data_train <span class="ot">&lt;-</span> data_train <span class="sc">%&gt;%</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_alt =</span> <span class="fu">prop_alt</span>(covariate<span class="fl">.1</span>, covariate<span class="fl">.2</span>),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hs =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="at">size =</span> <span class="dv">1</span>, prop_alt),</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">pvalue =</span> <span class="fu">ifelse</span>(Hs,</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rbeta</span>(<span class="fu">n</span>(), <span class="fl">0.25</span>, <span class="dv">1</span>),</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">runif</span>(<span class="fu">n</span>())</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#data_train &lt;- data.frame(</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  covariate.1 = runif(m, -1, 1), #TODO</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  covariate.2 = runif(m, -1, 1)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#covariate.1 = seq(-1, 1, length.out = m),</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#covariate.2 = seq(-1, 1, length.out = m)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>data_train <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate.1 =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="fu">sqrt</span>(m)),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">covariate.2 =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="fu">sqrt</span>(m))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>data_train <span class="ot">&lt;-</span> data_train <span class="sc">%&gt;%</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_alt =</span> <span class="fu">prop_alt</span>(covariate<span class="fl">.1</span>, covariate<span class="fl">.2</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hs =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="at">size =</span> <span class="dv">1</span>, prop_alt),</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">pvalue =</span> <span class="fu">ifelse</span>(Hs,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rbeta</span>(<span class="fu">n</span>(), <span class="fl">0.25</span>, <span class="dv">1</span>),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">runif</span>(<span class="fu">n</span>())</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>generate testing data to plot on grid</p>
 <div class="cell">
@@ -200,13 +202,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>folds <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(data_train)), <span class="fu">rep</span>(<span class="dv">2</span>, <span class="fu">nrow</span>(data_test)))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data_train_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  covariate.1 covariate.2  prop_alt Hs    pvalue
-1  -0.3693951  0.01889431 0.4086872  1 0.2515232
-2  -0.9712441  0.72096674 0.2746326  0 0.9411896
-3  -0.7932420  0.08394347 0.3114730  0 0.1117338
-4  -0.8140296 -0.95312049 0.3070325  0 0.6637671
-5  -0.3434886 -0.09789876 0.4149623  0 0.8521240
-6  -0.3982785  0.02164751 0.4017260  0 0.6177123</code></pre>
+<pre><code>  covariate.1 covariate.2  prop_alt Hs       pvalue
+1  -1.0000000          -1 0.2689414  1 0.0125289099
+2  -0.9936709          -1 0.2701876  0 0.9370845610
+3  -0.9873418          -1 0.2714374  0 0.3476333758
+4  -0.9810127          -1 0.2726909  0 0.0001137468
+5  -0.9746835          -1 0.2739480  0 0.3118485985
+6  -0.9683544          -1 0.2752086  0 0.2589294561</code></pre>
 </div>
 </div>
 </section>
@@ -231,7 +233,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="20230410_plot_smooth_weight_files/figure-html/unnamed-chunk-9-1.svg" class="img-fluid" width="672"></p>
+<p><img src="20230410b_plot_smooth_weight_files/figure-html/unnamed-chunk-9-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -251,108 +253,73 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fold <span class="sc">==</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>weight_matrix <span class="ot">&lt;-</span> ihw_quantiles<span class="sc">@</span>weights</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>nbins <span class="ot">&lt;-</span> ihw_quantiles<span class="sc">@</span>nbins</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>ihw_quantiles_df <span class="ot">&lt;-</span> ihw_quantiles<span class="sc">@</span>df</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ihw_quantiles_df<span class="sc">$</span>groups_population <span class="ot">&lt;-</span> IHW<span class="sc">::</span><span class="fu">groups_by_filter_multivariate</span>(ihw_quantiles_df <span class="sc">%&gt;%</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(covariate<span class="fl">.1</span>, covariate<span class="fl">.2</span>), </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                                                      nbins, </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                                                      <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>ihw_quantiles_df<span class="sc">$</span>weight_quantile <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_dbl</span>(folds, </span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                                                    ihw_quantiles_df<span class="sc">$</span>groups_population, </span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">function</span>(folds_i, groups_quantile_i){</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                              weight_matrix[groups_quantile_i,folds_i]</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                            })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>covariates <span class="ot">&lt;-</span> ihw_quantiles_df_test <span class="sc">%&gt;%</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(covariate<span class="fl">.1</span>, covariate<span class="fl">.2</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>group_quantile <span class="ot">&lt;-</span> <span class="fu">groups_by_filter_multivariate</span>(covariates,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">nbins =</span> <span class="dv">36</span>, </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(group_quantile <span class="sc">!=</span> ihw_quantiles_df_test<span class="sc">$</span>group)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ihw_quantiles_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>ihw_quantiles_df <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fold <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight_quantile))<span class="sc">+</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ihw_quantiles_df_test, <span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight))<span class="sc">+</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="20230410_plot_smooth_weight_files/figure-html/unnamed-chunk-13-1.svg" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ihw_quantiles_df_test, <span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight))<span class="sc">+</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="20230410_plot_smooth_weight_files/figure-html/unnamed-chunk-14-1.svg" class="img-fluid" width="672"></p>
+<p><img src="20230410b_plot_smooth_weight_files/figure-html/unnamed-chunk-11-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 <section id="tree" class="level2">
 <h2 class="anchored" data-anchor-id="tree">Tree</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ihw_tree <span class="ot">&lt;-</span> <span class="fu">ihw</span>(<span class="at">formula =</span> pvalue <span class="sc">~</span> covariate<span class="fl">.1</span> <span class="sc">+</span> covariate<span class="fl">.2</span>, </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> data_train_test, </span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">alpha =</span> <span class="fl">0.1</span>, </span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">stratification_method =</span> <span class="st">"forest"</span>, </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">folds =</span> folds, </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ntrees =</span> <span class="dv">1</span>, </span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_censor_thres =</span> <span class="dv">1</span>, </span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodedepth =</span> <span class="dv">3</span>, </span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodesize =</span> <span class="dv">1000</span>, </span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">seed =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ihw_tree <span class="ot">&lt;-</span> <span class="fu">ihw</span>(<span class="at">formula =</span> pvalue <span class="sc">~</span> covariate<span class="fl">.1</span> <span class="sc">+</span> covariate<span class="fl">.2</span>, </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> data_train_test, </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">alpha =</span> <span class="fl">0.1</span>, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">stratification_method =</span> <span class="st">"forest"</span>, </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">folds =</span> folds, </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ntrees =</span> <span class="dv">1</span>, </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_censor_thres =</span> <span class="dv">1</span>, </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodedepth =</span> <span class="dv">3</span>, </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodesize =</span> <span class="dv">1000</span>, </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">seed =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>For 110000 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.</code></pre>
+<pre><code>For 110489 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>ihw_tree_df_test <span class="ot">&lt;-</span> ihw_tree<span class="sc">@</span>df <span class="sc">%&gt;%</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fold <span class="sc">==</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ihw_tree_df_test <span class="ot">&lt;-</span> ihw_tree<span class="sc">@</span>df <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fold <span class="sc">==</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ihw_tree_df_test, <span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight))<span class="sc">+</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ihw_tree_df_test, <span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight))<span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="20230410_plot_smooth_weight_files/figure-html/unnamed-chunk-16-1.svg" class="img-fluid" width="672"></p>
+<p><img src="20230410b_plot_smooth_weight_files/figure-html/unnamed-chunk-13-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
 <section id="forest" class="level2">
 <h2 class="anchored" data-anchor-id="forest">Forest</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ihw_forest <span class="ot">&lt;-</span> <span class="fu">ihw</span>(<span class="at">formula =</span> pvalue <span class="sc">~</span> covariate<span class="fl">.1</span> <span class="sc">+</span> covariate<span class="fl">.2</span>, </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> data_train_test, </span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">alpha =</span> <span class="fl">0.1</span>, </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">stratification_method =</span> <span class="st">"forest"</span>, </span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">folds =</span> folds, </span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ntrees =</span> <span class="dv">3</span>, </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_censor_thres =</span> <span class="dv">3</span>, </span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodedepth =</span> <span class="dv">3</span>, </span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodesize =</span> <span class="dv">1000</span>, </span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">seed =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>ihw_forest <span class="ot">&lt;-</span> <span class="fu">ihw</span>(<span class="at">formula =</span> pvalue <span class="sc">~</span> covariate<span class="fl">.1</span> <span class="sc">+</span> covariate<span class="fl">.2</span>, </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> data_train_test, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">alpha =</span> <span class="fl">0.1</span>, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">stratification_method =</span> <span class="st">"forest"</span>, </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">folds =</span> folds, </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ntrees =</span> <span class="dv">3</span>, </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">n_censor_thres =</span> <span class="dv">3</span>, </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodedepth =</span> <span class="dv">3</span>, </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nodesize =</span> <span class="dv">1000</span>, </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">seed =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>For 110000 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.</code></pre>
+<pre><code>For 110489 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ihw_forest_df_test <span class="ot">&lt;-</span> ihw_forest<span class="sc">@</span>df <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fold <span class="sc">==</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ihw_forest_df_test <span class="ot">&lt;-</span> ihw_forest<span class="sc">@</span>df <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(fold <span class="sc">==</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ihw_forest_df_test, <span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight))<span class="sc">+</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ihw_forest_df_test, <span class="fu">aes</span>(<span class="at">x =</span> covariate<span class="fl">.1</span>, <span class="at">y =</span> covariate<span class="fl">.2</span>, <span class="at">color =</span> weight))<span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> <span class="fu">myPalette</span>(<span class="dv">100</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="20230410_plot_smooth_weight_files/figure-html/unnamed-chunk-18-1.svg" class="img-fluid" width="672"></p>
+<p><img src="20230410b_plot_smooth_weight_files/figure-html/unnamed-chunk-15-1.svg" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>

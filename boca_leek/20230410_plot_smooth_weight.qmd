@@ -50,10 +50,10 @@ data_train <- data.frame(
   covariate.2 = runif(m, -1, 1)
 )
 
-data_train <- expand.grid(
-  covariate.1 = seq(-1, 1, length.out = sqrt(m)),
-  covariate.2 = seq(-1, 1, length.out = sqrt(m))
-)
+#data_train <- expand.grid(
+#  covariate.1 = seq(-1, 1, length.out = sqrt(m)),
+#  covariate.2 = seq(-1, 1, length.out = sqrt(m))
+#)
 
 data_train <- data_train %>%
   mutate(
