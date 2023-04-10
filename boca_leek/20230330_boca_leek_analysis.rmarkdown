@@ -2,6 +2,7 @@
 title: "boca_leek_dataset"
 format: html
 editor: visual
+bibliography: references.bib
 ---
 
 ```{r, echo=FALSE, message = FALSE}
@@ -61,6 +62,15 @@ head(BMI_GIANT_GWAS)
 ```{r}
 BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
                    by = c("refsnp_id","chr_name"))
+```
+
+# analyse data set itself
+
+"In these studies, the sample size may not be the same for each SNP, for example, if different individuals are measured with different technologies which measure different SNPs."[@boca2018]
+
+```{r}
+ggplot(BMI_GIANT_GWAS, aes(x = N)) +
+  geom_histogram()
 ```
 
 # Run Multiple Testing
@@ -268,13 +278,45 @@ ggplot(ihw_bh_rej, aes(x = alphas, y = rejections, col = stratification_method))
   color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
   shape = "none"
  ) +
-# scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
  scale_y_log10() +
-  facet_wrap(~number_covariates) +
-  #facet_wrap(vars(number_covariates))+
+  facet_wrap(~number_covariates, labeller = labeller(number_covariates = function(number_covariates_i){
+    ifelse(number_covariates_i == 1,
+           "1 Covariate",
+           paste(number_covariates_i, "Covariates"))
+  }) ) +
   scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
   ylim(0,NA)
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
 
 ```
+
++------------------+-------------------+-------------------------------------------------+
+| Number covariate | variable name     | explination                                     |
++==================+===================+=================================================+
+| 1                | N                 |                                                 |
++------------------+-------------------+-------------------------------------------------+
+| 2                | Freq_MAF_Hapmap   |                                                 |
++------------------+-------------------+-------------------------------------------------+
+| 3                | minor_allele_freq |                                                 |
++------------------+-------------------+-------------------------------------------------+
+| 4                | covariate1        | track: wgEncodeRegMarkH3k27ac                   |
+|                  |                   |                                                 |
+|                  |                   | table: wgEncodeBroadHistoneGm12878H3k27acStdSig |
++------------------+-------------------+-------------------------------------------------+
+| 5                | covariate2        | track: wgEncodeRegMarkH3k4me3                   |
+|                  |                   |                                                 |
+|                  |                   | table: wgEncodeBroadHistoneGm12878H3k4me3StdSig |
++------------------+-------------------+-------------------------------------------------+
+| 6                | covariate3        | track: wgEncodeUwTfbs                           |
+|                  |                   |                                                 |
+|                  |                   | table: wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1 |
++------------------+-------------------+-------------------------------------------------+
+| 7                | covariate4        | track: wgEncodeUwDnase                          |
+|                  |                   |                                                 |
+|                  |                   | table: wgEncodeUwDnaseGm12878HotspotsRep1       |
++------------------+-------------------+-------------------------------------------------+
+| 8                | covariate5        | track: wgEncodeRegMarkH3k4me1                   |
+|                  |                   |                                                 |
+|                  |                   | table: wgEncodeBroadHistoneGm12878H3k4me1StdSig |
++------------------+-------------------+-------------------------------------------------+
