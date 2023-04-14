@@ -99,7 +99,7 @@ formulas_mt <- sapply(formulas_mt, as.formula)
 parameters_run_quantile <- expand.grid(
   formulas = formulas_mt,
   alphas = seq(0.01, 0.1, length.out = 4),
-  lambdas = Inf,
+  #lambdas = Inf,
   stratification_method = "quantiles",
   #parameters for quantile
   nbins_quantile = NA,  #2^8
@@ -113,7 +113,7 @@ parameters_run_quantile <- expand.grid(
 parameters_run_forest <- expand.grid(
   formulas = formulas_mt,
   alphas = seq(0.01, 0.1, length.out = 4),
-  lambdas = Inf,
+  #lambdas = Inf,
   stratification_method = "forest",
   #parameters for quantile
   nbins_quantile = "auto", 
@@ -209,7 +209,7 @@ head(bh_rejections)
           #formula = as.formula("p ~ Freq_MAF_Hapmap + N"),
           data = BMI_GIANT_GWAS,
           alpha = parameters_run$alphas[[i]],
-          lambdas = parameters_run$lambdas[[i]],
+          #lambdas = parameters_run$lambdas[[i]],
           stratification_method = parameters_run$stratification_method[[i]],
           #quantile
           nbins = nbins,
