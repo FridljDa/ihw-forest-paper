@@ -189,7 +189,7 @@ head(bh_rejections)
 
 ### IHW
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 #parameters_run <- parameters_run[c(1,47), ]
 # only rerun, if changes to global variables or code
 #ihw_rej <- xfun::cache_rds(
@@ -238,11 +238,11 @@ head(bh_rejections)
 head(ihw_rej)
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 saveRDS(ihw_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ihw_rej <- readRDS("data/2023-04-05_boca_leek_analysis.RDS")
 ```
 

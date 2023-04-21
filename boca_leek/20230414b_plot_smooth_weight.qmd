@@ -1,0 +1,136 @@
+---
+title: "plot_smooth_weight"
+format: html
+editor: visual
+---
+
+```{r, message = FALSE}
+library("dplyr")
+library("reshape2")
+library("ggplot2")
+library(here)
+library(purrr)
+
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../../IHW")
+#devtools::load_all("../IHWForestPaper")
+
+options(bitmapType ="cairo")
+```
+
+```{r}
+myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))
+```
+
+## generate data
+
+```{r}
+load(here("boca_leek/BMI_GIANT_GWAS.RData"))
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  select(refsnp_id, p, minor_allele_freq, N)
+```
+
+generate testing data to plot on grid
+
+```{r}
+m_test <- 100
+
+data_test <- expand.grid(
+  minor_allele_freq = seq(min(BMI_GIANT_GWAS$minor_allele_freq), max(BMI_GIANT_GWAS$minor_allele_freq), length.out = m_test),
+  N = seq(min(BMI_GIANT_GWAS$N), max(BMI_GIANT_GWAS$N), length.out = m_test))
+
+data_test <- data_test %>%
+  mutate(p = 1)
+```
+
+combine both
+
+
+```{r}
+data_train_test <- plyr::rbind.fill(BMI_GIANT_GWAS, data_test)
+folds <- c(rep(1, nrow(BMI_GIANT_GWAS)), rep(2, nrow(data_test)))
+head(data_train_test)
+```
+
+## Quantile
+
+
+Add groups deterministically for nicer plots
+
+```{r}
+#groups_by_filter_multivariate(covariates_train, covariates_test, nbins)
+ihw_quantiles_df$groups_deterministic <- IHW::groups_by_filter_multivariate(
+  data_train_test %>% select(minor_allele_freq, N), 
+  nbins = ihw_quantiles@nbins, 
+  ties.method = "min")
+
+ihw_quantiles_df$weight_deterministic <- purrr::map2_dbl(folds, 
+                                                    ihw_quantiles_df$groups_deterministic, 
+                            function(folds_i, groups_quantile_i){
+                              ihw_quantiles@weights[groups_quantile_i,folds_i]
+                            })
+```
+
+```{r}
+ihw_quantiles_df %>%
+  filter(fold == 2) %>%
+  ggplot(aes(x = minor_allele_freq, y = N, color = weight_deterministic))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```
+
+```{r}
+ihw_quantiles_df %>%
+  filter(fold == 2) %>%
+  ggplot(aes(x = minor_allele_freq, y = N, color = weight))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```
+
+## Tree
+
+```{r}
+ihw_tree <- ihw(formula = p ~ minor_allele_freq + N, 
+                  data = data_train_test, 
+                  alpha = 0.1, 
+                  stratification_method = "forest", 
+                  folds = folds, 
+                  ntrees = 1, 
+                  n_censor_thres = 1, 
+                  nodedepth = 3, 
+                  nodesize = 1000, 
+                  seed = 1)
+
+ihw_tree_df_test <- ihw_tree@df %>%
+  filter(fold == 2)
+```
+
+```{r}
+ggplot(ihw_tree_df_test, aes(x = minor_allele_freq, y = N, color = weight))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```
+
+## Forest
+
+```{r}
+ihw_forest <- ihw(formula = p ~ minor_allele_freq + N, 
+                  data = data_train_test, 
+                  alpha = 0.1, 
+                  stratification_method = "forest", 
+                  folds = folds, 
+                  ntrees = 3, 
+                  n_censor_thres = 3, 
+                  nodedepth = 3, 
+                  nodesize = 1000, 
+                  seed = 1)
+
+ihw_forest_df_test <- ihw_forest@df %>%
+  filter(fold == 2)
+```
+
+```{r}
+ggplot(ihw_forest_df_test, aes(x = minor_allele_freq, y = N, color = weight))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```

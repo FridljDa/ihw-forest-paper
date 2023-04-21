@@ -126,19 +126,31 @@ ihw_quantiles <- ihw(formula = pvalue ~ covariate.1 + covariate.2,
                   folds = folds, 
                   seed = 1)
 
-ihw_quantiles_df_test <- ihw_quantiles@df %>%
+ihw_quantiles_df <- ihw_quantiles@df
+ihw_quantiles_df_test <- ihw_quantiles_df %>%
   filter(fold == 2)
 ```
 
-```{r}
+```{r, eval = TRUE}
+
 weight_matrix <- ihw_quantiles@weights
 nbins <- ihw_quantiles@nbins
-ihw_quantiles_df <- ihw_quantiles@df
+
 ihw_quantiles_df$groups_population <- IHW::groups_by_filter_multivariate(ihw_quantiles_df %>%
   select(covariate.1, covariate.2), 
                                                       nbins, 
-                                                      seed = 1)
-  
+                                                      
+                  ties.method = "min")
+```
+
+```{r}
+ihw_quantiles_df %>%
+  filter(fold == 2) %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = groups_population))+
+  geom_point() 
+```
+
+```{r}
 ihw_quantiles_df$weight_quantile <- purrr::map2_dbl(folds, 
                                                     ihw_quantiles_df$groups_population, 
                             function(folds_i, groups_quantile_i){
@@ -146,7 +158,17 @@ ihw_quantiles_df$weight_quantile <- purrr::map2_dbl(folds,
                             })
 ```
 
-```{r, eval = FALSE}
+```{r}
+ihw_quantiles_df %>%
+  filter(fold == 2) %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = weight_quantile))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```
+
+```{r, eval = TRUE}
+
+
 covariates <- ihw_quantiles_df_test %>%
   select(covariate.1, covariate.2)
 group_quantile <- groups_by_filter_multivariate(covariates,
@@ -158,6 +180,14 @@ head(ihw_quantiles_df)
 ```
 
 ```{r}
+ihw_quantiles_df %>%
+  filter(fold == 2) %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = weight))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```
+
+```{r, eval = FALSE}
 ihw_quantiles_df %>%
   filter(fold == 2) %>%
   ggplot(aes(x = covariate.1, y = covariate.2, color = weight_quantile))+

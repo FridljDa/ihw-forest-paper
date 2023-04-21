@@ -450,7 +450,7 @@ formulas_mt &lt;- sapply(formulas_mt, as.formula)</code></pre>
 <pre class="r"><code>parameters_run_quantile &lt;- expand.grid(
   formulas = formulas_mt,
   alphas = seq(0.01, 0.1, length.out = 4),
-  lambdas = Inf,
+  #lambdas = Inf,
   stratification_method = &quot;quantiles&quot;,
   #parameters for quantile
   nbins_quantile = NA,  #2^8
@@ -464,7 +464,7 @@ formulas_mt &lt;- sapply(formulas_mt, as.formula)</code></pre>
 parameters_run_forest &lt;- expand.grid(
   formulas = formulas_mt,
   alphas = seq(0.01, 0.1, length.out = 4),
-  lambdas = Inf,
+  #lambdas = Inf,
   stratification_method = &quot;forest&quot;,
   #parameters for quantile
   nbins_quantile = &quot;auto&quot;, 
@@ -504,20 +504,20 @@ parameters_run &lt;- parameters_run %&gt;%
   )
 
 head(parameters_run)</code></pre>
-<pre><code>##       formulas alphas lambdas stratification_method nbins_quantile
-## 1      ~, p, N   0.01     Inf             quantiles              5
-## 2 ~, p, Fr....   0.01     Inf             quantiles             25
-## 3 ~, p, Fr....   0.01     Inf             quantiles            125
-## 4 ~, p, Fr....   0.01     Inf             quantiles            125
-## 5 ~, p, Fr....   0.01     Inf             quantiles            625
-## 6 ~, p, Fr....   0.01     Inf             quantiles           3125
-##   nodedepth_forest n_censor_thres ntrees nodesize number_covariates
-## 1               NA             NA     NA       NA                 1
-## 2               NA             NA     NA       NA                 2
-## 3               NA             NA     NA       NA                 3
-## 4               NA             NA     NA       NA                 3
-## 5               NA             NA     NA       NA                 4
-## 6               NA             NA     NA       NA                 5
+<pre><code>##       formulas alphas stratification_method nbins_quantile nodedepth_forest
+## 1      ~, p, N   0.01             quantiles              5               NA
+## 2 ~, p, Fr....   0.01             quantiles             25               NA
+## 3 ~, p, Fr....   0.01             quantiles            125               NA
+## 4 ~, p, Fr....   0.01             quantiles            125               NA
+## 5 ~, p, Fr....   0.01             quantiles            625               NA
+## 6 ~, p, Fr....   0.01             quantiles           3125               NA
+##   n_censor_thres ntrees nodesize number_covariates
+## 1             NA     NA       NA                 1
+## 2             NA     NA       NA                 2
+## 3             NA     NA       NA                 3
+## 4             NA     NA       NA                 3
+## 5             NA     NA       NA                 4
+## 6             NA     NA       NA                 5
 ##                                                          formula_string
 ## 1                                                                 p ~ N
 ## 2                                               p ~ Freq_MAF_Hapmap + N
@@ -584,7 +584,7 @@ head(bh_rejections)</code></pre>
           #formula = as.formula(&quot;p ~ Freq_MAF_Hapmap + N&quot;),
           data = BMI_GIANT_GWAS,
           alpha = parameters_run$alphas[[i]],
-          lambdas = parameters_run$lambdas[[i]],
+          #lambdas = parameters_run$lambdas[[i]],
           stratification_method = parameters_run$stratification_method[[i]],
           #quantile
           nbins = nbins,
@@ -665,7 +665,7 @@ rm(number_covariates_all, number_covariates_all_rep)</code></pre>
 <tr class="header">
 <th>Number covariate</th>
 <th>variable name</th>
-<th>explination</th>
+<th>explanation</th>
 </tr>
 </thead>
 <tbody>
