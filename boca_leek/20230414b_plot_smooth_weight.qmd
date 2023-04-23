@@ -54,6 +54,15 @@ head(data_train_test)
 
 ## Quantile
 
+```{r}
+ihw_quantiles <- ihw(formula = p ~ minor_allele_freq + N, 
+                  data = data_train_test, 
+                  alpha = 0.1, 
+                  stratification_method = "quantiles", 
+                  seed = 1)
+
+ihw_quantiles_df <- ihw_quantiles@df
+```
 
 Add groups deterministically for nicer plots
 
@@ -69,6 +78,11 @@ ihw_quantiles_df$weight_deterministic <- purrr::map2_dbl(folds,
                             function(folds_i, groups_quantile_i){
                               ihw_quantiles@weights[groups_quantile_i,folds_i]
                             })
+```
+
+```{r}
+ihw_quantiles_df <- ihw_quantiles_df %>%
+  rename(minor_allele_freq = covariate.1, N=covariate.2)
 ```
 
 ```{r}
