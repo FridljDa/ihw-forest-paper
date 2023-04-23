@@ -45,7 +45,6 @@ data_test <- data_test %>%
 
 combine both
 
-
 ```{r}
 data_train_test <- plyr::rbind.fill(BMI_GIANT_GWAS, data_test)
 folds <- c(rep(1, nrow(BMI_GIANT_GWAS)), rep(2, nrow(data_test)))
@@ -54,6 +53,7 @@ head(data_train_test)
 
 ## Quantile
 
+<<<<<<< HEAD
 ```{r}
 ihw_quantiles <- ihw(formula = p ~ minor_allele_freq + N, 
                   data = data_train_test, 
@@ -64,6 +64,8 @@ ihw_quantiles <- ihw(formula = p ~ minor_allele_freq + N,
 ihw_quantiles_df <- ihw_quantiles@df
 ```
 
+=======
+>>>>>>> 3d8cec9e804755a2899183c5f3adaa998b4b25a7
 Add groups deterministically for nicer plots
 
 ```{r}

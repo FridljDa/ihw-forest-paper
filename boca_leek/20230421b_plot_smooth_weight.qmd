@@ -11,9 +11,10 @@ library("ggplot2")
 library(here)
 library(purrr)
 
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-#devtools::load_all("../../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../../IHW")
 #devtools::load_all("../IHWForestPaper")
+#TODO hacky solution
 source(here("IHWForestPaper/R/predict_weight.R"))
 
 options(bitmapType ="cairo")
@@ -41,7 +42,7 @@ data_eval <- expand.grid(
   N = seq(min(BMI_GIANT_GWAS$N), max(BMI_GIANT_GWAS$N), length.out = m_eval))
 
 data_eval <- data_eval %>%
-  mutate(p = 1)
+  mutate(p = runif(m_eval^2))
 ```
 
 combine both
@@ -67,7 +68,8 @@ ihw_quantiles <- ihw(formula = p ~ minor_allele_freq + N,
 ```{r}
 plot_quantile <- plot_weights_quantile_2d(ihw_quantiles)
 plot_quantile +
-  xlab("MAF") 
+  xlab("MAF") +
+  ylab("N")
 ```
 
 ## Tree
@@ -87,11 +89,16 @@ ihw_tree <- ihw(formula = p ~ minor_allele_freq + N,
 ihw_tree_df_eval <- ihw_tree@df %>%
   filter(fold == 2)
 ```
+```{r}
+head(ihw_tree_df_eval)
+```
 
 ```{r}
-ggplot(ihw_tree_df_eval, aes(x = minor_allele_freq, y = N, color = weight))+
+ggplot(ihw_tree_df_eval, aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +
-  scale_colour_gradientn(colours = myPalette(100))
+  scale_colour_gradientn(colours = myPalette(100)) +
+  xlab("MAF") +
+  ylab("N")
 ```
 
 ## Forest
