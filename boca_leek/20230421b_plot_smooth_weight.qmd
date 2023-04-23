@@ -11,8 +11,8 @@ library("ggplot2")
 library(here)
 library(purrr)
 
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../../IHW")
 #devtools::load_all("../IHWForestPaper")
 #TODO hacky solution
 source(here("IHWForestPaper/R/predict_weight.R"))
@@ -82,15 +82,12 @@ ihw_tree <- ihw(formula = p ~ minor_allele_freq + N,
                   folds = folds, 
                   ntrees = 1, 
                   n_censor_thres = 1, 
-                  nodedepth = 3, 
+                  nodedepth = 5, 
                   nodesize = 1000, 
                   seed = 1)
 
 ihw_tree_df_eval <- ihw_tree@df %>%
   filter(fold == 2)
-```
-```{r}
-head(ihw_tree_df_eval)
 ```
 
 ```{r}
@@ -111,7 +108,7 @@ ihw_forest <- ihw(formula = p ~ minor_allele_freq + N,
                   folds = folds, 
                   ntrees = 3, 
                   n_censor_thres = 3, 
-                  nodedepth = 3, 
+                  nodedepth = 5, 
                   nodesize = 1000, 
                   seed = 1)
 
