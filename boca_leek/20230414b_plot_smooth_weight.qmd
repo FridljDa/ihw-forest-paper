@@ -45,7 +45,6 @@ data_test <- data_test %>%
 
 combine both
 
-
 ```{r}
 data_train_test <- plyr::rbind.fill(BMI_GIANT_GWAS, data_test)
 folds <- c(rep(1, nrow(BMI_GIANT_GWAS)), rep(2, nrow(data_test)))
@@ -53,7 +52,6 @@ head(data_train_test)
 ```
 
 ## Quantile
-
 
 Add groups deterministically for nicer plots
 

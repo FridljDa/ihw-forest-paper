@@ -1,0 +1,119 @@
+---
+title: "plot_smooth_weight"
+format: html
+editor: visual
+---
+
+```{r, message = FALSE}
+library("dplyr")
+library("reshape2")
+library("ggplot2")
+library(here)
+library(purrr)
+
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../../IHW")
+#devtools::load_all("../IHWForestPaper")
+source(here("IHWForestPaper/R/predict_weight.R"))
+
+options(bitmapType ="cairo")
+```
+
+```{r}
+myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))
+```
+
+## load data
+
+```{r}
+load(here("boca_leek/BMI_GIANT_GWAS.RData"))
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  select(refsnp_id, p, minor_allele_freq, N)
+```
+
+generate evaling data to plot on grid
+
+```{r}
+m_eval <- 100
+
+data_eval <- expand.grid(
+  minor_allele_freq = seq(min(BMI_GIANT_GWAS$minor_allele_freq), max(BMI_GIANT_GWAS$minor_allele_freq), length.out = m_eval),
+  N = seq(min(BMI_GIANT_GWAS$N), max(BMI_GIANT_GWAS$N), length.out = m_eval))
+
+data_eval <- data_eval %>%
+  mutate(p = 1)
+```
+
+combine both
+
+```{r}
+data_train_eval <- plyr::rbind.fill(BMI_GIANT_GWAS, data_eval)
+folds <- c(rep(1, nrow(BMI_GIANT_GWAS)), rep(2, nrow(data_eval)))
+head(data_train_eval)
+```
+
+## Quantile
+
+Add groups deterministically for nicer plots
+
+```{r}
+ihw_quantiles <- ihw(formula = p ~ minor_allele_freq + N, 
+                  data = BMI_GIANT_GWAS, 
+                  alpha = 0.1, 
+                  stratification_method = "quantiles", 
+                  seed = 1)
+```
+
+```{r}
+plot_quantile <- plot_weights_quantile_2d(ihw_quantiles)
+plot_quantile +
+  xlab("MAF") 
+```
+
+## Tree
+
+```{r}
+ihw_tree <- ihw(formula = p ~ minor_allele_freq + N, 
+                  data = data_train_eval, 
+                  alpha = 0.1, 
+                  stratification_method = "forest", 
+                  folds = folds, 
+                  ntrees = 1, 
+                  n_censor_thres = 1, 
+                  nodedepth = 3, 
+                  nodesize = 1000, 
+                  seed = 1)
+
+ihw_tree_df_eval <- ihw_tree@df %>%
+  filter(fold == 2)
+```
+
+```{r}
+ggplot(ihw_tree_df_eval, aes(x = minor_allele_freq, y = N, color = weight))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```
+
+## Forest
+
+```{r}
+ihw_forest <- ihw(formula = p ~ minor_allele_freq + N, 
+                  data = data_train_eval, 
+                  alpha = 0.1, 
+                  stratification_method = "forest", 
+                  folds = folds, 
+                  ntrees = 3, 
+                  n_censor_thres = 3, 
+                  nodedepth = 3, 
+                  nodesize = 1000, 
+                  seed = 1)
+
+ihw_forest_df_eval <- ihw_forest@df %>%
+  filter(fold == 2)
+```
+
+```{r}
+ggplot(ihw_forest_df_eval, aes(x = minor_allele_freq, y = N, color = weight))+
+  geom_point() +
+  scale_colour_gradientn(colours = myPalette(100))
+```

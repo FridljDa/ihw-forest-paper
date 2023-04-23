@@ -70,8 +70,8 @@ generate testing data to plot on grid
 
 ```{r}
 data_test <- expand.grid(
-  covariate.1 = seq(-1, 1, length.out = m_test),
-  covariate.2 = seq(-1, 1, length.out = m_test)
+  covariate.1 = seq(min(data_train$covariate.1), max(data_train$covariate.1), length.out = m_test),
+  covariate.2 = seq(min(data_train$covariate.2), max(data_train$covariate.2), length.out = m_test)
 )
 
 data_test <- data_test %>% mutate(
@@ -118,19 +118,20 @@ ggplot(data_true, aes(x = covariate.1, y = covariate.2, color = cond_exp))+
 
 ## Quantile
 
-```{r}
-groups_by_filter_multivariate <- function(covariates_train, covariates_test, nbins) {
+```{r, eval = TRUE}
+groups_by_filter_multivariate_eval <- function(covariates_train, covariates_eval, nbins) {
   nvar <- ncol(covariates_train)
   nbin_dim <- max(1, floor(nbins ^ (1 / nvar))) #does not change anything, if nvar = 1
   
   groups <- lapply(seq_len(nvar), function(i) {
-    covariate_train_i <- data_train[, i, drop = TRUE]
-    covariate_test_i <- data_test[, i, drop = TRUE]
+    covariate_train_i <- covariates_train[, i, drop = TRUE]
+    covariates_eval_i <- covariates_eval[, i, drop = TRUE]
     
-    breaks <- quantile(covariate_train_i, probs = seq(0, 1, length.out = nbin_dim), na.rm = TRUE)
-    covariate_test_i_binned <- cut(covariate_test_i, breaks, include.lowest = TRUE)
+    breaks <- quantile(covariate_train_i, probs = seq(0, 1, length.out = nbin_dim+1), na.rm = TRUE)
+    #add interval open to the right
+
+    covariates_eval_i_binned <- cut(covariates_eval_i, breaks, include.lowest = TRUE, right = FALSE)
   })
-  browser()
   
   if(nvar == 1){
     groups <- unname(unlist(groups))
@@ -146,6 +147,42 @@ groups_by_filter_multivariate <- function(covariates_train, covariates_test, nbi
 ```
 
 ```{r}
+plot_weights_quantile_2d <- function(ihw_quantiles, m_test = 100,  fold = 1){
+  ihw_quantiles_df <- ihw_quantiles@df
+  
+  #build grid to evaluate for plotting
+  data_test <- expand.grid(
+    covariate.1 = seq(min(ihw_quantiles_df$covariate.1), max(ihw_quantiles_df$covariate.1), length.out = m_test),
+  covariate.2 = seq(min(ihw_quantiles_df$covariate.2), max(ihw_quantiles_df$covariate.2), length.out = m_test)
+)
+  
+  covariates_train <- ihw_quantiles_df %>% select("covariate.1","covariate.2")
+  
+  data_test$groups <- groups_by_filter_multivariate(
+  covariates_train = covariates_train, 
+  covariates_test = data_test, 
+  nbins = ihw_quantiles@nbins
+)
+  
+  #relevel group labels
+  levels(data_test$groups) <- seq_len(nlevels(data_test$groups))
+  
+  #obtain weights
+  data_test$weight <- sapply(data_test$groups, function(group_i){
+  ihw_quantiles@weights[group_i,fold]
+})
+  
+  #plot everything
+  plot <- data_test %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = weight))+
+  geom_point()  +
+  scale_colour_gradientn(colours = myPalette(100))
+  
+  plot
+}
+```
+
+```{r}
 ihw_quantiles <- ihw(formula = pvalue ~ covariate.1 + covariate.2, 
                   data = data_train, 
                   alpha = 0.1, 
@@ -153,6 +190,12 @@ ihw_quantiles <- ihw(formula = pvalue ~ covariate.1 + covariate.2,
                   seed = 1)
 
 ihw_quantiles_df <- ihw_quantiles@df
+```
+
+plot_weights_quantile_2d(ihw_quantiles)
+
+```{r}
+plot_weights_quantile_2d(ihw_quantiles)
 ```
 
 ```{r}
@@ -163,29 +206,43 @@ data_test$groups <- groups_by_filter_multivariate(
 )
 ```
 
+```{r}
+ihw_quantiles_df %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = group))+
+  geom_point() 
+```
+
+```{r}
+data_test %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = groups))+
+  geom_point() 
+```
+
 Add groups deterministically for nicer plots
 
 ```{r}
-ihw_quantiles_df$weight_deterministic <- purrr::map2_dbl(folds, 
-                                                    ihw_quantiles_df$groups_deterministic, 
-                            function(folds_i, groups_quantile_i){
-                              ihw_quantiles@weights[groups_quantile_i,folds_i]
-                            })
+levels(data_test$groups) <- seq_len(nlevels(data_test$groups))
+```
+
+```{r}
+data_test$groups <- as.numeric(data_test$groups)
+data_test$weight_deterministic <- sapply(data_test$groups, function(group_i){
+  ihw_quantiles@weights[group_i,1]
+} )
 ```
 
 ```{r}
 ihw_quantiles_df %>%
-  filter(fold == 2) %>%
-  ggplot(aes(x = covariate.1, y = covariate.2, color = weight_deterministic))+
+  filter(fold == 1) %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +
   scale_colour_gradientn(colours = myPalette(100))
 ```
 
 ```{r}
-ihw_quantiles_df %>%
-  filter(fold == 2) %>%
-  ggplot(aes(x = covariate.1, y = covariate.2, color = weight))+
-  geom_point() +
+data_test %>%
+  ggplot(aes(x = covariate.1, y = covariate.2, color = weight_deterministic))+
+  geom_point()  +
   scale_colour_gradientn(colours = myPalette(100))
 ```
 

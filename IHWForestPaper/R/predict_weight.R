@@ -140,6 +140,7 @@ get_weight_forest_averaged_full <- function(pvalues,
 }
 
 ###-----quantile----
+#TODO delete
 get_weight_quantile <- function(ihw_quantile, new_data, new_fold, seed = 1){
   weight_matrix <- ihw_quantile@weights
   nbins <- ihw_quantile@nbins
@@ -150,4 +151,64 @@ get_weight_quantile <- function(ihw_quantile, new_data, new_fold, seed = 1){
                               weight_matrix[groups_quantile_i,folds_i]
                             })
   weight
+}
+
+groups_by_filter_multivariate_eval <- function(covariates_train, covariates_eval, nbins) {
+  nvar <- ncol(covariates_train)
+  nbin_dim <- max(1, floor(nbins ^ (1 / nvar))) #does not change anything, if nvar = 1
+  
+  groups <- lapply(seq_len(nvar), function(i) {
+    covariate_train_i <- covariates_train[, i, drop = TRUE]
+    covariates_eval_i <- covariates_eval[, i, drop = TRUE]
+    
+    breaks <- quantile(covariate_train_i, probs = seq(0, 1, length.out = nbin_dim+1), na.rm = TRUE)
+    #add interval open to the right
+    
+    covariates_eval_i_binned <- cut(covariates_eval_i, breaks, include.lowest = TRUE, right = FALSE)
+  })
+  
+  if(nvar == 1){
+    groups <- unname(unlist(groups))
+  }else{
+    groups <- do.call(cbind, groups)
+    groups <- apply(groups, 1, paste, collapse = "-") # base R equivalent of tidyr::unite
+  }
+  # convert to factor
+  groups <- as.factor(groups)
+  
+  groups
+}
+
+plot_weights_quantile_2d <- function(ihw_quantiles, m_eval = 100,  fold = 1){
+  ihw_quantiles_df <- ihw_quantiles@df
+  
+  #build grid to evaluate for plotting
+  data_eval <- expand.grid(
+    covariate.1 = seq(min(ihw_quantiles_df$covariate.1), max(ihw_quantiles_df$covariate.1), length.out = m_eval),
+    covariate.2 = seq(min(ihw_quantiles_df$covariate.2), max(ihw_quantiles_df$covariate.2), length.out = m_eval)
+  )
+  
+  covariates_train <- ihw_quantiles_df %>% select("covariate.1","covariate.2")
+  
+  data_eval$groups <- groups_by_filter_multivariate_eval(
+    covariates_train = covariates_train, 
+    covariates_eval = data_eval, 
+    nbins = ihw_quantiles@nbins
+  )
+  
+  #relevel group labels
+  levels(data_eval$groups) <- seq_len(nlevels(data_eval$groups))
+  
+  #obtain weights
+  data_eval$weight <- sapply(data_eval$groups, function(group_i){
+    ihw_quantiles@weights[group_i,fold]
+  })
+  
+  #plot everything
+  plot <- data_eval %>%
+    ggplot(aes(x = covariate.1, y = covariate.2, color = weight))+
+    geom_point()  +
+    scale_colour_gradientn(colours = myPalette(100))
+  
+  plot
 }
