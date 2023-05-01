@@ -11,8 +11,8 @@ library("ggplot2")
 library(here)
 library(purrr)
 
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-#devtools::load_all("../../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../../IHW")
 #devtools::load_all("../IHWForestPaper")
 #TODO hacky solution
 source(here("IHWForestPaper/R/predict_weight.R"))
@@ -51,6 +51,18 @@ combine both
 data_train_eval <- plyr::rbind.fill(BMI_GIANT_GWAS, data_eval)
 folds <- c(rep(1, nrow(BMI_GIANT_GWAS)), rep(2, nrow(data_eval)))
 head(data_train_eval)
+```
+
+## Basic analysis
+
+```{r}
+hist(BMI_GIANT_GWAS$N)
+```
+
+## Hyperparameters
+
+```{r}
+nbins <- 5
 ```
 
 ## Quantile
@@ -117,7 +129,9 @@ ihw_forest_df_eval <- ihw_forest@df %>%
 ```
 
 ```{r}
-ggplot(ihw_forest_df_eval, aes(x = minor_allele_freq, y = N, color = weight))+
+ggplot(ihw_forest_df_eval, aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +
-  scale_colour_gradientn(colours = myPalette(100))
+  scale_colour_gradientn(colours = myPalette(100)) +
+  xlab("MAF") +
+  ylab("N")
 ```

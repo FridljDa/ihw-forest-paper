@@ -85,10 +85,10 @@ formulas_mt <- c(
   "Freq_MAF_Hapmap + N +minor_allele_freq",
   "Freq_MAF_Hapmap + N +minor_allele_freq",
    "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4",
-  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4+covariate5"
+  "Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2"#,
+  #"Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3",
+  #"Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4",
+  #"Freq_MAF_Hapmap + N +minor_allele_freq+covariate1+covariate2+covariate3+covariate4+covariate5"
 )
 
 formulas_mt <- paste0("p ~ ", formulas_mt)
@@ -98,7 +98,7 @@ formulas_mt <- sapply(formulas_mt, as.formula)
 ```{r}
 parameters_run_quantile <- expand.grid(
   formulas = formulas_mt,
-  alphas = seq(0.01, 0.1, length.out = 4),
+  alphas = seq(0.01, 0.1, length.out = 3),
   #lambdas = Inf,
   stratification_method = "quantiles",
   #parameters for quantile
@@ -243,7 +243,7 @@ saveRDS(ihw_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
 ```{r, eval = FALSE}
-ihw_rej <- readRDS("data/2023-04-05_boca_leek_analysis.RDS")
+ihw_rej <- readRDS("data/2023-04-23_boca_leek_analysis.RDS")
 ```
 
 ## plot
