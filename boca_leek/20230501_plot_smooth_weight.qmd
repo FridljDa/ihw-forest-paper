@@ -32,7 +32,7 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
   select(refsnp_id, p, minor_allele_freq, N)
 ```
 
-generate evaling data to plot on grid
+generate evaluating data to plot on grid
 
 ```{r}
 m_eval <- 100
