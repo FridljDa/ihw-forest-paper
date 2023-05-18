@@ -21,7 +21,7 @@ options(bitmapType ="cairo")
 ```
 
 ```{r}
-myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))
+myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))#ylorrd
 ```
 
 ## load data
@@ -56,6 +56,18 @@ head(data_train_eval)
 ## Basic analysis
 
 ```{r}
+my_vector <- c(3, 7, 1, 5, 9)
+ranks <- rank(my_vector)
+quantiles <- ranks / length(my_vector)
+scaled_quantiles <- scale(quantiles)
+
+```
+
+```{r}
+quantiles
+```
+
+```{r}
 hist(BMI_GIANT_GWAS$N)
 ```
 
@@ -82,8 +94,35 @@ plot_quantile <- plot_weights_quantile_2d(ihw_quantiles)
 plot_quantile +
   xlab("MAF") +
   ylab("N") +
-  scale_y_continuous(trans='log2') #+
-  #scale_x_continuous(trans='log2')
+  scale_y_continuous(trans='log2', breaks= scales::pretty_breaks())
+```
+
+```{r}
+plot_quantile_data2 <- ggplot_build(plot_quantile)$data[[1]]
+
+my_plot_transformed <- ggplot()+
+  geom_point(data = transformed_data, aes(x = x, y = y))
+```
+
+```{r}
+# Extract y-axis values from the plot
+plot_data <- ggplot_build(my_plot)$data[[1]]
+y_values <- plot_data$y
+
+# Calculate ranks and quantiles
+ranks <- rank(y_values)
+quantiles <- ranks / length(y_values)
+
+# Create a new data frame with transformed values
+transformed_data <- data.frame(x = plot_data$x, y = quantiles)
+
+# Plot the transformed data
+my_plot_transformed <- ggplot()+
+  geom_point(data = transformed_data, aes(x = x, y = y))
+
+# Display the transformed plot
+my_plot_transformed
+
 ```
 
 ## Tree
@@ -107,11 +146,10 @@ ihw_tree_df_eval <- ihw_tree@df %>%
 ```{r}
 ggplot(ihw_tree_df_eval, aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +
-  scale_colour_gradientn(colours = myPalette(100)) +
+  #scale_colour_gradientn(colours = myPalette(100)) +
   xlab("MAF") +
   ylab("N") +
-  scale_y_continuous(trans='log2') +
-  scale_x_continuous(trans='log2')
+  scale_y_continuous(trans='log2', breaks= scales::pretty_breaks())
 ```
 
 ## Forest
@@ -135,7 +173,8 @@ ihw_forest_df_eval <- ihw_forest@df %>%
 ```{r}
 ggplot(ihw_forest_df_eval, aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +
-  scale_colour_gradientn(colours = myPalette(100)) +
+  #scale_colour_gradientn(colours = myPalette(100)) +
   xlab("MAF") +
-  ylab("N")
+  ylab("N") +
+  scale_y_continuous(trans='log2', breaks= scales::pretty_breaks())
 ```
