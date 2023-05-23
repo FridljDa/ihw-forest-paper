@@ -24,7 +24,9 @@ options(bitmapType ="cairo")
 #myPalette <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, "Spectral")))#ylorrd
 ```
 
+
 ## load data
+
 
 ```{r}
 load(here("boca_leek/BMI_GIANT_GWAS.RData"))
@@ -38,7 +40,9 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
          minor_allele_freq_rank = rank(minor_allele_freq, ties.method = "first")/n())
 ```
 
+
 generate evaluating data to plot on grid
+
 
 ```{r}
 m_eval <- 100
@@ -51,7 +55,9 @@ data_eval <- data_eval %>%
   mutate(p = runif(m_eval^2))
 ```
 
+
 combine both
+
 
 ```{r}
 data_train_eval <- plyr::rbind.fill(BMI_GIANT_GWAS, data_eval)
@@ -66,7 +72,9 @@ data_train_eval <- data_train_eval %>%
          minor_allele_freq_rank = rank(minor_allele_freq, ties.method = "first")/n())
 ```
 
+
 ## Basic analysis
+
 
 ```{r}
 hist(BMI_GIANT_GWAS$N, breaks = 200)
@@ -78,15 +86,19 @@ table_frequency <- sort(table_frequency, decreasing = TRUE)
 table_frequency
 ```
 
+
 ## Hyperparameters
+
 
 ```{r}
 nbins <- 5
 ```
 
+
 ## Quantile
 
 Add groups deterministically for nicer plots
+
 
 ```{r}
 ihw_quantiles <- ihw(formula = p ~ minor_allele_freq_rank + N_rank, 
@@ -102,7 +114,9 @@ plot_weights_quantile_2d(ihw_quantiles) +
   ylab("N rank")
 ```
 
+
 ## Tree
+
 
 ```{r}
 ihw_tree <- ihw(formula = p ~ minor_allele_freq_rank + N_rank, 
@@ -132,7 +146,9 @@ ggplot(ihw_tree_df_eval, aes(x = covariate.1, y = covariate.2, color = weight))+
   ylab("N rank")
 ```
 
+
 ## Forest
+
 
 ```{r}
 ihw_forest <- ihw(formula = p ~ minor_allele_freq_rank + N_rank,
@@ -161,3 +177,4 @@ ggplot(ihw_forest_df_eval, aes(x = covariate.1, y = covariate.2, color = weight)
   xlab("MAF rank") +
   ylab("N rank")
 ```
+
