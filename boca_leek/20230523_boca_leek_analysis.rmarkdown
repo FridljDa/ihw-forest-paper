@@ -13,18 +13,14 @@ library(magrittr)
 
 set.seed(4)
 options(bitmapType ="cairo")
-
-library(doSNOW)
-cl <- makeCluster(4, outfile="") # number of cores. Notice 'outfile'
-registerDoSNOW(cl)
-# library(multicore); library(doMC) # alternative to parallel/doParallel
-# library(Rmpi); library(doMPI) # to use Rmpi as the back-end
-library(foreach)
-library(iterators)
 ```
 
 ```{r}
 library(doRNG)
+library(doParallel)
+library(parallel)
+
+registerDoParallel(cores=3)
 ```
 
 ```{r}
@@ -45,13 +41,15 @@ error_handler <- function(x) { # TODO
   x
 }
 
-rejections_na <- function(ihw) { # TODO
-  if (is.na(ihw)) {
-    return(NA)
-  } else {
+
+rejections_na <- function(ihw) { 
+  if (isS4(ihw)) {
     rejections(ihw)
+  } else {
+    return(NA)
   }
 }
+
 ```
 
 ```{r}
@@ -205,47 +203,80 @@ parameters_run_copy <- parameters_run
 
 ### IHW
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 parameters_run <- parameters_run_copy[1:3, ]
 parameters_run
 ```
 
 ```{r}
-ihw_rej <- purrr::map_dfr(seq_len(nrow(parameters_run)), function(i){
-  print(paste0("run:", i))
-      #cat("run:", i)
-      
+# Set the timeout duration in seconds
+timeout <- 60
+```
+
+```{r}
+ihw_rej <- foreach(i = seq_len(nrow(parameters_run)), 
+                   .combine = rbind) %dopar% {
+  cat('Starting ', i, 'th job.\n', sep = '')
+    
       nbins_i = parameters_run$nbins_quantile[[i]]
       if(nbins_i != "auto") nbins_i <- as.numeric(nbins_i)
       lambda_i = parameters_run$lambdas[[i]]
       if(lambda_i == "Inf") lambda_i <- Inf
+      
+     # Define the function call parameters
+formula <- parameters_run$formulas[[i]]
+data <- BMI_GIANT_GWAS
+alpha <- parameters_run$alphas[[i]]
+lambdas <- lambda_i
+stratification_method <- parameters_run$stratification_method[[i]]
+nbins <- nbins_i
+n_censor_thres <- parameters_run$n_censor_thres[[i]]
+ntrees <- parameters_run$ntrees[[i]]
+nodedepth <- parameters_run$nodedepth[[i]]
+nodesize <- parameters_run$nodesize[[i]]
 
-      ihw_i <- error_handler(try(
+# Define the tryCatch block
+ihw_i <- tryCatch(
+  {
+    withTimeout(
+      {
         ihw(
-          formula = parameters_run$formulas[[i]],
-          #formula = as.formula("p ~ Freq_MAF_Hapmap + N"),
-          data = BMI_GIANT_GWAS,
-          alpha = parameters_run$alphas[[i]],
-          lambdas = lambda_i,
-          stratification_method = parameters_run$stratification_method[[i]],
-          #quantile
-          nbins = nbins_i,
-          #forest
-          n_censor_thres = parameters_run$n_censor_thres[[i]],
-          ntrees = parameters_run$ntrees[[i]],
-          nodedepth = parameters_run$nodedepth[[i]],
-          nodesize = parameters_run$nodesize[[i]]
+          formula = formula,
+          data = data,
+          alpha = alpha,
+          lambdas = lambdas,
+          stratification_method = stratification_method,
+          nbins = nbins,
+          n_censor_thres = n_censor_thres,
+          ntrees = ntrees,
+          nodedepth = nodedepth,
+          nodesize = nodesize
         )
-      ))
-      #TODO
+      },
+      timeout = timeout
+    )
+  },
+  error = function(e) {
+    NULL
+  }
+)
+
       #effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
       
       res_i <- parameters_run[i, ]
       res_i <- res_i %>%
-        mutate(rejections = rejections_na(ihw_i)#,
+        mutate(
+          #rejections = rejections(ihw_i)
+          rejections = rejections_na(ihw_i)#,
        # nbins_covariates = effective_nbins
         )
-})
+      
+  cat('Finishing ', i, 'th job.\n', sep = '')
+  res_i # this will become part of the out object
+}
+
+head(ihw_rej)
+
 ```
 
 ```{r, eval = TRUE}

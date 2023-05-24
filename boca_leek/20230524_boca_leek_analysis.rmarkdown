@@ -210,6 +210,64 @@ parameters_run <- parameters_run_copy[1:3, ]
 parameters_run
 ```
 
+```{r, eval = FALSE}
+library(doRNG)
+library(doParallel)
+library(parallel)
+
+registerDoParallel(cores=3)
+
+# registerDoMC(nCores) # alternative to registerDoParallel
+# cl <- startMPIcluster(nCores); registerDoMPI(cl) # when using Rmpi as the back-end
+
+ihw_rej <- foreach(i = seq_len(nrow(parameters_run)), 
+                   .combine = rbind,
+                   .packages = c('magrittr','dplyr','IHW')) %dopar% {
+  cat('Starting ', i, 'th job.\n', sep = '')
+    
+      nbins_i = parameters_run$nbins_quantile[[i]]
+      if(nbins_i != "auto") nbins_i <- as.numeric(nbins_i)
+      lambda_i = parameters_run$lambdas[[i]]
+      if(lambda_i == "Inf") lambda_i <- Inf
+
+      ihw_i <- error_handler(try(
+        ihw(
+          formula = parameters_run$formulas[[i]],
+          #formula = as.formula("p ~ Freq_MAF_Hapmap + N"),
+          data = BMI_GIANT_GWAS,
+          alpha = parameters_run$alphas[[i]],
+          lambdas = lambda_i,
+          stratification_method = parameters_run$stratification_method[[i]],
+          #quantile
+          nbins = nbins_i,
+          #forest
+          n_censor_thres = parameters_run$n_censor_thres[[i]],
+          ntrees = parameters_run$ntrees[[i]],
+          nodedepth = parameters_run$nodedepth[[i]],
+          nodesize = parameters_run$nodesize[[i]]
+        )
+      ))
+      #TODO
+      #effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
+      
+      res_i <- parameters_run[i, ]
+      res_i <- res_i %>%
+        mutate(
+          rejections = rejections(ihw_i)
+          #rejections = rejections_na(ihw_i)#,
+       # nbins_covariates = effective_nbins
+        )
+      
+  cat('Finishing ', i, 'th job.\n', sep = '')
+  res_i # this will become part of the out object
+}
+
+# We have to explicitly stop a doSNOW() cluster, otherwise the cluster will waste cpu.
+#stopCluster(cl) 
+
+head(ihw_rej)
+```
+
 ```{r}
 ihw_rej <- purrr::map_dfr(seq_len(nrow(parameters_run)), function(i){
   print(paste0("run:", i))
@@ -246,6 +304,56 @@ ihw_rej <- purrr::map_dfr(seq_len(nrow(parameters_run)), function(i){
        # nbins_covariates = effective_nbins
         )
 })
+```
+
+```{r, eval = FALSE}
+# only rerun, if changes to global variables or code
+#ihw_rej <- xfun::cache_rds(
+#  {
+    # run for all alpha-formula combinations (in parallel)
+    ihw_rej <- foreach(i = seq_len(nrow(parameters_run))) %dorng% {
+
+      print(paste0("run:", i))
+      #cat("run:", i)
+      
+      nbins_i = parameters_run$nbins_quantile[[i]]
+      if(nbins_i != "auto") nbins_i <- as.numeric(nbins_i)
+      lambda_i = parameters_run$lambdas[[i]]
+      if(lambda_i == "Inf") lambda_i <- Inf
+
+      ihw_i <- error_handler(try(
+        ihw(
+          formula = parameters_run$formulas[[i]],
+          #formula = as.formula("p ~ Freq_MAF_Hapmap + N"),
+          data = BMI_GIANT_GWAS,
+          alpha = parameters_run$alphas[[i]],
+          lambdas = lambda_i,
+          stratification_method = parameters_run$stratification_method[[i]],
+          #quantile
+          nbins = nbins_i,
+          #forest
+          n_censor_thres = parameters_run$n_censor_thres[[i]],
+          ntrees = parameters_run$ntrees[[i]],
+          nodedepth = parameters_run$nodedepth[[i]],
+          nodesize = parameters_run$nodesize[[i]]
+        )
+      ))
+      #TODO
+      #effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
+      
+      res_i <- parameters_run[i, ]
+      res_i <- res_i %>%
+        mutate(rejections = rejections_na(ihw_i)#,
+       # nbins_covariates = effective_nbins
+        )
+      
+    }
+    ihw_rej <- bind_rows(ihw_rej)
+ # },
+#  file = "locke_ihw_rej.rds",
+ # hash = list(parameters_run)
+#)
+head(ihw_rej)
 ```
 
 ```{r, eval = TRUE}
