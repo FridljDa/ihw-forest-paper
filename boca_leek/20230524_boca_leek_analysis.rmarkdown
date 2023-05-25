@@ -65,7 +65,7 @@ test <- BMI_GIANT_GWAS %>%
 head(BMI_GIANT_GWAS)
 ```
 
-```{r}
+```{r, eval=FALSE}
 BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(100000)
 ```
 
