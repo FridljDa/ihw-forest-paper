@@ -1,0 +1,66 @@
+#' Wrapper of AdaPT multiple testing procedure
+#'
+#' @param Ps       Numeric vector of p-values
+#' @param Xs       Data frame with features
+#' @param formula_rhs Formula defining the RHS in the fitted GLMs, defaults to ~X1+X2 (used in simulations herein).
+#'
+#' @param alpha    Nominal testing level
+#' @param return_fit  Boolean, whether to return the fitted adapt object (or only the indicator of rejections), defaults to false
+#' @return Binary vector of rejected/non-rejected hypotheses.
+#'
+#' @references AdaptMT CRAN package
+#' @export
+adapt_mtp <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", return_fit=FALSE){
+  adapt_glm_fit <- adaptMT::adapt_glm(as.data.frame(Xs), Ps, formula_rhs, formula_rhs, alphas=alpha)
+  adapt_glm_rjs <- adapt_glm_fit$qvals <= alpha
+  if (return_fit){
+    return(list(rjs=adapt_glm_rjs, fit=adapt_glm_fit))
+  } else {
+    return(adapt_glm_rjs)
+  }
+}
+
+
+# install.packages("devtools")
+# devtools::install_github("ryurko/adaptMT")
+## adaptMT::adapt_xgboost,
+# adaptMT::adapt_xgboost_cv
+
+# https://github.com/ryurko/AdaPT-GWAS-manuscript-code/blob/master/R/bmi/create_gtex_adapt_results.R#L68
+
+
+#' Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
+#'
+#' @param Ps   Numeric vector of unadjusted p-values.
+#' @param Xs   Vector or matrix of covariates
+#' @param alpha    Significance level at which to apply method
+#'
+#' Xs <- runif(20000, min=0, max=2.5) # covariate
+#' Hs <- rbinom(20000,1,0.1) # hypothesis true or false
+#' Zs <- rnorm(20000, Xs*Hs) # Z-score
+#' Ps <- 1-pnorm(Zs) # pvalue
+#' adapt_xgboost_cv_wrapper(Ps, Xs)
+#'
+#' @return         Binary vector of rejected/non-rejected hypotheses.
+#'
+adapt_xgboost_cv_wrapper <- function(Ps, Xs, alpha = 0.1,
+                                     args_search = list("nrounds100md2" = list(
+                                       "nrounds" = 15,
+                                       "max_depth" = 3,
+                                       # "min_child_weight" = 1,
+                                       "verbose" = 0,
+                                       "nthread" = 2
+                                     ))) {
+  res <- adaptMT::adapt_xgboost_cv(
+    as.matrix(Xs),
+    Ps,
+    piargs = args_search,
+    muargs = args_search,
+    alphas = alphas
+  )
+  
+  rejections <- rep(0, 20000)
+  
+  rejections[c(res$rejs)] <- 1
+  rejections
+}

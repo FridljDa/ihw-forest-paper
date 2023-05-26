@@ -1,19 +1,16 @@
 Package: IHWForestPaper
 Type: Package
 Title: Code to reproduce results
-Version: 0.1.0
+Version: 0.2.0
 Author: Daniel Fridljand
-Maintainer: Daniel Fridljand 
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Maintainer: Daniel Fridljand <daniel.fridljand@gmail.com>
+Description: Functions to reproduce results from paper.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports:
-    dplyr,
-    IHWStatsPaper,
-    IHW,
-    dplyr,
-    doRNG,
-    doParallel
+Imports: dplyr,
+        IHW,
+        dplyr,
+        doRNG,
+        doParallel
 RoxygenNote: 7.2.1

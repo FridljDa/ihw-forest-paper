@@ -5,7 +5,6 @@ error_fdp_table <- function(x) {
   x
 }
 
-library(IHWStatsPaper) #TODO
 
 #' Apply multiple testing methods to the simulation with the continuous covariate.
 #
@@ -16,7 +15,6 @@ library(IHWStatsPaper) #TODO
 #' @param forest_par TODO
 #' @param null_proportion TODO
 #'
-#' @import IHWStatsPaper 
 #' @import dplyr 
 #' @return Data frame with FDP and Power of different methods on this simulation.
 #' @export
