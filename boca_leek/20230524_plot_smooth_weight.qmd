@@ -11,8 +11,8 @@ library("ggplot2")
 library(here)
 library(purrr)
 
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../../IHW")
 #devtools::load_all("../IHWForestPaper")
 
 options(bitmapType ="cairo")

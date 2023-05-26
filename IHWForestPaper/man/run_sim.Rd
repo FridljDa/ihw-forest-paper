@@ -12,7 +12,8 @@ run_sim(
   alpha = 0.1,
   m = 10000,
   lfdr_only = FALSE,
-  forest_par
+  forest_par,
+  null_proportion = T
 )
 }
 \arguments{
@@ -23,6 +24,10 @@ run_sim(
 \item{m}{Number of hypotheses (default: m=10000)}
 
 \item{lfdr_only}{Bool (default:FALSE), whether to run all methods (if FALSE) or only lfdr based methods (if TRUE)}
+
+\item{forest_par}{TODO}
+
+\item{null_proportion}{TODO}
 }
 \value{
 Data frame with FDP and Power of different methods on this simulation.

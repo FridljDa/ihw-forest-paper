@@ -23,49 +23,52 @@ ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T) {
   IHW::rejected_hypotheses(ihw_forest)
 }
 
-# install.packages("devtools")
-# devtools::install_github("ryurko/adaptMT")
-## adaptMT::adapt_xgboost,
-# adaptMT::adapt_xgboost_cv
-
-# https://github.com/ryurko/AdaPT-GWAS-manuscript-code/blob/master/R/bmi/create_gtex_adapt_results.R#L68
-
-
-
-#' Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
+#' Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
 #'
-#' @param Ps   Numeric vector of unadjusted p-values.
-#' @param Xs   Vector or matrix of covariates
-#' @param alpha    Significance level at which to apply method
+#' @param Ps     Numeric vector of unadjusted p-values.
+#' @param Xs     Data frame with features
+#' @param alpha  Significance level at which to apply method
+#' @param formula_rhs Formula defining the RHS in the fitted GLMs, defaults to ~X1+X2 (used in simulations herein).
+#' @param maxiter  Total number of iterations to run the EM algorithm
 #'
-#' @example
-#' Xs <- runif(20000, min=0, max=2.5) # covariate
-#' Hs <- rbinom(20000,1,0.1) # hypothesis true or false
-#' Zs <- rnorm(20000, Xs*Hs) # Z-score
-#' Ps <- 1-pnorm(Zs) # pvalue
-#' adapt_xgboost_cv_wrapper(Ps, Xs)
-#'
-#' @return         Binary vector of rejected/non-rejected hypotheses.
-#'
+#' @return Binary vector of rejected/non-rejected hypotheses.
 #' @export
-adapt_xgboost_cv_wrapper <- function(Ps, Xs, alpha = 0.1,
-                                     args_search = list("nrounds100md2" = list(
-                                       "nrounds" = 15,
-                                       "max_depth" = 3,
-                                       # "min_child_weight" = 1,
-                                       "verbose" = 0,
-                                       "nthread" = 2
-                                     ))) {
-  res <- adaptMT::adapt_xgboost_cv(
-    as.matrix(Xs),
-    Ps,
-    piargs = args_search,
-    muargs = args_search,
-    alphas = alphas
-  )
+betamix_datadriven_lfdr <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", maxiter=200,...){
+  gamma_glm_fit  <- gamma_glm_basic_em(Ps, Xs, formula_rhs=formula_rhs, maxiter = maxiter, tau_pi0=0.5,...)
+  betamix_oracle_lfdr(Ps, gamma_glm_fit$pi1s, gamma_glm_fit$alphas, alpha)
+}
 
-  rejections <- rep(0, 20000)
-
-  rejections[c(res$rejs)] <- 1
-  rejections
+#' Simulation: Misspecified conditional Beta-uniform mixture model
+#
+#' @param m Number of hypotheses (default: m=10000)
+#' @param mus_slope Numeric (default:1.5) parameter bar(beta) in equation (12)
+#' @param one_sided_tests Bool (default:FALSE), if true adds some nulls that are strictly superuniform
+#' @param prob_one_sided Numeric (default:0.25) proportion of nulls that are strictly superuniform
+#'
+#' @return Data frame with columns `Hs` (null or alternative), `Ps` (p-value), `Xs` (side-information),
+#'         `alphas` (parameters of alternative distribution), `pi1s` (probabilities of being from the alternative distribution),
+#'         `oracle_lfdr` (oracle local fdr)
+#' @export
+beta_unif_sim <- function(m=10000, mus_slope=1.5, one_sided_tests=FALSE, prob_one_sided=0.25){
+  Xs <- matrix(runif(m*2, 0,1), ncol=2)
+  colnames(Xs) <- c("X1", "X2")
+  
+  pi1s <- ifelse( Xs[,1]^2 + Xs[,2]^2 <= 1, 0.02, 0.4)
+  mus <- pmax(1.3, sqrt(Xs) %*% c(1,1)*mus_slope)
+  
+  mu_alphas <- 1/mus
+  
+  Hs <- stats::rbinom(m, size=1, prob=pi1s)
+  Ps <- stats::runif(m)*(1-Hs) + stats::rbeta(m, mu_alphas, 1)*Hs
+  Xs <- data.frame(Xs)
+  if (one_sided_tests){
+    Hs_alt <-  1- (1-Hs)*stats::rbinom(m, size=1, prob=prob_one_sided)
+    Ps[Hs_alt == 0] <- stats::rbeta(sum(Hs_alt == 0), 1, 0.5)
+    oracle_lfdr_null <- (1-pi1s)*( 1-prob_one_sided + prob_one_sided*stats::dbeta(Ps, 1, 0.5) )
+  } else{
+    oracle_lfdr_null <- 1-pi1s
+  }
+  oracle_lfdr_alternative <- pi1s*dbeta(Ps, mu_alphas, 1)
+  oracle_lfdr <- oracle_lfdr_null/(oracle_lfdr_null+oracle_lfdr_alternative)
+  list(Xs=Xs, Ps=Ps, Hs=Hs, alphas=mu_alphas, pi1s=pi1s, oracle_lfdrs=oracle_lfdr)
 }

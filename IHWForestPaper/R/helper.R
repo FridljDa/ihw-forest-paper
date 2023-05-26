@@ -5,7 +5,20 @@ error_fdp_table <- function(x) {
   x
 }
 
-library(IHWStatsPaper) #TODO
+#' Evaluate multiple testing procedure
+#
+#' @param Hs Vector with indicators of alternatives (1) and true nulls (0)
+#' @param rjs Vector with indicator of rejected hypotheses
+#' @return Data frame with columns `rjs` (total rejections), `pow` (Power), `FDP` (False discovery proportion)
+#' @export
+fdp_eval <- function(Hs, rjs){
+  rjs_total <- sum(rjs)
+  pow <- sum(rjs*Hs)/max(1,sum(Hs))
+  FDP <- sum(rjs*(1-Hs))/max(1,rjs_total)
+  FWER <- sum( (1-Hs)*rjs) > 0
+  data.frame(rjs=rjs_total, pow=pow, FDP=FDP, FWER=FWER)
+}
+
 
 #' Apply multiple testing methods to the simulation with the continuous covariate.
 #
@@ -16,7 +29,6 @@ library(IHWStatsPaper) #TODO
 #' @param forest_par TODO
 #' @param null_proportion TODO
 #'
-#' @import IHWStatsPaper 
 #' @import dplyr 
 #' @return Data frame with FDP and Power of different methods on this simulation.
 #' @export
@@ -30,7 +42,7 @@ run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, fores
   sim_res <-  bind_rows(mutate(ihw_quantile_res, method="IHW-quantile"),
                         mutate(ihw_forest_res, method="IHW-forest"),
                         mutate(bh_res, method="BH"))
-
+  
   if (!lfdr_only){
     adapt_res <-  error_fdp_table(try(fdp_eval(Hs, adapt_mtp(Ps, Xs, alpha, formula_rhs = "~."))))
     adapt_xgboost_res <- error_fdp_table(try(fdp_eval(Hs, adapt_xgboost_cv_wrapper(Ps, Xs, alpha))))

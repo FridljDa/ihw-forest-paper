@@ -8,10 +8,8 @@ All numerical results and figures in the aforementioned paper are made third-par
 
 We note that the Bioconductor package IHW provides a user-friendly implementation of the IHW-Forest from version TODO.
 
-This repository depends on `IHWStatsPaper`, a R package wrapping/implementing the different methods compared, the simulation functions, as well as the benchmarking code. It can be installed as follows. It further depends on the forest version of IHW.
+It further depends on the forest version of IHW.
 ```r
-devtools::install_github("Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing",
-                         subdir="IHWStatsPaper")
 devtools::install_github("FridljDa/IHW", ref = "forest")                         
 ```
 
