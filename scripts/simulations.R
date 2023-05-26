@@ -12,6 +12,7 @@ library(dplyr)
 
 # devtools::load_all("/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHW")
 # library("IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all("IHWForestPaper")
 
 ## ---parameters----
@@ -24,8 +25,8 @@ alpha <- .1
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 forest_par <- list(
-  ntrees = 3,
-  n_censor_thres = 10,
+  ntrees = 1,
+  n_censor_thres = 1,
   nodedepth = 3,
   nodesize = 1000
 )
@@ -40,9 +41,9 @@ forest_par <- list(
 
 eval_noise_sim <- eval_noise_sim(m,
   r,
-  dimensions = seq(from = 1, to = 5, by = 1),
+  dimensions = seq(from = 2, to = 3, by = 1),
   forest_par,
-  lfdr_only = FALSE,
+  lfdr_only = TRUE,
   null_proportion = TRUE
 )
 saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
