@@ -15,8 +15,8 @@ library(dplyr)
 devtools::load_all("IHWForestPaper")
 
 ## ---parameters----
-m <- 1e4 # TODO more
-r <- 100
+m <- 1e5 # TODO more
+r <- 3
 # number of monte carlo replicates, increases run time immensely!
 
 alpha <- .1
