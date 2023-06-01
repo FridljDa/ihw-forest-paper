@@ -12,9 +12,9 @@ library(dplyr)
 
 # devtools::load_all("/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHW")
 # library("IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all("IHWForestPaper")
-
+devtools::load_all("../IHW")
 ## ---parameters----
 m <- 1e5 # TODO more
 r <- 3

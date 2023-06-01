@@ -206,7 +206,7 @@ parameters_run_copy <- parameters_run
 
 ### IHW
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(10000)
 parameters_run <- parameters_run_copy %>%
   filter(number_covariates == 5)
@@ -214,17 +214,15 @@ parameters_run
 ```
 
 ```{r}
-
-```
-
-```{r}
 # Set the timeout duration in seconds
-timeout <- 500
+timeout <- 50
 ```
 
 ```{r}
-ihw_rej <- foreach(i = seq_len(nrow(parameters_run)), 
-                   .combine = rbind) %dopar% {
+ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
+                   , .combine = rbind
+                   ) %dopar% {
+#for(i in seq_len(nrow(parameters_run))){
   cat('Starting ', i, 'th job.\n', sep = '')
     
       nbins = parameters_run$nbins_quantile[[i]]
@@ -267,19 +265,19 @@ ihw_i <- tryCatch(
     NULL
   }
 )
-      if(stratification_method == "quantiles"){
-        effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
-      }else{
-        effective_nbins <- NULL
-      }
+      #if(stratification_method == "quantiles"){
+      #  effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
+      #}else{
+      #  effective_nbins <- NULL
+      #}
       
       
       res_i <- parameters_run[i, ]
       res_i <- res_i %>%
         mutate(
+        #nbins_covariates = effective_nbins,
           #rejections = rejections(ihw_i)
-          rejections = rejections_na(ihw_i),
-        nbins_covariates = effective_nbins
+          rejections = rejections_na(ihw_i)
         )
       
   cat('Finishing ', i, 'th job.\n', sep = '')
@@ -287,7 +285,6 @@ ihw_i <- tryCatch(
 }
 
 head(ihw_rej)
-
 ```
 
 ```{r, eval = TRUE}
