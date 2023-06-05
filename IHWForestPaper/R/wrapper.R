@@ -1,5 +1,13 @@
-ihw_quantile_wrapper <- function(Ps, Xs, alpha, null_proportion = T) {
-  ihw_quantile <- IHW::ihw(Ps, Xs, alpha, stratification_method = "quantiles", null_proportion = null_proportion)
+ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_proportion = T) {
+  number_covariates <- ncol(Xs)
+  
+  ihw_quantile <- IHW::ihw(Ps, 
+                           Xs, 
+                           alpha, 
+                           nbins = per_covariate_bins^number_covariates,
+                           stratification_method = "quantiles", 
+                           null_proportion = null_proportion)
+  
   IHW::rejected_hypotheses(ihw_quantile)
 }
 
@@ -14,11 +22,19 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha, null_proportion = T) {
 #' @return         Binary vector of rejected/non-rejected hypotheses.
 #'
 #' @export
-ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T) {
+ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T, per_covariate_bins = 5) {
+  number_covariates <- ncol(Xs)
+  
+  nodedepth <- number_covariates * log2(per_covariate_bins)
+    
   ihw_forest <- IHW::ihw(Ps, Xs, alpha,
     stratification_method = "forest", null_proportion = null_proportion,
-    ntrees = forest_par$ntrees, n_censor_thres = forest_par$n_censor_thres, nodedepth = forest_par$nodedepth,
-    nodesize = forest_par$nodesize
+    ntrees = forest_par$ntrees, 
+    n_censor_thres = forest_par$n_censor_thres, 
+    #nodedepth = forest_par$nodedepth,
+    #nodesize = forest_par$nodesize, 
+    nodedepth = nodedepth,
+    lambdas = Inf
   )
   IHW::rejected_hypotheses(ihw_forest)
 }

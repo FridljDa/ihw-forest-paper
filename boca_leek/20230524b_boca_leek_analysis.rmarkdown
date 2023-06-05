@@ -167,6 +167,15 @@ parameters_run <- parameters_run %>%
 head(parameters_run)
 ```
 
+### dry run
+
+```{r, eval = TRUE}
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(5000)
+parameters_run <- parameters_run_copy %>%
+  filter(number_covariates == 2)
+parameters_run
+```
+
 ### Benjamini Hochberg
 
 ```{r}
@@ -205,13 +214,6 @@ parameters_run_copy <- parameters_run
 ```
 
 ### IHW
-
-```{r, eval = TRUE}
-BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(10000)
-parameters_run <- parameters_run_copy %>%
-  filter(number_covariates == 5)
-parameters_run
-```
 
 ```{r}
 # Set the timeout duration in seconds

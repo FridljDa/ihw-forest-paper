@@ -1,6 +1,22 @@
+---
+title: "20230602_simulation"
+author: "Daniel Fridljand"
+format: html
+editor: visual
+---
+
+```{r}
 library(doRNG)
 library(doParallel)
 library(parallel)
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+devtools::load_all("../../IHW")
+```
+
+```{r}
+
 
 ## ------Simulation------
 prop_alt <- function(cov_row) {
@@ -51,22 +67,18 @@ noise_sim <- function(m, r, dimensions){
   })
   simple_sim
 }
+```
 
-## -------evaluate-----
-#library(doRNG) #TODO
-#library(doParallel)
-
-#' @import doRNG
-#' @import doParallel
-#' @import parallel
-#' @export
-eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only = FALSE, null_proportion = T){
-  sim <- noise_sim(m, r, dimensions)
-  n.cores <- parallel::detectCores()
-  doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+```{r}
+n.cores <- parallel::detectCores()
+doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
-  #eval <- lapply(seq_along(sim), function(i){
-  eval <- foreach(i = seq_along(sim)) %dorng% {
+sim <- noise_sim(m = 10000, r = 1, dimensions = 1:2)
+```
+
+```{r}
+eval <- foreach(i = seq_along(sim),
+                combine = rbind) %dorng% {
     #i <- 1
     print(paste0("simulation run:", i))
     sim_i <- sim[[i]]
@@ -77,9 +89,45 @@ eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only 
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
+    ihw_quantile <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1, stratification_method = "quantiles", nbins = 5^dimension_i)
+  
+    rejected_hypotheses_quantile <- IHW::rejected_hypotheses(ihw_quantile)
     
-    mutate(sim_res_i, dimension = dimension_i)
-  }
-  eval <- bind_rows(eval)
+  nodedepth <- dimension_i * log2(5)
+  
+  ihw_forest <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1,
+    stratification_method = "forest",
+    ntrees = 1, 
+    n_censor_thres = 1, 
+    #nodedepth = forest_par$nodedepth,
+    #nodesize = forest_par$nodesize, 
+    nodedepth = nodedepth,
+    lambdas = Inf
+  )
+    
+  rejected_hypotheses_forest <- IHW::rejected_hypotheses(ihw_forest)
+  
+    data.frame(
+      rejections = sum(rejected_hypotheses),
+      dimension_i = dimension_i
+    )
+    
+    tribble(
+  ~stratification_method, ~rejections, ~dimension,
+  "forest", sum(rejected_hypotheses_forest),   dimension_i,
+  "quantile", sum(rejected_hypotheses_quantile),   dimension_i
+)
 }
+```
+
+```{r}
+eval <- data.table::rbindlist(eval)
+```
+
+```{r}
+eval %>%
+  group_by(dimension_i) %>%
+  summarise(rejections = mean(rejections)) %>%
+  ggplot(aes(x = dimension_i, y = rejections)) +
+  geom_point()
+```

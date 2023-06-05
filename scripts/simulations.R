@@ -17,7 +17,7 @@ devtools::load_all("IHWForestPaper")
 devtools::load_all("../IHW")
 ## ---parameters----
 m <- 1e5 # TODO more
-r <- 3
+r <- 1
 # number of monte carlo replicates, increases run time immensely!
 
 alpha <- .1
@@ -41,7 +41,7 @@ forest_par <- list(
 
 eval_noise_sim <- eval_noise_sim(m,
   r,
-  dimensions = seq(from = 2, to = 3, by = 1),
+  dimensions = seq(from = 2, to = 2, by = 1),
   forest_par,
   lfdr_only = TRUE,
   null_proportion = TRUE
