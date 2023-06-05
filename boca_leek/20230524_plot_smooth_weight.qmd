@@ -11,8 +11,8 @@ library("ggplot2")
 library(here)
 library(purrr)
 
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("../../IHW")
 #devtools::load_all("../IHWForestPaper")
 
 options(bitmapType ="cairo")
@@ -100,50 +100,10 @@ if(file.exists("data_plot_weights/ihw_quantiles.Rds")){
 ```
 
 ```{r}
-library(ggplot2)
-
-# Create a sample data frame
-df <- data.frame(x = 1:10, y = 1:10, z = 1:10)
-
-# Create the ggplot
-ggplot(df, aes(x, y, fill = z)) +
-  geom_tile() +
-  scale_fill_gradient(low = "blue", high = "red")
-```
-
-```{r}
-library(RColorBrewer)
-display.brewer.all()
-```
-
-```{r}
-library(ggplot2)
-library(RColorBrewer)
-
-# Create a sample data frame
-df <- data.frame(x = 1:5, y = 1:5, category = letters[1:5])
-
-# Create the ggplot with a specific RColorBrewer palette
-plot <- ggplot(df, aes(x, y, fill = category)) +
-  geom_bar(stat = "identity") +
-  scale_color_viridis_c()
-  #scale_fill_brewer(palette = "YIOrRd")  # Use the "Set3" palette
-#Y1OrRd
-# Display the plot
-print(plot)
-
-```
-
-```{r}
-display.brewer.pal(5, "YIOrRd")
-```
-
-```{r}
 plot_weights_quantile_2d(ihw_quantiles) +
   xlab("MAF rank") +
   ylab("N rank") +
-  scale_color_viridis_c()#+
-  #scale_color_gradient(trans = "log", direction = -1) #pseudo_
+  scale_color_viridis_c()#+  trans = "log"
 ```
 
 ## Tree
@@ -179,7 +139,8 @@ ggplot(ihw_tree_df_eval, aes(x = covariate.1, y = covariate.2, color = weight))+
   geom_point() +
   #scale_colour_gradientn(colours = myPalette(100)) +
   xlab("MAF rank") +
-  ylab("N rank")
+  ylab("N rank") +
+  scale_color_viridis_c()
 ```
 
 ## Forest
@@ -215,5 +176,6 @@ ggplot(ihw_forest_df_eval, aes(x = covariate.1, y = covariate.2, color = weight)
   geom_point() +
   #scale_colour_gradientn(colours = myPalette(100)) +
   xlab("MAF rank") +
-  ylab("N rank")
+  ylab("N rank") +
+  scale_color_viridis_c()
 ```
