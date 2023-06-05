@@ -36,6 +36,7 @@ ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T, p
     nodedepth = nodedepth,
     lambdas = Inf
   )
+  
   IHW::rejected_hypotheses(ihw_forest)
 }
 
