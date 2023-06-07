@@ -12,7 +12,8 @@ library(parallel)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
-devtools::load_all("../../IHW")
+#devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 ```
 
 ```{r}
@@ -20,7 +21,7 @@ devtools::load_all("../../IHW")
 
 ## ------Simulation------
 prop_alt <- function(cov_row) {
-  r <- sum(cov_row^2)
+  #r <- sum(cov_row^2)
   # exp(-5*r)
   # 1 / (1 + exp(-cov1))
   # 1 / (1 + exp(-1 * (3 * cov_row[1]+cov_row[2] - 5)))
@@ -30,9 +31,9 @@ prop_alt <- function(cov_row) {
   # 1 / (1 + exp(-cov_row[1]))
   # ifelse(sum(cov_row^2)  <= 1, 0.02, 0.4)
   # ifelse(cov_row[1]^2+cov_row[2]^2  <= 1, 0.02, 0.4)
-  #ifelse(cov_row[1] <= 0.1, 0.9, 0)
+  ifelse(cov_row[1] <= 0.1, 0.9, 0)
  # pi1s <- ifelse(Xs[ ,1] <= 0.1, 0.9, 0)
-   ifelse(r <= 0.1, 0.9, 0) #This works well
+   #ifelse(r <= 0.1, 0.9, 0) #This works well
 }
 
 noise_sim <- function(m, r, dimensions){
@@ -73,7 +74,7 @@ noise_sim <- function(m, r, dimensions){
 n.cores <- parallel::detectCores()
 doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
-sim <- noise_sim(m = 10000, r = 1, dimensions = 1:2)
+sim <- noise_sim(m = 10000, r = 2, dimensions = 1:3)
 ```
 
 ```{r}
@@ -89,34 +90,37 @@ eval <- foreach(i = seq_along(sim),
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    ihw_quantile <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1, stratification_method = "quantiles", nbins = 5^dimension_i)
+    nbins_quantile <- 5^dimension_i
+    node_size_forest <- ceiling(length(Ps_i)/nbins_quantile)
+    
+    ihw_quantile <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1, stratification_method = "quantiles", nbins = nbins_quantile)
   
     rejected_hypotheses_quantile <- IHW::rejected_hypotheses(ihw_quantile)
     
-  nodedepth <- dimension_i * log2(5)
+  effective_nbins_quantile <- mean(unlist(IHW::nbins(ihw_quantile)))
   
-  #ihw_forest <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1,
-  #  stratification_method = "forest",
-  #  ntrees = 1, 
-  #  n_censor_thres = 1, 
+  ihw_forest <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1,
+    stratification_method = "forest",
+    ntrees = 1, 
+    n_censor_thres = 1, 
     #nodedepth = forest_par$nodedepth,
-    #nodesize = forest_par$nodesize, 
-  #  nodedepth = nodedepth,
-  #  lambdas = Inf
-  #)
+    nodesize = node_size_forest, 
+    #nodedepth = dimension_i * log2(5),
+    lambdas = Inf
+  )
     
   rejected_hypotheses_forest <- IHW::rejected_hypotheses(ihw_forest)
   
-    data.frame(
-      rejections = sum(rejected_hypotheses),
-      dimension_i = dimension_i
-    )
+  effective_nbins_forest <- mean(unlist(IHW::nbins(ihw_forest)))
+    #data.frame(
+    #  rejections = sum(rejected_hypotheses_quantile),
+    #  dimension_i = dimension_i
+    #)
     
-    #tribble(
- # ~stratification_method, ~rejections, ~dimension,
- # "forest", sum(rejected_hypotheses_forest),   dimension_i,
-#  "quantile", sum(rejected_hypotheses_quantile),   #dimension_i
-#)
+    tribble(
+  ~stratification_method, ~rejections, ~dimension, ~effective_nbins,
+  "forest", sum(rejected_hypotheses_forest),   dimension_i, effective_nbins_forest,
+  "quantile", sum(rejected_hypotheses_quantile),   dimension_i,  effective_nbins_quantile)
 }
 ```
 
@@ -126,8 +130,8 @@ eval <- data.table::rbindlist(eval)
 
 ```{r}
 eval %>%
-  group_by(dimension_i) %>%
+  group_by(dimension, stratification_method) %>%
   summarise(rejections = mean(rejections)) %>%
-  ggplot(aes(x = dimension_i, y = rejections)) +
-  geom_point()
+  ggplot(aes(x = dimension, y = rejections, color = stratification_method)) +
+  geom_line()
 ```
