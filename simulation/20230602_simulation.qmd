@@ -96,16 +96,16 @@ eval <- foreach(i = seq_along(sim),
     ihw_quantile <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1, stratification_method = "quantiles", nbins = nbins_quantile)
   
     rejected_hypotheses_quantile <- IHW::rejected_hypotheses(ihw_quantile)
-    
-  effective_nbins_quantile <- mean(unlist(IHW::nbins(ihw_quantile)))
+
+    effective_nbins_quantile <- mean(unlist(IHW::nbins(ihw_quantile)))
+        
+  nodedepth <- dimension_i * log2(5)
   
   ihw_forest <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1,
     stratification_method = "forest",
     ntrees = 1, 
     n_censor_thres = 1, 
-    #nodedepth = forest_par$nodedepth,
-    nodesize = node_size_forest, 
-    #nodedepth = dimension_i * log2(5),
+    nodedepth = nodedepth,
     lambdas = Inf
   )
     
@@ -116,6 +116,7 @@ eval <- foreach(i = seq_along(sim),
     #  rejections = sum(rejected_hypotheses_quantile),
     #  dimension_i = dimension_i
     #)
+
     
     tribble(
   ~stratification_method, ~rejections, ~dimension, ~effective_nbins,
