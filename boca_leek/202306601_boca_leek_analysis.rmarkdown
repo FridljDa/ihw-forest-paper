@@ -145,7 +145,7 @@ parameters_run <- parameters_run %>%
     stratification_method = as.character(stratification_method)
   )
 
-per_covariate_bins <- 5
+per_covariate_bins <- 10
 #make sure we have the same number of total bins between forest and quantiles
 parameters_run <- parameters_run %>%
   mutate(
@@ -169,7 +169,7 @@ head(parameters_run)
 
 ### dry run
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 parameters_run_copy <- parameters_run
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(200000)
 parameters_run <- parameters_run_copy %>%
@@ -322,7 +322,7 @@ saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 
 ```{r, eval=FALSE}
 #ihw_rej <- readRDS("data/2023-06-02_boca_leek_analysis.RDS")
-ihw_bh_rej <- readRDS("data/2023-06-02_boca_leek_analysis.RDS")
+ihw_bh_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ```{r}
@@ -343,7 +343,7 @@ ihw_bh_rej %>%
            "1 Covariate",
            paste(number_covariates_i, "Covariates"))
   }) ) +
-  scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  scale_x_continuous(breaks = unique(ihw_bh_rej$alpha)) +
   #scale_y_log10(limits= c(0,5000)) #+
   ylim(0,NA)
 # breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
@@ -385,7 +385,7 @@ ihw_bh_rej %>%
 
 ## detail analysis
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ihw_rej <- lapply(seq_len(nrow(parameters_run)), function(i){
 #ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    #, .combine = rbind
