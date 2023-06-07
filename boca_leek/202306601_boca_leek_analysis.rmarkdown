@@ -63,7 +63,8 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
 #
 folds <- BMI_GIANT_GWAS$chr_name %>%
-  as.factor()
+  as.factor() %>%
+  as.integer()
 head(BMI_GIANT_GWAS)
 ```
 
@@ -172,7 +173,9 @@ head(parameters_run)
 parameters_run_copy <- parameters_run
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(200000)
 parameters_run <- parameters_run_copy %>%
-  filter(number_covariates == 4 & alphas == 0.04)
+  filter(alphas == 0.04 & number_covariates %in% c(2,3,4)
+        # & stratification_method == "quantiles"
+         )
 parameters_run
 ```
 
@@ -183,7 +186,6 @@ parameters_run
 alpha_levels <- parameters_run %>%
   select(alphas) %>%
   distinct()
-
 
 bh_rejections <- foreach(i = seq_len(nrow(alpha_levels)), 
                    .combine = rbind,
@@ -215,7 +217,7 @@ head(bh_rejections)
 timeout <- 60*10
 ```
 
-```{r}
+```{r, eval = TRUE}
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {
@@ -270,11 +272,11 @@ ihw_i <- tryCatch(
         #effective number of bins
         effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
         
-         res_i <- res_i %>%
-        mutate(
-          effective_nbins_covariates = effective_nbins,
-          rejections = rejections(ihw_i)
-        )
+        res_i <- res_i %>%
+          mutate(
+            effective_nbins_covariates = effective_nbins,
+            rejections = rejections(ihw_i)
+          )
       } else {
        res_i <- res_i %>%
         mutate(
@@ -303,7 +305,7 @@ bh_rejections_copied <- replicate(length(number_covariates_all),
   data.table::rbindlist() %>%
   select(-c(number_covariates))
 
-number_covariates_all_rep <- rep(number_covariates_all, each= nrow(bh_rejections))
+number_covariates_all_rep <- rep(number_covariates_all, each = nrow(bh_rejections))
 
 bh_rejections_copied <- cbind(bh_rejections_copied, number_covariates = number_covariates_all_rep)
 
@@ -383,32 +385,7 @@ ihw_bh_rej %>%
 
 ## detail analysis
 
-```{r, eval = FALSE}
-ihw_bh_rej %>%
-  group_by(number_covariates, stratification_method) %>%
-  summarise(effective_nbins_covariates = mean(effective_nbins_covariates)) %>%
-  filter(stratification_method != "BH") %>%
-  ggplot(aes(x = number_covariates, y = effective_nbins_covariates, col = stratification_method)) +
-  geom_line()
-```
-
-```{r, eval=FALSE}
-ihw_bh_rej %>%
-  #filter(stratification_method != "BH") %>%
-  ggplot(aes(x = number_covariates, y = nrow(BMI_GIANT_GWAS)/effective_nbins_covariates, col = stratification_method)) +
-  geom_line() +
-  scale_y_log10() #limit = c(0,40000)
-```
-
-```{r, eval = FALSE}
-parameters_run_copy <- parameters_run
-#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(5000)
-parameters_run <- parameters_run_copy %>%
-  filter(number_covariates == 4)
-parameters_run
-```
-
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ihw_rej <- lapply(seq_len(nrow(parameters_run)), function(i){
 #ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    #, .combine = rbind
@@ -489,7 +466,40 @@ head(ihw_rej)
 ```
 
 ```{r, eval = FALSE}
-ihw_i <- ihw_rej[[1]]$ihw_i
+ihw_rej %>% #ihw_bh_rej
+  group_by(number_covariates, stratification_method) %>%
+  summarise(effective_nbins_covariates = mean(effective_nbins_covariates)) %>%
+  filter(stratification_method != "BH") %>%
+  ggplot(aes(x = number_covariates, y = effective_nbins_covariates, col = stratification_method)) +
+  geom_line()
+```
+
+```{r, eval=FALSE}
+ihw_bh_rej %>%
+  #filter(stratification_method != "BH") %>%
+  ggplot(aes(x = number_covariates, y = nrow(BMI_GIANT_GWAS)/effective_nbins_covariates, col = stratification_method)) +
+  geom_line() +
+  scale_y_log10() #limit = c(0,40000)
+```
+
+```{r, eval = FALSE}
+parameters_run_copy <- parameters_run
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(5000)
+parameters_run <- parameters_run_copy %>%
+  filter(number_covariates == 4)
+parameters_run
+```
+
+```{r}
+`2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[5]][["res_i"]][["rejections"]]
+```
+
+```{r}
+ihw_rej[[4]][["ihw_i"]]@regularization_term
+```
+
+```{r, eval = FALSE}
+ihw_i <- `2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[6]]$ihw_i
 plot(ihw_i)
 ```
 
