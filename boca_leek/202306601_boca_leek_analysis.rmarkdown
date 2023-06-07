@@ -217,7 +217,7 @@ head(bh_rejections)
 timeout <- 60*10
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {
@@ -292,6 +292,10 @@ ihw_i <- tryCatch(
 head(ihw_rej)
 ```
 
+```{r, eval = TRUE}
+ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
+```
+
 ## plot
 
 add BH to every subpanel
@@ -316,13 +320,13 @@ rm(number_covariates_all, number_covariates_all_rep)
 ihw_bh_rej <- plyr::rbind.fill(bh_rejections_copied, ihw_rej)
 ```
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
 ```{r, eval=FALSE}
 #ihw_rej <- readRDS("data/2023-06-02_boca_leek_analysis.RDS")
-ihw_bh_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
+ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ```{r}
@@ -490,11 +494,11 @@ parameters_run <- parameters_run_copy %>%
 parameters_run
 ```
 
-```{r}
+```{r, eval = FALSE}
 `2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[5]][["res_i"]][["rejections"]]
 ```
 
-```{r}
+```{r, eval = FALSE}
 ihw_rej[[4]][["ihw_i"]]@regularization_term
 ```
 
