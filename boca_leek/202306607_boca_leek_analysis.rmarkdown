@@ -170,11 +170,15 @@ head(parameters_run)
 ### dry run
 
 ```{r, eval = TRUE}
-parameters_run_copy <- parameters_run
-BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(20000)
-parameters_run <- parameters_run_copy %>%
-  filter(alphas == 0.04 & number_covariates %in% c(1,2,3,4)
-         & stratification_method == "quantiles"
+#parameters_run_copy <- parameters_run
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
+#    group_by(chr_name) %>%
+#    sample_n(20000)# %>%
+#    ungroup()
+
+parameters_run <- parameters_run %>%
+  filter(alphas == 0.04 & number_covariates %in% c(1,3,5,7) #,2,3,4
+         #& stratification_method == "forest"
          )
 parameters_run
 ```
@@ -217,7 +221,7 @@ head(bh_rejections)
 timeout <- 60*10
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {
@@ -292,7 +296,7 @@ ihw_i <- tryCatch(
 head(ihw_rej)
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
@@ -492,19 +496,6 @@ parameters_run_copy <- parameters_run
 parameters_run <- parameters_run_copy %>%
   filter(number_covariates == 4)
 parameters_run
-```
-
-```{r, eval = FALSE}
-`2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[5]][["res_i"]][["rejections"]]
-```
-
-```{r, eval = FALSE}
-ihw_rej[[4]][["ihw_i"]]@regularization_term
-```
-
-```{r, eval = FALSE}
-ihw_i <- `2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[6]]$ihw_i
-plot(ihw_i)
 ```
 
 ```{r, eval = FALSE}

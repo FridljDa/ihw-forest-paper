@@ -169,5 +169,3 @@ eval %>%
   ggplot(aes(x = dimension, y = effective_nbins, color = stratification_method)) +
   geom_line() 
 ```
-
-
