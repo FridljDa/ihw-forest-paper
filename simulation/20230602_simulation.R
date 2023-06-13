@@ -5,8 +5,8 @@ library(parallel)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
-#devtools::load_all("../../IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all("IHWForestPaper")
 
 
@@ -78,7 +78,7 @@ noise_sim <- function(m, r, dimensions){
 n.cores <- parallel::detectCores()
 doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
-sim <- noise_sim(m = 10000, r = 5, dimensions = 1:3)
+sim <- noise_sim(m = 10000, r = 5, dimensions = 1:5)
 
 
 
@@ -99,7 +99,7 @@ eval <- foreach(i = seq_along(sim),
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    per_covariate_bin
+    per_covariate_bin <- 10
     nbins_quantile <- per_covariate_bin^dimension_i
     
     if(TRUE){
@@ -115,7 +115,7 @@ eval <- foreach(i = seq_along(sim),
     effective_nbins_quantile <- mean(unlist(IHW::nbins(ihw_quantile)))
     }
   
-    if(FALSE){
+    if(TRUE){
       nodedepth <- 2 * dimension_i * log2(per_covariate_bin)
       nodesize <- ceiling(length(Ps_i)/nbins_quantile)
   
@@ -134,7 +134,7 @@ eval <- foreach(i = seq_along(sim),
     
     tribble(
   ~stratification_method, ~rejections, ~dimension, ~effective_nbins,~p1,
-  #"forest", sum(rejected_hypotheses_forest),   dimension_i, effective_nbins_forest, mean(Hs_i)#,
+  "forest", sum(rejected_hypotheses_forest),   dimension_i, effective_nbins_forest, mean(Hs_i),
   "quantile", sum(rejected_hypotheses_quantile),   dimension_i,  effective_nbins_quantile, mean(Hs_i)
   )
 }
@@ -153,8 +153,6 @@ eval %>%
   ggplot(aes(x = dimension, y = rejections, color = stratification_method)) +
   geom_line() +
   ylim(0, NA)
-
-
 
 eval %>%
   group_by(dimension, stratification_method) %>%

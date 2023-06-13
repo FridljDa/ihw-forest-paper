@@ -1,0 +1,44 @@
+---
+title: "adapt_wrapper"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+devtools::load_all("../../adaptMT")
+```
+
+```{r}
+adapt_xgboost_cv_wrapper <- function(Ps, Xs, alpha = 0.1,
+                                     args_search = list("nrounds100md2" = list(
+                                       "nrounds" = 15,
+                                       "max_depth" = 3,
+                                       # "min_child_weight" = 1,
+                                       "verbose" = 0,
+                                       "nthread" = 2
+                                     ))) {
+  res <- adaptMT::adapt_xgboost_cv(
+    as.matrix(Xs),
+    Ps,
+    piargs = args_search,
+    muargs = args_search,
+    alphas = alphas
+  )
+  
+  rejections <- rep(0, 20000)
+  
+  rejections[c(res$rejs)] <- 1
+  rejections
+}
+
+```
+
+```{r}
+ Xs <- runif(20000, min=0, max=2.5) # covariate
+ Hs <- rbinom(20000,1,0.1) # hypothesis true or false
+ Zs <- rnorm(20000, Xs*Hs) # Z-score
+ Ps <- 1-pnorm(Zs) # pvalue
+ adapt_xgboost_cv_wrapper(Ps, Xs)
+```
