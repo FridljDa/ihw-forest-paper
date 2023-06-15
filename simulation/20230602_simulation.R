@@ -1,7 +1,7 @@
 
-library(doRNG)
-library(doParallel)
-library(parallel)
+#library(doRNG)
+#library(doParallel)
+#library(parallel)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
@@ -9,7 +9,11 @@ devtools::load_all("../IHW")
 #devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all("IHWForestPaper")
 
-
+n.cores <- parallel::detectCores()
+#doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+library(foreach)
+cl <- parallel::makeCluster(2)
+doParallel::registerDoParallel(cl)
 
 ## ------Simulation------
 prop_alt <- function(cov_row) {
@@ -75,20 +79,19 @@ noise_sim <- function(m, r, dimensions){
 
 
 
-n.cores <- parallel::detectCores()
-doParallel::registerDoParallel(cores = min(3, n.cores - 1))
-  
+
+
 sim <- noise_sim(m = 10000, r = 5, dimensions = 1:5)
-
-
 
 sapply(sim, function(sim_i) mean(sim_i$Hs))
 
+eval <- purrr::map_dfr(seq_along(sim), function(i){
+#eval <- foreach(i = seq_along(sim), .combine = 'rbind') %do% {
+#  sqrt(i)
+#}
+#eval
 
-
-
-eval <- foreach(i = seq_along(sim),
-                combine = rbind) %dorng% {
+#eval <- foreach(i = seq_along(sim), .combine = 'rbind') %dopar% {
     #i <- 1
     print(paste0("simulation run:", i))
     sim_i <- sim[[i]]
@@ -137,7 +140,7 @@ eval <- foreach(i = seq_along(sim),
   "forest", sum(rejected_hypotheses_forest),   dimension_i, effective_nbins_forest, mean(Hs_i),
   "quantile", sum(rejected_hypotheses_quantile),   dimension_i,  effective_nbins_quantile, mean(Hs_i)
   )
-}
+})
 
 
 
