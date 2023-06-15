@@ -61,7 +61,8 @@ Note parameter $d$ in the first line. Hereafter, dimension = $d$.
 
 ## Load result files
 ```{r}
-noise_sim_res <- readRDS(file = "../precomputed_results/noise_sim.Rds")
+#noise_sim_res <- readRDS(file = "../precomputed_results/noise_sim.Rds")
+noise_sim_res <- readRDS(file = "../precomputed_results/0613_noise_sim.Rds")
 noise_sim_res <- noise_sim_res %>% mutate(method = forcats::fct_recode(method,
   "IHW-Quantile" = "IHW-quantile",
   "IHW-Forest" = "IHW-forest"
@@ -114,6 +115,7 @@ noise_sim_res_FDR <- ggplot(noise_sim_res, aes(x = dimension, y = FDR, shape = m
 # scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))# fill=guide_legend(nrow=2,byrow=TRUE)
 noise_sim_res_FDR
 ```
+
 ## Plot Power
 
 ```{r}

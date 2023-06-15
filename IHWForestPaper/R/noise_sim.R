@@ -4,7 +4,7 @@ library(parallel)
 
 ## ------Simulation------
 prop_alt <- function(cov_row) {
-  r <- sum(cov_row^2)
+  #r <- sum(cov_row^2)
   # exp(-5*r)
   # 1 / (1 + exp(-cov1))
   # 1 / (1 + exp(-1 * (3 * cov_row[1]+cov_row[2] - 5)))
@@ -16,7 +16,8 @@ prop_alt <- function(cov_row) {
   # ifelse(cov_row[1]^2+cov_row[2]^2  <= 1, 0.02, 0.4)
   #ifelse(cov_row[1] <= 0.1, 0.9, 0)
  # pi1s <- ifelse(Xs[ ,1] <= 0.1, 0.9, 0)
-   ifelse(r <= 0.1, 0.9, 0) #This works well
+   #ifelse(r <= 0.1, 0.9, 0) #This works well
+  ifelse(cov_row[length(cov_row)] <= 0.1, 0.9, 0)
 }
 
 noise_sim <- function(m, r, dimensions){
