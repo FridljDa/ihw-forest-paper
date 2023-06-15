@@ -28,7 +28,7 @@ adapt_mtp <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", return_fit=FALSE){
 
 # https://github.com/ryurko/AdaPT-GWAS-manuscript-code/blob/master/R/bmi/create_gtex_adapt_results.R#L68
 
-
+#devtools::load_all(""IHWForestPaper/adaptMT")
 #' Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
 #'
 #' @param Ps   Numeric vector of unadjusted p-values.
@@ -43,7 +43,7 @@ adapt_mtp <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", return_fit=FALSE){
 #'
 #' @return         Binary vector of rejected/non-rejected hypotheses.
 #'
-adapt_xgboost_cv_wrapper <- function(Ps, Xs, alpha = 0.1,
+adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
                                      args_search = list("nrounds100md2" = list(
                                        "nrounds" = 15,
                                        "max_depth" = 3,
@@ -51,12 +51,13 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alpha = 0.1,
                                        "verbose" = 0,
                                        "nthread" = 2
                                      ))) {
+    
   res <- adaptMT::adapt_xgboost_cv(
     as.matrix(Xs),
     Ps,
     piargs = args_search,
     muargs = args_search,
-    alphas = alphas
+    alphas = alpha
   )
   
   rejections <- rep(0, 20000)

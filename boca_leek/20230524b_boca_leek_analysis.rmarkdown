@@ -171,8 +171,8 @@ head(parameters_run)
 
 ```{r, eval = TRUE}
 BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(5000)
-parameters_run <- parameters_run_copy %>%
-  filter(number_covariates == 2)
+parameters_run <- parameters_run %>%
+  filter(number_covariates == 1 & stratification_method == "forest" & alphas == 0.01)
 parameters_run
 ```
 

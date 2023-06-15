@@ -12,9 +12,9 @@ library(parallel)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
-#devtools::load_all("../../IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-devtools::load_all("/Users/default/Documents/Research_too_large/ihw-forest-paper/IHWForestPaper")
+devtools::load_all("../../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("/Users/default/Documents/Research_too_large/ihw-forest-paper/IHWForestPaper")
 ```
 
 ```{r}

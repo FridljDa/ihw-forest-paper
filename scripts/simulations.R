@@ -41,7 +41,7 @@ forest_par <- list(
 
 eval_noise_sim <- eval_noise_sim(m,
   r,
-  dimensions = seq(from = 2, to = 2, by = 1),
+  dimensions = seq(from = 2, to = 5, by = 1),
   forest_par,
   lfdr_only = TRUE,
   null_proportion = TRUE
