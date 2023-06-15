@@ -85,7 +85,7 @@ noise_sim <- function(m, r, dimensions){
 n.cores <- parallel::detectCores()
 doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
-sim <- noise_sim(m = 10000, r = 1, dimensions = 4)
+sim <- noise_sim(m = 10000, r = 1, dimensions = 2:5)
 ```
 
 ```{r}
@@ -104,14 +104,16 @@ eval <- lapply( seq_along(sim), function(i){
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    per_covariate_bin <- 10
+    per_covariate_bin <- 5
     nbins_quantile <- per_covariate_bin^dimension_i
     
     if(TRUE){
     ihw_quantile <- IHW::ihw(Ps_i, 
                              Xs_i, 
                              alpha = 0.1, 
-                             stratification_method = "quantiles", nbins = nbins_quantile#,
+                             stratification_method = "quantiles", 
+                             null_proportion = T,
+                             nbins = nbins_quantile#,
     #lambdas = Inf
     )
   
@@ -129,7 +131,8 @@ eval <- lapply( seq_along(sim), function(i){
     ntrees = 1, 
     n_censor_thres = 1, 
     nodesize = nodesize,
-    lambdas = Inf
+    lambdas = Inf,
+    null_proportion = T
   )
     
   rejected_hypotheses_forest <- IHW::rejected_hypotheses(ihw_forest)
@@ -150,6 +153,10 @@ eval <- lapply( seq_along(sim), function(i){
 eval <- data.table::rbindlist(eval)
 
 saveRDS(eval, paste0("data/",Sys.Date(),"_noise_sim.Rds"))
+```
+
+```{r, eval = FALSE}
+eval <- readRDS("~/Documents/Research_too_large/ihw-forest-paper/simulation/data/2023-06-12_noise_sim.Rds")
 ```
 
 ```{r}
