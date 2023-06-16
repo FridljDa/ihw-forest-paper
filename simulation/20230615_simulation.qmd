@@ -1,0 +1,190 @@
+---
+title: "20230602_simulation"
+author: "Daniel Fridljand"
+format: html
+editor: visual
+---
+
+```{r}
+library(doRNG)
+library(doParallel)
+library(parallel)
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+
+#devtools::load_all("../../IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("/Users/default/Documents/Research_too_large/ihw-forest-paper/IHWForestPaper")
+set.seed(0)
+```
+
+```{r}
+## ------Simulation------
+
+ 
+#'
+#' # Generate the parameters from a conditional two-group
+#' # logistic-Gamma GLM  where pi(x) and mu(x) are both
+#' # linear in x. pi(x) has an intercept so that the average
+#' # of pi(x) is 0.1
+m <- 2
+ n <- 10000
+ x <- matrix(runif(n * m), n, m)
+ 
+ pi1 <- 0.1
+ beta.pi <- c(3, 3, rep(0, m-2))
+ beta0.pi <- uniroot(function(b){
+     mean(inv_logit(x %*% beta.pi + b)) - pi1
+ }, c(-100, 100))$root
+ pi <- inv_logit(x %*% beta.pi + beta0.pi)
+ beta.mu <- c(2, 2, rep(0, m-2))
+ beta0.mu <- 0
+ mu <- pmax(1, x %*% beta.mu + beta0.mu)
+#'
+#' # Generate p-values
+ H0 <- as.logical(ifelse(runif(n) < pi, 1, 0))
+ y <- ifelse(H0, rexp(n, 1/mu), rexp(n, 1))
+ pvals <- exp(-y)
+```
+
+```{r}
+inv_logit <- function(x) {exp(x) / (1 + exp(x))}
+```
+
+```{r}
+high_dim_sim <- function(m, r, dimensions){
+  sim_combs <- expand.grid(
+    m = m,
+    dimensions = dimensions,
+    seed = seq_len(r)
+  )
+  
+  # simple_sim <- foreach(i = seq_len(r)) %dorng% {
+  simple_sim <- lapply(seq_len(nrow(sim_combs)), function(i) {
+    m_i <- sim_combs$m[i]
+    dimension_i <- sim_combs$dimensions[i]
+    seed_i <- sim_combs$seed[i]
+    covariate_i <- matrix(runif(m_i * dimension_i), nrow = m_i)
+    
+    #
+    pi1 <- 0.1
+ beta.pi <- c(3, 3, rep(0, dimension_i-2))
+ beta0.pi <- uniroot(function(b){
+     mean(inv_logit(covariate_i %*% beta.pi + b)) - pi1
+ }, c(-100, 100))$root
+ pi <- inv_logit(covariate_i %*% beta.pi + beta0.pi)
+ beta.mu <- c(2, 2, rep(0, dimension_i-2))
+ beta0.mu <- 0
+ mu <- pmax(1, covariate_i %*% beta.mu + beta0.mu)
+#'
+#' # Generate p-values
+ Hs_i <- as.logical(ifelse(runif(m) < pi, 1, 0))
+ y <- ifelse(Hs_i, rexp(m, 1/mu), rexp(m, 1))
+ pvalue_i <- exp(-y)
+ prop_alt_i <- mean(Hs_i)
+ 
+    return(list(covariate = covariate_i, prop_alt = prop_alt_i, Hs = Hs_i, pvalue = pvalue_i, 
+                dimension = dimension_i, seed = seed_i, m_i = m))
+  })
+  simple_sim
+}
+```
+
+```{r}
+sim <- high_dim_sim(m = 1000, r = 3, dimensions = 2:6)
+
+```
+
+```{r}
+n.cores <- parallel::detectCores()
+doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+```
+
+```{r}
+sapply(sim, function(sim_i) mean(sim_i$Hs))
+
+```
+
+```{r}
+eval <- lapply(seq_along(sim), function(i){
+ print(paste0("simulation run:", i))
+    sim_i <- sim[[i]]
+    dimension_i <- sim_i$dimension
+    seed_i <- sim_i$seed
+    
+    Ps_i <- sim_i$pvalue
+    Xs_i <- sim_i$covariate
+    Hs_i <- sim_i$Hs
+    
+    per_covariate_bin <- 5
+    nbins_quantile <- per_covariate_bin^dimension_i
+    
+    if(TRUE){
+    ihw_quantile <- IHW::ihw(Ps_i, 
+                             Xs_i, 
+                             alpha = 0.1, 
+                             stratification_method = "quantiles", 
+                             null_proportion = T,
+                             nbins = nbins_quantile#,
+    #lambdas = Inf
+    )
+  
+    rejected_hypotheses_quantile <- IHW::rejected_hypotheses(ihw_quantile)
+
+    effective_nbins_quantile <- mean(unlist(IHW::nbins(ihw_quantile)))
+    }
+  
+    if(TRUE){
+      nodedepth <- 2 * dimension_i * log2(per_covariate_bin)
+      nodesize <- ceiling(length(Ps_i)/nbins_quantile)
+  
+  ihw_forest <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1,
+    stratification_method = "forest",
+    ntrees = 1, 
+    n_censor_thres = 1, 
+    nodesize = nodesize,
+    lambdas = Inf,
+    null_proportion = T
+  )
+    
+  rejected_hypotheses_forest <- IHW::rejected_hypotheses(ihw_forest)
+  
+  effective_nbins_forest <- mean(unlist(IHW::nbins(ihw_forest)))
+    }      
+    
+    tribble(
+  ~stratification_method, ~rejections, ~dimension, ~effective_nbins,~p1,
+  "forest", sum(rejected_hypotheses_forest),   dimension_i, effective_nbins_forest, mean(Hs_i),
+  "quantile", sum(rejected_hypotheses_quantile),   dimension_i,  effective_nbins_quantile, mean(Hs_i)
+  ) 
+})
+
+```
+
+```{r}
+eval <- data.table::rbindlist(eval)
+
+saveRDS(eval, paste0("data/",Sys.Date(),"_noise_sim.Rds"))
+```
+
+```{r, eval = FALSE}
+eval <- readRDS("~/Documents/Research_too_large/ihw-forest-paper/simulation/data/2023-06-12_noise_sim.Rds")
+```
+
+```{r}
+eval %>%
+  group_by(dimension, stratification_method) %>%
+  summarise(rejections = mean(rejections)) %>%
+  ggplot(aes(x = dimension, y = rejections, color = stratification_method)) +
+  geom_point() +
+  ylim(0, NA)
+```
+
+```{r}
+eval %>%
+  group_by(dimension, stratification_method) %>%
+  summarise(effective_nbins = mean(effective_nbins)) %>%
+  ggplot(aes(x = dimension, y = effective_nbins, color = stratification_method)) +
+  geom_line() 
+```

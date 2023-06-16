@@ -4,16 +4,13 @@ format: html
 editor: visual
 ---
 
-## Quarto
+```{r}
+devtools::load_all("IHWForestPaper/adaptMT")
+```
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+https://github.com/ryurko/adaptMT/blob/master/R/adapt-wrappers.R#L266
 
 ```{r}
-
 set.seed(0)
  m <- 100
  n <- 1000
@@ -38,19 +35,17 @@ set.seed(0)
  H0 <- as.logical(ifelse(runif(n) < pi, 1, 0))
  y <- ifelse(H0, rexp(n, 1/mu), rexp(n, 1))
  pvals <- exp(-y)
-#'
- args_search = list("nrounds100md2" = list(
-   "nrounds" = 15))
-# # Run adapt_xgboost
- res <- adapt_xgboost(x, pvals, args_search = args_search, s0 = rep(0.15, n), nfits = 5)
- 
-```
 
-You can add options to executable code like this
+```
 
 ```{r}
-#| echo: false
-2 * 2
+# # Run adapt_xgboost
+res <- adapt_xgboost(x, pvals, alphas = 0.1, nfits = 5)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+rejection_position <- res[["rejs"]][[100]]
+rejections <- rep(0, n)
+rejections[rejection_position] <- 1
+rejections
+```

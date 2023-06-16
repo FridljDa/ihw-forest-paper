@@ -10,11 +10,10 @@ library(dplyr)
 
 # library(IHWStatsPaper)
 
-# devtools::load_all("/Users/default/Google Drive/currentDocumants/Studium/Master/3.Semester/Masterarbeit/Code/IHW")
 # library("IHW")
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all("IHWForestPaper")
-devtools::load_all("../IHW")
+#devtools::load_all("../IHW")
 ## ---parameters----
 m <- 1e5 # TODO more
 r <- 1
@@ -41,7 +40,7 @@ forest_par <- list(
 
 eval_noise_sim <- eval_noise_sim(m,
   r,
-  dimensions = seq(from = 2, to = 5, by = 1),
+  dimensions = seq(from = 1, to = 4, by = 1),
   forest_par,
   lfdr_only = TRUE,
   null_proportion = TRUE

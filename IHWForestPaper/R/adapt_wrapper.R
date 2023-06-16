@@ -65,3 +65,34 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
   rejections[c(res$rejs)] <- 1
   rejections
 }
+
+#devtools::load_all(""IHWForestPaper/adaptMT")
+#' Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
+#'
+#' @param Ps   Numeric vector of unadjusted p-values.
+#' @param Xs   Vector or matrix of covariates
+#' @param alpha    Significance level at which to apply method
+#'
+#' Xs <- runif(20000, min=0, max=2.5) # covariate
+#' Hs <- rbinom(20000,1,0.1) # hypothesis true or false
+#' Zs <- rnorm(20000, Xs*Hs) # Z-score
+#' Ps <- 1-pnorm(Zs) # pvalue
+#' adapt_xgboost_wrapper(Ps, Xs)
+#'
+#' @return         Binary vector of rejected/non-rejected hypotheses.
+#'
+adapt_xgboost_wrapper <- function(Ps, 
+                                  Xs, 
+                                  alpha = 0.1) {
+  
+  res <- adapt_xgboost(as.matrix(Xs), 
+                       Ps, 
+                       alphas = alpha, 
+                       nfits = 5)
+  
+  
+  rejection_position <- res[["rejs"]]
+  rejections <- rep(0, length(Ps))
+  rejections[rejection_position] <- 1
+  rejections
+}
