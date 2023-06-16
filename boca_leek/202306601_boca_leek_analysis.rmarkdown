@@ -521,7 +521,7 @@ ihw_bh_rej %>%
   shape = "none"
  ) +
   facet_wrap(~alphas ) +
-  scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
   #scale_y_log10(limits= c(0,5000)) #+
   ylim(0,NA)
 ```

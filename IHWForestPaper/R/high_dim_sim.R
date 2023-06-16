@@ -1,0 +1,72 @@
+library(doRNG)
+library(doParallel)
+library(parallel)
+
+high_dim_sim <- function(m, r, dimensions){
+  sim_combs <- expand.grid(
+    m = m,
+    dimensions = dimensions,
+    seed = seq_len(r)
+  )
+  
+  # simple_sim <- foreach(i = seq_len(r)) %dorng% {
+  simple_sim <- lapply(seq_len(nrow(sim_combs)), function(i) {
+    m_i <- sim_combs$m[i]
+    dimension_i <- sim_combs$dimensions[i]
+    seed_i <- sim_combs$seed[i]
+    covariate_i <- matrix(runif(m_i * dimension_i), nrow = m_i)
+    
+    #
+    pi1 <- 0.1
+    beta.pi <- c(3, 3, rep(0, dimension_i-2))
+    beta0.pi <- uniroot(function(b){
+      mean(inv_logit(covariate_i %*% beta.pi + b)) - pi1
+    }, c(-100, 100))$root
+    pi <- inv_logit(covariate_i %*% beta.pi + beta0.pi)
+    beta.mu <- c(2, 2, rep(0, dimension_i-2))
+    beta0.mu <- 0
+    mu <- pmax(1, covariate_i %*% beta.mu + beta0.mu)
+    #'
+    #' # Generate p-values
+    Hs_i <- as.logical(ifelse(runif(m) < pi, 1, 0))
+    y <- ifelse(Hs_i, rexp(m, 1/mu), rexp(m, 1))
+    pvalue_i <- exp(-y)
+    prop_alt_i <- mean(Hs_i)
+    
+    return(list(covariate = covariate_i, prop_alt = prop_alt_i, Hs = Hs_i, pvalue = pvalue_i, 
+                dimension = dimension_i, seed = seed_i, m_i = m))
+  })
+  simple_sim
+}
+
+## -------evaluate-----
+#library(doRNG) #TODO
+#library(doParallel)
+
+#' @import doRNG
+#' @import doParallel
+#' @import parallel
+#' @export
+eval_high_dim_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only = FALSE, null_proportion = T){
+  sim <- high_dim_sim(m, r, dimensions)
+  n.cores <- parallel::detectCores()
+  doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+  
+  #eval <- lapply(seq_along(sim), function(i){
+  eval <- foreach(i = seq_along(sim)) %dorng% {
+    #i <- 1
+    print(paste0("simulation run:", i))
+    sim_i <- sim[[i]]
+    dimension_i <- sim_i$dimension
+    seed_i <- sim_i$seed
+    
+    Ps_i <- sim_i$pvalue
+    Xs_i <- sim_i$covariate
+    Hs_i <- sim_i$Hs
+    
+    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
+    
+    mutate(sim_res_i, dimension = dimension_i)
+  }
+  eval <- bind_rows(eval)
+}

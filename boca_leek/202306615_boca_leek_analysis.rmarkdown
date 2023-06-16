@@ -224,14 +224,6 @@ head(bh_rejections)
 timeout <- 60*50
 ```
 
-```{r}
-library(tictoc)
-tic("test")
-5+5
-output<-toc()
-output[["toc"]][["elapsed"]]-output[["tic"]][["elapsed"]]
-```
-
 ```{r, eval = TRUE}
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
