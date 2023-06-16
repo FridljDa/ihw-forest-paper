@@ -1,0 +1,56 @@
+---
+title: "adapt_wrapper_vigniette"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+
+set.seed(0)
+ m <- 100
+ n <- 1000
+ x <- matrix(runif(n * m), n, m)
+#'
+#' # Generate the parameters from a conditional two-group
+#' # logistic-Gamma GLM  where pi(x) and mu(x) are both
+#' # linear in x. pi(x) has an intercept so that the average
+#' # of pi(x) is 0.3
+ inv_logit <- function(x) {exp(x) / (1 + exp(x))}
+ pi1 <- 0.3
+ beta.pi <- c(3, 3, rep(0, m-2))
+ beta0.pi <- uniroot(function(b){
+     mean(inv_logit(x %*% beta.pi + b)) - pi1
+ }, c(-100, 100))$root
+ pi <- inv_logit(x %*% beta.pi + beta0.pi)
+ beta.mu <- c(2, 2, rep(0, m-2))
+ beta0.mu <- 0
+ mu <- pmax(1, x %*% beta.mu + beta0.mu)
+#'
+#' # Generate p-values
+ H0 <- as.logical(ifelse(runif(n) < pi, 1, 0))
+ y <- ifelse(H0, rexp(n, 1/mu), rexp(n, 1))
+ pvals <- exp(-y)
+#'
+ args_search = list("nrounds100md2" = list(
+   "nrounds" = 15))
+# # Run adapt_xgboost
+ res <- adapt_xgboost(x, pvals, args_search = args_search, s0 = rep(0.15, n), nfits = 5)
+ 
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
