@@ -11,6 +11,7 @@ library(here)
 library(dplyr)
 library(magrittr)
 library(R.utils)
+library(tictoc)
 
 set.seed(4)
 options(bitmapType ="cairo")
@@ -20,35 +21,13 @@ options(bitmapType ="cairo")
 library(doRNG)
 library(doParallel)
 library(parallel)
-
+ 
 registerDoParallel(cores=2)
 ```
 
 ```{r}
-getPrimeNumbers <- function(n) {  
-   n <- as.integer(n)
-   if(n > 1e6) stop("n too large")
-   primes <- rep(TRUE, n)
-   primes[1] <- FALSE
-   last.prime <- 2L
-   for(i in last.prime:floor(sqrt(n)))
-   {
-      primes[seq.int(2L*last.prime, n, last.prime)] <- FALSE
-      last.prime <- last.prime + min(which(primes[(last.prime+1):n]))
-   }
-   which(primes)
-}
-```
-
-```{r}
-library(doParallel)  
-cores <- detectCores() - 1  
-mclapply(10:10000, getPrimeNumbers, mc.cores=cores)  
-```
-
-```{r}
-devtools::load_all(here("../IHW"))
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all(here("../IHW"))
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 #list.files("../../IHW")
 
 ```
@@ -201,8 +180,8 @@ head(parameters_run)
 parameters_run <- parameters_run %>%
   filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
          #& 
-           #stratification_method == "quantiles"
-     number_covariates %in% c(4,5,6) & alphas == 0.04 
+           stratification_method == "quantiles" &
+     number_covariates %in% c(1,2,3,4,5,6,7) & alphas == 0.04 
          )
 parameters_run
 ```
@@ -242,7 +221,15 @@ head(bh_rejections)
 
 ```{r}
 # Set the timeout duration in seconds
-timeout <- 60*20
+timeout <- 60*50
+```
+
+```{r}
+library(tictoc)
+tic("test")
+5+5
+output<-toc()
+output[["toc"]][["elapsed"]]-output[["tic"]][["elapsed"]]
 ```
 
 ```{r, eval = TRUE}
@@ -253,6 +240,7 @@ ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
 #                          function(i){
 #for(i in seq_len(nrow(parameters_run))){
   cat('Starting ', i, 'th job.\n', sep = '')
+  tic("running IHW")
     
       nbins = parameters_run$nbins_quantile[[i]]
       if(nbins != "auto") nbins <- as.numeric(nbins)
@@ -298,10 +286,11 @@ ihw_i <- tryCatch(
       # handle unfinished jobs
       res_i <- parameters_run[i, ]
       
+      
       if (isS4(ihw_i)) {
         #effective number of bins
         effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
-        
+       
         res_i <- res_i %>%
           mutate(
             effective_nbins_covariates = effective_nbins,
@@ -314,12 +303,22 @@ ihw_i <- tryCatch(
           rejections = NA
         )
       }
-      
+  
+  #save elapsed time
+  tic_toc_object <- toc()
+  elapsed_time <- tic_toc_object[["toc"]][["elapsed"]]-tic_toc_object[["tic"]][["elapsed"]]
+  res_i <- res_i %>%
+        mutate(elapsed_time = elapsed_time)
+
   cat('Finishing ', i, 'th job.\n', sep = '')
   res_i # this will become part of the out object
 }#)
 
 head(ihw_rej)
+```
+
+```{r, eval = TRUE}
+saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
 ```{r, eval = FALSE}
@@ -538,7 +537,7 @@ ihw_bh_rej %>%
   shape = "none"
  ) +
   facet_wrap(~alphas ) +
-  scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
   #scale_y_log10(limits= c(0,5000)) #+
   ylim(0,NA)
 ```
