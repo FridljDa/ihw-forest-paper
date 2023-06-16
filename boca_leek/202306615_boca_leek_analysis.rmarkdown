@@ -26,8 +26,8 @@ registerDoParallel(cores=2)
 ```
 
 ```{r}
-#devtools::load_all(here("../IHW"))
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all(here("../IHW"))
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 #list.files("../../IHW")
 
 ```
@@ -177,12 +177,13 @@ head(parameters_run)
 #    sample_n(20000)# %>%
 #    ungroup()
 
-parameters_run <- parameters_run %>%
-  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
+#parameters_run <- parameters_run %>%
+#  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
          #& 
-           stratification_method == "quantiles" &
-     number_covariates %in% c(1,2,3,4,5,6,7) & alphas == 0.04 
-         )
+      #     stratification_method == "quantiles" &
+     #number_covariates %in% c(4,5,6,7) & 
+       #alphas == 0.04 
+#         )
 parameters_run
 ```
 
@@ -222,14 +223,6 @@ head(bh_rejections)
 ```{r}
 # Set the timeout duration in seconds
 timeout <- 60*50
-```
-
-```{r}
-library(tictoc)
-tic("test")
-5+5
-output<-toc()
-output[["toc"]][["elapsed"]]-output[["tic"]][["elapsed"]]
 ```
 
 ```{r, eval = TRUE}
@@ -274,7 +267,6 @@ ihw_i <- tryCatch(
           nodedepth = nodedepth,
           nodesize = nodesize
         )
-        
       },
       timeout = timeout
     )
@@ -315,14 +307,7 @@ ihw_i <- tryCatch(
 }#)
 
 head(ihw_rej)
-```
 
-```{r, eval = TRUE}
-saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
-```
-
-```{r, eval = FALSE}
-ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ## plot
@@ -349,13 +334,13 @@ rm(number_covariates_all, number_covariates_all_rep)
 ihw_bh_rej <- plyr::rbind.fill(bh_rejections_copied, ihw_rej)
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
 ```{r, eval=FALSE}
 #ihw_rej <- readRDS("data/2023-06-02_boca_leek_analysis.RDS")
-ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
+ihw_bh_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ```{r}
@@ -515,21 +500,51 @@ ihw_bh_rej %>%
   scale_y_log10() #limit = c(0,40000)
 ```
 
-```{r, eval = FALSE}
-parameters_run_copy <- parameters_run
-#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(5000)
-parameters_run <- parameters_run_copy %>%
-  filter(number_covariates == 4)
-parameters_run
-```
-
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 ihw_bh_rej %>%
   #filter( == 4) %>%
   ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
   geom_line() +
   geom_point(size = 2) +
   ylab("Number of rejections") +
+  xlab("number covariates") +
+  theme(legend.position="bottom")+
+ guides(
+  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  shape = "none"
+ ) +
+  facet_wrap(~alphas ) +
+  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  #scale_y_log10(limits= c(0,5000)) #+
+  ylim(0,NA)
+```
+
+```{r}
+ihw_bh_rej %>%
+  #filter( == 4) %>%
+  ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("number covariates") +
+  theme(legend.position="bottom")+
+ guides(
+  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  shape = "none"
+ ) +
+  facet_wrap(~alphas ) +
+  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  #scale_y_log10(limits= c(0,5000)) #+
+  ylim(0,NA)
+```
+
+```{r}
+ihw_bh_rej %>%
+  #filter( == 4) %>%
+  ggplot(aes(x = number_covariates, y = elapsed_time, col = stratification_method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Time") +
   xlab("number covariates") +
   theme(legend.position="bottom")+
  guides(
