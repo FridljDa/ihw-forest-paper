@@ -11,9 +11,9 @@ library(dplyr)
 # library(IHWStatsPaper)
 
 # library("IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-devtools::load_all("IHWForestPaper")
-#devtools::load_all("../IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all(here::here("IHWForestPaper"))
+devtools::load_all("../IHW")
 ## ---parameters----
 m <- 1e5 # TODO more
 r <- 1
@@ -38,11 +38,19 @@ forest_par <- list(
 ## -----noise sim------
 # dimensions <- seq(from = 1, to = 11, by = 10)
 
-eval_noise_sim <- eval_noise_sim(m,
-  r,
-  dimensions = seq(from = 1, to = 4, by = 1),
-  forest_par,
-  lfdr_only = TRUE,
-  null_proportion = TRUE
+#eval_noise_sim <- eval_noise_sim(m,
+#  r,
+#  dimensions = seq(from = 1, to = 4, by = 1),
+#  forest_par,
+#  lfdr_only = TRUE,
+#  null_proportion = TRUE
+#)
+#saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
+
+## -----high dim sim------
+eval_high_dim_sim <- eval_high_dim_sim(
+  m = 1000,
+  r = 3,
+  dimensions = seq(from = 2, to = 3, by = 1),
+  forest_par
 )
-saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")

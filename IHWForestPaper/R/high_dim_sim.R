@@ -39,6 +39,8 @@ high_dim_sim <- function(m, r, dimensions){
   simple_sim
 }
 
+inv_logit <- function(x) {exp(x) / (1 + exp(x))}
+
 ## -------evaluate-----
 #library(doRNG) #TODO
 #library(doParallel)
