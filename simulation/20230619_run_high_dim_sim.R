@@ -13,7 +13,12 @@ library(dplyr)
 # library("IHW")
 devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all(here::here("IHWForestPaper"))
+<<<<<<< HEAD:scripts/simulations.R
 #devtools::load_all("../IHW")
+=======
+devtools::load_all("/g/huber/users/fridljand/R/IHW")
+devtools::load_all(here::here("IHWForestPaper/adaptMT"))
+>>>>>>> c37bf7749a80a0ccfc67537366608690109fd638:simulation/20230619_run_high_dim_sim.R
 ## ---parameters----
 m <- 1e5 # TODO more
 r <- 1
@@ -50,9 +55,18 @@ forest_par <- list(
 ## -----high dim sim------
 eval_high_dim_sim <- eval_high_dim_sim(
   m = 1000,
+<<<<<<< HEAD:scripts/simulations.R
   r = 10,
   dimensions = seq(from = 2, to = 10, by = 1),
   forest_par,
   lfdr_only = TRUE
 )
 saveRDS(eval_high_dim_sim, file = "precomputed_results/eval_high_dim_sim.Rds")
+=======
+  r = 1,
+  dimensions = seq(from = 2, to = 2, by = 1),
+  forest_par,
+  lfdr_only = TRUE
+)
+saveRDS(eval_high_dim_sim, file = "data/eval_high_dim_sim.Rds")
+>>>>>>> c37bf7749a80a0ccfc67537366608690109fd638:simulation/20230619_run_high_dim_sim.R

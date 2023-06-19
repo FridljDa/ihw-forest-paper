@@ -1,0 +1,15 @@
+WARNING: ignoring environment value of R_HOME
+[1] "simulation run:1"
+[1] "simulation run:2"
+[1] "simulation run:3"
+[1] "simulation run:5"
+alpha = 0.1: FDPhat 0.1, Number of Rej. 10
+Task completed!
+[1] "simulation run:6"
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+[1] "simulation run:4"
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 11
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
