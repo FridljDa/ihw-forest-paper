@@ -62,7 +62,8 @@ Note parameter $d$ in the first line. Hereafter, dimension = $d$.
 ## Load result files
 ```{r}
 #noise_sim_res <- readRDS(file = "../precomputed_results/noise_sim.Rds")
-noise_sim_res <- readRDS(file = "../precomputed_results/0613_noise_sim.Rds")
+#noise_sim_res <- readRDS(file = "../precomputed_results/0613_noise_sim.Rds")
+noise_sim_res <- readRDS(file = "../precomputed_results/eval_high_dim_sim.Rds")
 noise_sim_res <- noise_sim_res %>% mutate(method = forcats::fct_recode(method,
   "IHW-Quantile" = "IHW-quantile",
   "IHW-Forest" = "IHW-forest"

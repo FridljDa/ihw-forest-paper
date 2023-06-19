@@ -92,7 +92,7 @@ high_dim_sim <- function(m, r, dimensions){
 ```
 
 ```{r}
-sim <- high_dim_sim(m = 1000, r = 3, dimensions = 2:6)
+sim <- high_dim_sim(m = 1000, r = 5, dimensions = 2:7)
 
 ```
 

@@ -11,9 +11,9 @@ library(dplyr)
 # library(IHWStatsPaper)
 
 # library("IHW")
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all(here::here("IHWForestPaper"))
-devtools::load_all("../IHW")
+#devtools::load_all("../IHW")
 ## ---parameters----
 m <- 1e5 # TODO more
 r <- 1
@@ -50,7 +50,9 @@ forest_par <- list(
 ## -----high dim sim------
 eval_high_dim_sim <- eval_high_dim_sim(
   m = 1000,
-  r = 3,
-  dimensions = seq(from = 2, to = 3, by = 1),
-  forest_par
+  r = 10,
+  dimensions = seq(from = 2, to = 10, by = 1),
+  forest_par,
+  lfdr_only = TRUE
 )
+saveRDS(eval_high_dim_sim, file = "precomputed_results/eval_high_dim_sim.Rds")
