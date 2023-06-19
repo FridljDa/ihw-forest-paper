@@ -11,7 +11,6 @@ library(here)
 library(dplyr)
 library(magrittr)
 library(R.utils)
-library(tictoc)
 
 set.seed(4)
 options(bitmapType ="cairo")
@@ -21,12 +20,12 @@ options(bitmapType ="cairo")
 library(doRNG)
 library(doParallel)
 library(parallel)
- 
+
 registerDoParallel(cores=2)
 ```
 
 ```{r}
-devtools::load_all(here("../IHW"))
+devtools::load_all("../../IHW")
 #devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 #list.files("../../IHW")
 
@@ -130,9 +129,9 @@ parameters_run_forest <- expand.grid(
   nbins_quantile = "auto", 
   #parameters for forest 
   nodedepth_forest = NA, #8
-  n_censor_thres = 1,# 
-  ntrees = 1, #3  
-  nodesize = 3000
+  n_censor_thres = 3, 
+  ntrees = 3,  
+  nodesize = 20
 )
 
 parameters_run <- rbind(parameters_run_quantile, parameters_run_forest)
@@ -146,7 +145,7 @@ parameters_run <- parameters_run %>%
     stratification_method = as.character(stratification_method)
   )
 
-per_covariate_bins <- 5
+per_covariate_bins <- 10
 #make sure we have the same number of total bins between forest and quantiles
 parameters_run <- parameters_run %>%
   mutate(
@@ -171,19 +170,12 @@ head(parameters_run)
 ### dry run
 
 ```{r, eval = TRUE}
-#parameters_run_copy <- parameters_run
-#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
-#    group_by(chr_name) %>%
-#    sample_n(20000)# %>%
-#    ungroup()
-
-#parameters_run <- parameters_run %>%
-#  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
-         #& 
-      #     stratification_method == "quantiles" &
-     #number_covariates %in% c(4,5,6,7) & 
-       #alphas == 0.04 
-#         )
+parameters_run_copy <- parameters_run
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(20000)
+parameters_run <- parameters_run_copy %>%
+  filter(alphas == 0.04 & number_covariates %in% c(1,2,3,4)
+         & stratification_method == "quantiles"
+         )
 parameters_run
 ```
 
@@ -222,18 +214,15 @@ head(bh_rejections)
 
 ```{r}
 # Set the timeout duration in seconds
-timeout <- 60*50
+timeout <- 60*10
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {
-#ihw_rej <- purrr::map_dfr(seq_len(nrow(parameters_run)),
-#                          function(i){
 #for(i in seq_len(nrow(parameters_run))){
   cat('Starting ', i, 'th job.\n', sep = '')
-  tic("running IHW")
     
       nbins = parameters_run$nbins_quantile[[i]]
       if(nbins != "auto") nbins <- as.numeric(nbins)
@@ -259,6 +248,7 @@ ihw_i <- tryCatch(
           formula = formula,
           data = data,
           alpha = alpha,
+          folds = folds,
           lambdas = lambdas,
           stratification_method = stratification_method,
           nbins = nbins,
@@ -278,11 +268,10 @@ ihw_i <- tryCatch(
       # handle unfinished jobs
       res_i <- parameters_run[i, ]
       
-      
       if (isS4(ihw_i)) {
         #effective number of bins
         effective_nbins <- mean(unlist(IHW::nbins(ihw_i)))
-       
+        
         res_i <- res_i %>%
           mutate(
             effective_nbins_covariates = effective_nbins,
@@ -295,19 +284,16 @@ ihw_i <- tryCatch(
           rejections = NA
         )
       }
-  
-  #save elapsed time
-  tic_toc_object <- toc()
-  elapsed_time <- tic_toc_object[["toc"]][["elapsed"]]-tic_toc_object[["tic"]][["elapsed"]]
-  res_i <- res_i %>%
-        mutate(elapsed_time = elapsed_time)
-
+      
   cat('Finishing ', i, 'th job.\n', sep = '')
   res_i # this will become part of the out object
-}#)
+}
 
 head(ihw_rej)
+```
 
+```{r, eval = TRUE}
+ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ## plot
@@ -334,13 +320,13 @@ rm(number_covariates_all, number_covariates_all_rep)
 ihw_bh_rej <- plyr::rbind.fill(bh_rejections_copied, ihw_rej)
 ```
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 ```
 
 ```{r, eval=FALSE}
 #ihw_rej <- readRDS("data/2023-06-02_boca_leek_analysis.RDS")
-ihw_bh_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
+ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ```{r}
@@ -500,52 +486,35 @@ ihw_bh_rej %>%
   scale_y_log10() #limit = c(0,40000)
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
+parameters_run_copy <- parameters_run
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(5000)
+parameters_run <- parameters_run_copy %>%
+  filter(number_covariates == 4)
+parameters_run
+```
+
+```{r, eval = FALSE}
+`2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[5]][["res_i"]][["rejections"]]
+```
+
+```{r, eval = FALSE}
+ihw_rej[[4]][["ihw_i"]]@regularization_term
+```
+
+```{r, eval = FALSE}
+ihw_i <- `2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[6]]$ihw_i
+plot(ihw_i)
+```
+
+```{r, eval = FALSE}
 ihw_bh_rej %>%
   #filter( == 4) %>%
   ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
   geom_line() +
   geom_point(size = 2) +
   ylab("Number of rejections") +
-  xlab("number covariates") +
-  theme(legend.position="bottom")+
- guides(
-  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
-  shape = "none"
- ) +
-  facet_wrap(~alphas ) +
-  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
-  #scale_y_log10(limits= c(0,5000)) #+
-  ylim(0,NA)
-```
-
-```{r}
-ihw_bh_rej %>%
-  #filter( == 4) %>%
-  ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
-  geom_line() +
-  geom_point(size = 2) +
-  ylab("Number of rejections") +
-  xlab("number covariates") +
-  theme(legend.position="bottom")+
- guides(
-  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
-  shape = "none"
- ) +
-  facet_wrap(~alphas ) +
-  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
-  #scale_y_log10(limits= c(0,5000)) #+
-  ylim(0,NA)
-```
-
-```{r}
-ihw_bh_rej %>%
-  #filter( == 4) %>%
-  ggplot(aes(x = number_covariates, y = elapsed_time, col = stratification_method)) +
-  geom_line() +
-  geom_point(size = 2) +
-  ylab("Time") +
-  xlab("number covariates") +
+  xlab("Target FDR") +
   theme(legend.position="bottom")+
  guides(
   color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
