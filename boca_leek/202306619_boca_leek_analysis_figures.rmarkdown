@@ -292,10 +292,6 @@ ihw_i <- tryCatch(
 head(ihw_rej)
 ```
 
-```{r, eval = TRUE}
-ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
-```
-
 ## plot
 
 add BH to every subpanel
