@@ -14,7 +14,7 @@ library(dplyr)
 #devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all(here::here("IHWForestPaper"))
 devtools::load_all("/g/huber/users/fridljand/R/IHW")
-devtools::load_all(here::here("IHWForestPaper/adaptMT"))
+#devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 ## ---parameters----
 m <- 1e5 # TODO more
 r <- 1
@@ -51,8 +51,8 @@ forest_par <- list(
 ## -----high dim sim------
 eval_high_dim_sim <- eval_high_dim_sim(
   m = 1000,
-  r = 1,
-  dimensions = seq(from = 2, to = 2, by = 1),
+  r = 20,
+  dimensions = seq(from = 2, to = 20, by = 1),
   forest_par,
   lfdr_only = TRUE
 )
