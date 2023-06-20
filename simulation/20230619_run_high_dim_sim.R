@@ -30,30 +30,17 @@ forest_par <- list(
   nodedepth = 3,
   nodesize = 1000
 )
-## -----small region sim------
-# lengths <- seq(from = 1, to = 1001, by = 250)
 
-# eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
-# saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds")
-
-## -----noise sim------
-# dimensions <- seq(from = 1, to = 11, by = 10)
-
-#eval_noise_sim <- eval_noise_sim(m,
-#  r,
-#  dimensions = seq(from = 1, to = 4, by = 1),
-#  forest_par,
-#  lfdr_only = TRUE,
-#  null_proportion = TRUE
-#)
-#saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
 
 ## -----high dim sim------
+dimensions <- seq(from = 2, to = 20, by = 1)
+
 eval_high_dim_sim <- eval_high_dim_sim(
-  m = 1000,
+  m = 10000,
   r = 20,
-  dimensions = seq(from = 2, to = 20, by = 1),
+  dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE
 )
+print(dimensions)
 saveRDS(eval_high_dim_sim, file = "data/eval_high_dim_sim.Rds")
