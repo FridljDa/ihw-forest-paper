@@ -165,8 +165,8 @@ head(parameters_run)
 parameters_run <- parameters_run %>%
   filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
          #& 
-           stratification_method == "quantiles" &
-     number_covariates %in% c(1) & 
+          # stratification_method == "quantiles" &
+     #number_covariates %in% c(1) & 
        alphas == 0.04 
          )
 #parameters_run
