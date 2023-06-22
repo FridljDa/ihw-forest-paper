@@ -6,7 +6,7 @@
 #SBATCH -N 1                        # number of nodes
 #SBATCH -n 3                        # number of cores
 #SBATCH --mem 2G                    # memory pool for all cores
-#SBATCH -t 0-2:00                   # runtime limit (D-HH:MM:SS)
+#SBATCH -t 2-2:00                   # runtime limit (D-HH:MM:SS)
 #SBATCH -o simulation/out/high_dim_sim_out-%j.out
 #SBATCH -e simulation/error_out/high_dim_sim_er-%j.err          # STDERR
 #SBATCH --mail-type=END,FAIL        # notifications for job done & fail
