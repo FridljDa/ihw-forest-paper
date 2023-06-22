@@ -58,9 +58,6 @@ folds <- BMI_GIANT_GWAS$chr_name %>%
   as.factor() %>%
   as.integer()
 
-cat("BMI_GIANT_GWAS")
-head(BMI_GIANT_GWAS)
-
 
 ## ---------------------------------------------------------------------------
 BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
@@ -150,10 +147,11 @@ parameters_run <- parameters_run %>%
     ) 
   )
 
-cat("parameters_run")
+cat("parameters_run\n")
 head(parameters_run)
 
-
+cat("\n")
+cat(nrow(parameters_run))
 ## ---- eval = TRUE-----------------------------------------------------------
 #parameters_run_copy <- parameters_run
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
@@ -162,13 +160,13 @@ head(parameters_run)
 #    ungroup()
 
 #---dry run---
-parameters_run <- parameters_run %>%
-  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
+#parameters_run <- parameters_run %>%
+#  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
          #& 
           # stratification_method == "quantiles" &
      #number_covariates %in% c(1) & 
-       alphas == 0.04 
-         )
+#       alphas == 0.04 
+#         )
 #parameters_run
 
 
@@ -315,5 +313,5 @@ ihw_bh_rej <- plyr::rbind.fill(bh_rejections_copied, ihw_rej)
 
 
 ## ---- eval=TRUE-------------------------------------------------------------
-saveRDS(ihw_bh_rej, paste0("data/", Sys.Date(), "_boca_leek_analysis.RDS"))
+saveRDS(ihw_bh_rej, paste0("boca_leek/data/", Sys.Date(), "_boca_leek_analysis.RDS"))
 

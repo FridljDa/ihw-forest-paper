@@ -50,5 +50,5 @@ eval_high_dim_sim <- eval_high_dim_sim(
 print("\n")
 print(head(eval_high_dim_sim))
 
-saveRDS(eval_high_dim_sim, paste0("data/", Sys.Date(), "_eval_high_dim_sim.Rds"))
+saveRDS(eval_high_dim_sim, paste0("simulation/data/", Sys.Date(), "_eval_high_dim_sim.Rds"))
 
