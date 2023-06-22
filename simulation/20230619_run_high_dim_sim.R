@@ -16,7 +16,7 @@ devtools::load_all(here::here("IHWForestPaper"))
 if(Sys.info()["sysname"] == "Darwin"){
   devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 }else{
-  devtools::load_all(here("/g/huber/users/fridljand/R/IHW"))
+  devtools::load_all("/g/huber/users/fridljand/R/IHW")
 }
 
 #devtools::load_all(here::here("IHWForestPaper/adaptMT"))
@@ -45,5 +45,5 @@ eval_high_dim_sim <- eval_high_dim_sim(
   lfdr_only = TRUE
 )
 print(dimensions)
-saveRDS(eval_high_dim_sim, file = "data/eval_high_dim_sim.Rds")
+saveRDS(eval_high_dim_sim, paste0("data/", Sys.Date(), "_eval_high_dim_sim.Rds"))
 
