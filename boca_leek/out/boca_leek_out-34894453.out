@@ -1,0 +1,114 @@
+BMI_GIANT_GWAS# A tibble: 6 x 13
+  refsnp_id minor_a~1 chr_n~2 chrom~3 chrom~4 A1    A2    Freq_~5       b     se
+  <chr>         <dbl> <chr>     <int>   <int> <chr> <chr>   <dbl>   <dbl>  <dbl>
+1 rs1000039    0.0605 10       1.05e7  1.05e7 T     G      0.025   0.0008 0.0104
+2 rs1000050    0.379  1        1.63e8  1.63e8 C     T      0.1    -0.0002 0.0053
+3 rs1000073    0.366  1        1.57e8  1.57e8 A     G      0.314   0.0006 0.0037
+4 rs1000075    0.314  1        9.47e7  9.47e7 T     C      0.358  -0.0031 0.0037
+5 rs1000085    0.111  1        6.64e7  6.64e7 C     G      0.167   0.0017 0.0043
+6 rs1000107    0.0363 10       8.93e7  8.93e7 C     T      0.0333 -0.0133 0.019 
+# ... with 3 more variables: p <dbl>, N <dbl>, Freq_MAF_Int_Hapmap <fct>, and
+#   abbreviated variable names 1: minor_allele_freq, 2: chr_name,
+#   3: chrom_start, 4: chrom_end, 5: Freq_MAF_Hapmap
+parameters_run       formula alphas lambdas stratification_method nbins_quantile
+1      ~, p, N   0.01    auto             quantiles              5
+2 ~, p, Fr....   0.01    auto             quantiles             25
+3 ~, p, Fr....   0.01    auto             quantiles            125
+4 ~, p, Fr....   0.01    auto             quantiles            625
+5 ~, p, Fr....   0.01    auto             quantiles           3125
+6 ~, p, Fr....   0.01    auto             quantiles          15625
+  nodedepth_forest n_censor_thres ntrees nodesize number_covariates
+1               NA             NA     NA       NA                 1
+2               NA             NA     NA       NA                 2
+3               NA             NA     NA       NA                 3
+4               NA             NA     NA       NA                 4
+5               NA             NA     NA       NA                 5
+6               NA             NA     NA       NA                 6
+                                                                      formula_string
+1                                                                              p ~ N
+2                                                            p ~ Freq_MAF_Hapmap + N
+3                                        p ~ Freq_MAF_Hapmap + N + minor_allele_freq
+4                           p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1
+5              p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2
+6 p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3
+[1] "run:1"
+bh_rejections  stratification_method    formula formula_string number_covariates alphas
+1                    BH pvalue ~ 1     pvalue ~ 1                 0   0.04
+  rejections nbins_covariates
+1       1579                0
+running IHWStarting 1th job.
+Starting 2th job.
+Starting 3th job.
+running IHW: 14.821 sec elapsed
+Finishing 1th job.
+Starting 4th job.
+running IHW: 35.359 sec elapsed
+Finishing 2th job.
+Starting 5th job.
+running IHW: 47.241 sec elapsed
+Finishing 3th job.
+Starting 6th job.
+running IHW: 130.399 sec elapsed
+Finishing 4th job.
+Starting 7th job.
+running IHW: 921.153 sec elapsed
+Finishing 5th job.
+Starting 8th job.
+running IHW: 1244.369 sec elapsed
+Finishing 6th job.
+Starting 9th job.
+running IHW: 138.871 sec elapsed
+Finishing 9th job.
+Starting 12th job.
+running IHW: 217.752 sec elapsed
+Finishing 12th job.
+Starting 15th job.
+running IHW: 269.768 sec elapsed
+Finishing 15th job.
+running IHW: 3006.116 sec elapsed
+Finishing 7th job.
+Starting 10th job.
+running IHW: 123.943 sec elapsed
+Finishing 10th job.
+Starting 13th job.
+running IHW: 180.831 sec elapsed
+Finishing 13th job.
+Starting 16th job.
+running IHW: 233.608 sec elapsed
+Finishing 16th job.
+running IHW: 3371.904 sec elapsed
+Finishing 8th job.
+Starting 11th job.
+running IHW: 148.767 sec elapsed
+Finishing 11th job.
+Starting 14th job.
+running IHW: 189.691 sec elapsed
+Finishing 14th job.
+       formula alphas lambdas stratification_method nbins_quantile
+1      ~, p, N   0.04    auto             quantiles              5
+2 ~, p, Fr....   0.04    auto             quantiles             25
+3 ~, p, Fr....   0.04    auto             quantiles            125
+4 ~, p, Fr....   0.04    auto             quantiles            625
+5 ~, p, Fr....   0.04    auto             quantiles           3125
+6 ~, p, Fr....   0.04    auto             quantiles          15625
+  nodedepth_forest n_censor_thres ntrees nodesize number_covariates
+1               NA             NA     NA       NA                 1
+2               NA             NA     NA       NA                 2
+3               NA             NA     NA       NA                 3
+4               NA             NA     NA       NA                 4
+5               NA             NA     NA       NA                 5
+6               NA             NA     NA       NA                 6
+                                                                      formula_string
+1                                                                              p ~ N
+2                                                            p ~ Freq_MAF_Hapmap + N
+3                                        p ~ Freq_MAF_Hapmap + N + minor_allele_freq
+4                           p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1
+5              p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2
+6 p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3
+  effective_nbins_covariates rejections elapsed_time
+1                          5       1891       14.821
+2                         25       2133       35.359
+3                        125       2225       47.241
+4                        625       2191      130.399
+5                       3125       2038      921.153
+6                      15625       1770     1244.369
