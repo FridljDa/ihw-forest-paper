@@ -25,29 +25,7 @@ registerDoParallel(cores=2)
 ```
 
 ```{r}
-getPrimeNumbers <- function(n) {  
-   n <- as.integer(n)
-   if(n > 1e6) stop("n too large")
-   primes <- rep(TRUE, n)
-   primes[1] <- FALSE
-   last.prime <- 2L
-   for(i in last.prime:floor(sqrt(n)))
-   {
-      primes[seq.int(2L*last.prime, n, last.prime)] <- FALSE
-      last.prime <- last.prime + min(which(primes[(last.prime+1):n]))
-   }
-   which(primes)
-}
-```
-
-```{r}
-library(doParallel)  
-cores <- detectCores() - 1  
-mclapply(10:10000, getPrimeNumbers, mc.cores=cores)  
-```
-
-```{r}
-devtools::load_all(here("../IHW"))
+devtools::load_all("../../IHW")
 #devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 #list.files("../../IHW")
 
@@ -151,9 +129,9 @@ parameters_run_forest <- expand.grid(
   nbins_quantile = "auto", 
   #parameters for forest 
   nodedepth_forest = NA, #8
-  n_censor_thres = 1,# 
-  ntrees = 1, #3  
-  nodesize = 3000
+  n_censor_thres = 3, 
+  ntrees = 3,  
+  nodesize = 20
 )
 
 parameters_run <- rbind(parameters_run_quantile, parameters_run_forest)
@@ -167,7 +145,7 @@ parameters_run <- parameters_run %>%
     stratification_method = as.character(stratification_method)
   )
 
-per_covariate_bins <- 5
+per_covariate_bins <- 10
 #make sure we have the same number of total bins between forest and quantiles
 parameters_run <- parameters_run %>%
   mutate(
@@ -192,17 +170,11 @@ head(parameters_run)
 ### dry run
 
 ```{r, eval = TRUE}
-#parameters_run_copy <- parameters_run
-#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
-#    group_by(chr_name) %>%
-#    sample_n(20000)# %>%
-#    ungroup()
-
-parameters_run <- parameters_run %>%
-  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
-         #& 
-           #stratification_method == "quantiles"
-     number_covariates %in% c(4,5,6) & alphas == 0.04 
+parameters_run_copy <- parameters_run
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% sample_n(20000)
+parameters_run <- parameters_run_copy %>%
+  filter(alphas == 0.04 & number_covariates %in% c(1,2,3,4)
+         & stratification_method == "quantiles"
          )
 parameters_run
 ```
@@ -242,15 +214,13 @@ head(bh_rejections)
 
 ```{r}
 # Set the timeout duration in seconds
-timeout <- 60*20
+timeout <- 60*10
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {
-#ihw_rej <- purrr::map_dfr(seq_len(nrow(parameters_run)),
-#                          function(i){
 #for(i in seq_len(nrow(parameters_run))){
   cat('Starting ', i, 'th job.\n', sep = '')
     
@@ -278,6 +248,7 @@ ihw_i <- tryCatch(
           formula = formula,
           data = data,
           alpha = alpha,
+          folds = folds,
           lambdas = lambdas,
           stratification_method = stratification_method,
           nbins = nbins,
@@ -286,7 +257,6 @@ ihw_i <- tryCatch(
           nodedepth = nodedepth,
           nodesize = nodesize
         )
-        
       },
       timeout = timeout
     )
@@ -317,13 +287,9 @@ ihw_i <- tryCatch(
       
   cat('Finishing ', i, 'th job.\n', sep = '')
   res_i # this will become part of the out object
-}#)
+}
 
 head(ihw_rej)
-```
-
-```{r, eval = FALSE}
-ihw_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
 ```
 
 ## plot
@@ -525,20 +491,33 @@ parameters_run
 ```
 
 ```{r, eval = FALSE}
+`2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[5]][["res_i"]][["rejections"]]
+```
+
+```{r, eval = FALSE}
+ihw_rej[[4]][["ihw_i"]]@regularization_term
+```
+
+```{r, eval = FALSE}
+ihw_i <- `2023-06-06_quantile_with_ihw_object_boca_leek_analysis`[[6]]$ihw_i
+plot(ihw_i)
+```
+
+```{r, eval = FALSE}
 ihw_bh_rej %>%
   #filter( == 4) %>%
   ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
   geom_line() +
   geom_point(size = 2) +
   ylab("Number of rejections") +
-  xlab("number covariates") +
+  xlab("Target FDR") +
   theme(legend.position="bottom")+
  guides(
   color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
   shape = "none"
  ) +
   facet_wrap(~alphas ) +
-  scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
   #scale_y_log10(limits= c(0,5000)) #+
   ylim(0,NA)
 ```
