@@ -15,7 +15,7 @@ library(doRNG)
 library(doParallel)
 library(parallel)
  
-registerDoParallel(cores=2)
+registerDoParallel(cores=3)
 
 
 ## ---------------------------------------------------------------------------
@@ -55,6 +55,8 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
 folds <- BMI_GIANT_GWAS$chr_name %>%
   as.factor() %>%
   as.integer()
+
+cat("BMI_GIANT_GWAS")
 head(BMI_GIANT_GWAS)
 
 
@@ -111,8 +113,8 @@ parameters_run_forest <- expand.grid(
   nbins_quantile = "auto", 
   #parameters for forest 
   nodedepth_forest = NA, #8
-  n_censor_thres = 1,# 
-  ntrees = 1, #3  
+  n_censor_thres = 3,# 
+  ntrees = 10, #3  
   nodesize = 3000
 )
 
@@ -146,6 +148,7 @@ parameters_run <- parameters_run %>%
     ) 
   )
 
+cat("parameters_run")
 head(parameters_run)
 
 
@@ -156,14 +159,15 @@ head(parameters_run)
 #    sample_n(20000)# %>%
 #    ungroup()
 
-#parameters_run <- parameters_run %>%
-#  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
+#---dry run---
+parameters_run <- parameters_run %>%
+  filter(#alphas == 0.04 #& number_covariates %in% c(4) #,2,3,4
          #& 
-      #     stratification_method == "quantiles" &
-     #number_covariates %in% c(4,5,6,7) & 
-       #alphas == 0.04 
-#         )
-parameters_run
+           stratification_method == "quantiles" &
+     number_covariates %in% c(1) & 
+       alphas == 0.04 
+         )
+#parameters_run
 
 
 ## ---------------------------------------------------------------------------
@@ -192,6 +196,8 @@ bh_rejections <- foreach(i = seq_len(nrow(alpha_levels)),
   )
 }
 bh_rejections <- bind_rows(bh_rejections)
+
+cat("bh_rejections")
 head(bh_rejections)
 
 
@@ -201,6 +207,7 @@ timeout <- 60*50
 
 
 ## ---- eval = TRUE-----------------------------------------------------------
+cat("running IHW")
 ihw_rej <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {

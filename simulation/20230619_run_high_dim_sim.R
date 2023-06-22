@@ -11,62 +11,36 @@ library(dplyr)
 # library(IHWStatsPaper)
 
 # library("IHW")
-devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 devtools::load_all(here::here("IHWForestPaper"))
-<<<<<<< HEAD:scripts/simulations.R
-#devtools::load_all("../IHW")
-=======
-devtools::load_all("/g/huber/users/fridljand/R/IHW")
-devtools::load_all(here::here("IHWForestPaper/adaptMT"))
->>>>>>> c37bf7749a80a0ccfc67537366608690109fd638:simulation/20230619_run_high_dim_sim.R
-## ---parameters----
-m <- 1e5 # TODO more
-r <- 1
-# number of monte carlo replicates, increases run time immensely!
 
-alpha <- .1
+devtools::load_all("/g/huber/users/fridljand/R/IHW")
+
+#devtools::load_all(here::here("IHWForestPaper/adaptMT"))
+
+## ---parameters----
+# number of monte carlo replicates, increases run time immensely!
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 forest_par <- list(
-  ntrees = 1,
+  ntrees = 10,
   n_censor_thres = 1,
   nodedepth = 3,
   nodesize = 1000
 )
-## -----small region sim------
-# lengths <- seq(from = 1, to = 1001, by = 250)
 
-# eval_small_region_sim <- IHWForestPaper::eval_small_region_sim(m, r, lengths, forest_par)
-# saveRDS(eval_small_region_sim, file = "precomputed_results/small_region_sim.Rds")
-
-## -----noise sim------
-# dimensions <- seq(from = 1, to = 11, by = 10)
-
-#eval_noise_sim <- eval_noise_sim(m,
-#  r,
-#  dimensions = seq(from = 1, to = 4, by = 1),
-#  forest_par,
-#  lfdr_only = TRUE,
-#  null_proportion = TRUE
-#)
-#saveRDS(eval_noise_sim, file = "precomputed_results/noise_sim.Rds")
 
 ## -----high dim sim------
+dimensions <- seq(from = 2, to = 2, by = 1)
+
 eval_high_dim_sim <- eval_high_dim_sim(
-  m = 1000,
-<<<<<<< HEAD:scripts/simulations.R
-  r = 10,
-  dimensions = seq(from = 2, to = 10, by = 1),
-  forest_par,
-  lfdr_only = TRUE
-)
-saveRDS(eval_high_dim_sim, file = "precomputed_results/eval_high_dim_sim.Rds")
-=======
+  m = 10000,
   r = 1,
-  dimensions = seq(from = 2, to = 2, by = 1),
+  dimensions = dimensions,
   forest_par,
-  lfdr_only = TRUE
+  lfdr_only = FALSE
 )
+print(dimensions)
 saveRDS(eval_high_dim_sim, file = "data/eval_high_dim_sim.Rds")
->>>>>>> c37bf7749a80a0ccfc67537366608690109fd638:simulation/20230619_run_high_dim_sim.R
+
