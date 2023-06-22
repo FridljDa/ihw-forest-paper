@@ -19,10 +19,12 @@ registerDoParallel(cores=3)
 
 
 ## ---------------------------------------------------------------------------
-devtools::load_all(here("../IHW"))
-#devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-#list.files("../../IHW")
-
+##list.files("../../IHW")
+if(Sys.info()["sysname"] == "Darwin"){
+  devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+}else{
+  devtools::load_all(here("../IHW"))
+}
 
 
 ## ---------------------------------------------------------------------------

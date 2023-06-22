@@ -7,12 +7,12 @@
 #SBATCH -n 3                        # number of cores
 #SBATCH --mem 5G                    # memory pool for all cores
 #SBATCH -t 0-2:00                   # runtime limit (D-HH:MM:SS)
-#SBATCH -o out/boca_leek_out-%j.out
-#SBATCH -e error_out/boca_leek_er-%j.err          # STDERR
+#SBATCH -o boca_leek/out/boca_leek_out-%j.out
+#SBATCH -e boca_leek/error_out/boca_leek_er-%j.err          # STDERR
 #SBATCH --mail-type=All        # notifications for job done & fail
 #SBATCH --mail-user=daniel.fridljand@embl.de # send-to address
 # Load software
 module load R
 
 # Run R script
-Rscript 202306619_boca_leek_analysis_script.R 
+Rscript boca_leek/202306619_boca_leek_analysis_script.R 
