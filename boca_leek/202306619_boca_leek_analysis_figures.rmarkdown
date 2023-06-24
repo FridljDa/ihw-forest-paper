@@ -18,10 +18,8 @@ options(bitmapType ="cairo")
 
 ## plot
 
-```{r, eval=FALSE}
-
-#ihw_bh_rej <- readRDS("data/2023-06-01_boca_leek_analysis.RDS")
-ihw_bh_rej <- readRDS("/Users/default/Desktop/2023-06-22_boca_leek_analysis.RDS")
+```{r, eval=TRUE}
+ihw_bh_rej <- readRDS("data/2023-06-22_boca_leek_analysis.RDS")
 ```
 
 ```{r}
