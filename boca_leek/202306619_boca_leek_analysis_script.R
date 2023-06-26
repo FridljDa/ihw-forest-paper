@@ -91,7 +91,7 @@ formula_mt <- sapply(formula_mt, as.formula)
 ## ---------------------------------------------------------------------------
 parameters_run_quantile <- expand.grid(
   formula = formula_mt,
-  alphas = seq(0.01, 0.1, length.out = 4), #
+  alphas = seq(0.01, 0.1, length.out = 8), #
   lambdas = "auto",
   stratification_method = "quantiles",
   #parameters for quantile
@@ -105,7 +105,7 @@ parameters_run_quantile <- expand.grid(
 
 parameters_run_forest <- expand.grid(
   formula = formula_mt,
-  alphas = seq(0.01, 0.1, length.out = 4), #2
+  alphas = seq(0.01, 0.1, length.out = 8), #2
   lambdas = "Inf",
   stratification_method = "forest",
   #parameters for quantile
@@ -113,7 +113,7 @@ parameters_run_forest <- expand.grid(
   #parameters for forest 
   nodedepth_forest = NA, #8
   n_censor_thres = 3,# 
-  ntrees = 10, #3  
+  ntrees = 30, #3  
   nodesize = 3000
 )
 
