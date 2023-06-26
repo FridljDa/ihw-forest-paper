@@ -1,0 +1,112 @@
+---
+title: "boca_leek_dataset"
+format: html
+editor: visual
+bibliography: references.bib
+---
+
+```{r, echo=FALSE, message = FALSE}
+library(ggplot2)
+library(here)
+library(dplyr)
+library(magrittr)
+library(R.utils)
+
+set.seed(4)
+options(bitmapType ="cairo")
+```
+
+## plot
+
+```{r, eval=TRUE}
+ihw_bh_rej <- readRDS("data/2023-06-24_boca_leek_analysis.RDS")
+```
+
+```{r}
+ihw_bh_rej %>%
+  #filter(number_covariates == 4) %>%
+  ggplot(aes(x = alphas, y = rejections, col = stratification_method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("Target FDR") +
+  theme(legend.position="bottom")+
+ guides(
+  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  shape = "none"
+ ) +
+  facet_wrap(~number_covariates, labeller = labeller(number_covariates = function(number_covariates_i){
+    ifelse(number_covariates_i == 1,
+           "1 Covariate",
+           paste(number_covariates_i, "Covariates"))
+  }) ) +
+  scale_x_continuous(breaks = unique(ihw_bh_rej$alpha)) +
+  #scale_y_log10(limits= c(0,5000)) #+
+  ylim(0,NA)
+# breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
+# scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
+
+```
+
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Number covariate | variable name     | explanation                                                                                                                                                                                   |
++==================+===================+===============================================================================================================================================================================================+
+| 1                | N                 | The Locke et al. data set was obtained by combining multiple studies (TODO cite).                                                                                                             |
+|                  |                   |                                                                                                                                                                                               |
+|                  |                   | "In these studies, the sample size may not be the same for each SNP, for example, if different individuals are measured with different technologies which measure different SNPs."[@boca2018] |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 2                | Freq_MAF_Hapmap   | empirical MAF obtained from data set                                                                                                                                                          |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 3                | minor_allele_freq |                                                                                                                                                                                               |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 4                | covariate1        | track: wgEncodeRegMarkH3k27ac                                                                                                                                                                 |
+|                  |                   |                                                                                                                                                                                               |
+|                  |                   | table: wgEncodeBroadHistoneGm12878H3k27acStdSig                                                                                                                                               |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 5                | covariate2        | track: wgEncodeRegMarkH3k4me3                                                                                                                                                                 |
+|                  |                   |                                                                                                                                                                                               |
+|                  |                   | table: wgEncodeBroadHistoneGm12878H3k4me3StdSig                                                                                                                                               |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 6                | covariate3        | track: wgEncodeUwTfbs                                                                                                                                                                         |
+|                  |                   |                                                                                                                                                                                               |
+|                  |                   | table: wgEncodeUwTfbsGm12878CtcfStdHotspotsRep1                                                                                                                                               |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 7                | covariate4        | track: wgEncodeUwDnase                                                                                                                                                                        |
+|                  |                   |                                                                                                                                                                                               |
+|                  |                   | table: wgEncodeUwDnaseGm12878HotspotsRep1                                                                                                                                                     |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 8                | covariate5        | track: wgEncodeRegMarkH3k4me1                                                                                                                                                                 |
+|                  |                   |                                                                                                                                                                                               |
+|                  |                   | table: wgEncodeBroadHistoneGm12878H3k4me1StdSig                                                                                                                                               |
++------------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+## detail analysis
+
+```{r, eval = TRUE}
+ihw_bh_rej %>% #ihw_bh_rej
+  group_by(number_covariates, stratification_method) %>%
+  summarise(effective_nbins_covariates = mean(effective_nbins_covariates)) %>%
+  filter(stratification_method != "BH") %>%
+  ggplot(aes(x = number_covariates, y = effective_nbins_covariates, col = stratification_method)) +
+  geom_line()
+```
+
+```{r, eval = TRUE}
+ihw_bh_rej %>%
+  #filter( == 4) %>%
+  ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Number of rejections") +
+  xlab("number covariates") +
+  theme(legend.position="bottom")+
+ guides(
+  color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+  shape = "none"
+ ) +
+  facet_wrap(~alphas ) +
+  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
+  scale_x_continuous(breaks = unique(ihw_bh_rej$alpha)) +
+  #scale_y_log10(limits= c(0,5000)) #+
+  ylim(0,NA)
+```

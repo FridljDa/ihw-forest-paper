@@ -2,6 +2,9 @@ library(doRNG)
 library(doParallel)
 library(parallel)
 
+
+inv_logit <- function(x) {exp(x) / (1 + exp(x))}
+
 high_dim_sim <- function(m, r, dimensions){
   sim_combs <- expand.grid(
     m = m,
@@ -39,7 +42,6 @@ high_dim_sim <- function(m, r, dimensions){
   simple_sim
 }
 
-inv_logit <- function(x) {exp(x) / (1 + exp(x))}
 
 ## -------evaluate-----
 #library(doRNG) #TODO
@@ -54,6 +56,35 @@ eval_high_dim_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_on
   n.cores <- parallel::detectCores()
   doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
+  #eval <- lapply(seq_along(sim), function(i){
+  eval <- foreach(i = seq_along(sim)) %dorng% {
+    #i <- 1
+    print(paste0("simulation run:", i))
+    sim_i <- sim[[i]]
+    dimension_i <- sim_i$dimension
+    seed_i <- sim_i$seed
+    
+    Ps_i <- sim_i$pvalue
+    Xs_i <- sim_i$covariate
+    Hs_i <- sim_i$Hs
+    
+    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
+    
+    mutate(sim_res_i, dimension = dimension_i)
+  }
+  eval <- bind_rows(eval)
+}
+
+#' @import doRNG
+#' @import doParallel
+#' @import parallel
+#' @export
+eval_high_dim_sim_param <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only = FALSE, null_proportion = T){
+  sim <- high_dim_sim(m, r, dimensions)
+  n.cores <- parallel::detectCores()
+  doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+  
+  #expand.grid
   #eval <- lapply(seq_along(sim), function(i){
   eval <- foreach(i = seq_along(sim)) %dorng% {
     #i <- 1
