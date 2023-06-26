@@ -27,7 +27,7 @@ if(Sys.info()["sysname"] == "Darwin"){
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 forest_par <- list(
-  ntrees = 10,
+  ntrees = 5,
   n_censor_thres = 1,
   nodedepth = 3,
   nodesize = 1000
@@ -35,14 +35,14 @@ forest_par <- list(
 
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 20, by = 2)
+dimensions <- seq(from = 2, to = 8, by = 1)
 
-print("dimensions\n")
+cat("dimensions\n")
 print(dimensions)
 print("\n")
 eval_high_dim_sim <- eval_high_dim_sim(
-  m = 10000,
-  r = 10,
+  m = 1000,
+  r = 30,
   dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE
