@@ -63,3 +63,15 @@ run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, fores
          alpha=alpha,
          m = m)
 }
+
+run_ihw_forest <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par, null_proportion = T){
+  ihw_forest_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion)))) 
+  
+  sim_res <-  mutate(ihw_forest_res, method="IHW-forest")
+  
+  mutate(sim_res,
+         seed = seed,
+         pi0s = mean(1-Hs),
+         alpha=alpha,
+         m = m)
+}

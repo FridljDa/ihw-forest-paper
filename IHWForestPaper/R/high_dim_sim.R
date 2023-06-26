@@ -79,27 +79,60 @@ eval_high_dim_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_on
 #' @import doParallel
 #' @import parallel
 #' @export
-eval_high_dim_sim_param <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only = FALSE, null_proportion = T){
+eval_high_dim_sim_param <- function(
+    m,
+    r,
+    dimensions,
+    tau = 0.5,
+    ntrees = 10,
+    nodedepth = 3,
+    nodesize = 1000,
+    alpha = 0.1,
+    null_proportion = T
+){
+  
+  forest_param_grid <- expand.grid(
+    #tau = tau,
+    n_censor_thres = 1,
+    ntrees = ntrees,
+    nodedepth = nodedepth,
+    nodesize = nodesize
+  )
+  
   sim <- high_dim_sim(m, r, dimensions)
   n.cores <- parallel::detectCores()
   doParallel::registerDoParallel(cores = min(3, n.cores - 1))
   
-  #expand.grid
   #eval <- lapply(seq_along(sim), function(i){
-  eval <- foreach(i = seq_along(sim)) %dorng% {
+  eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
     #i <- 1
-    print(paste0("simulation run:", i))
-    sim_i <- sim[[i]]
-    dimension_i <- sim_i$dimension
-    seed_i <- sim_i$seed
-    
-    Ps_i <- sim_i$pvalue
-    Xs_i <- sim_i$covariate
-    Hs_i <- sim_i$Hs
-    
-    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
-    
-    mutate(sim_res_i, dimension = dimension_i)
+    eval <- foreach(j = seq_along(nrow(forest_param_grid)), .combine = rbind) %dorng% {
+      #j <- 1
+      print(paste0("simulation run:", i))
+      sim_i <- sim[[i]]
+      forest_param_i <- as.list(forest_param_grid[j,])
+      dimension_i <- sim_i$dimension
+      seed_i <- sim_i$seed
+      
+      Ps_i <- sim_i$pvalue
+      Xs_i <- sim_i$covariate
+      Hs_i <- sim_i$Hs
+      
+      sim_res_i <- run_ihw_forest(Ps_i, 
+                           Xs_i, 
+                           Hs_i, 
+                           seed_i, 
+                           alpha = 0.1, 
+                           m = m, 
+                           lfdr_only = lfdr_only, 
+                           forest_par = forest_param_i, 
+                           null_proportion = null_proportion)
+      
+      sim_res_i <- cbind(sim_res_i, forest_param_grid[j,], row.names = NULL)
+      sim_res_i <- mutate(sim_res_i, dimension = dimension_i)
+      sim_res_i
+    }
   }
-  eval <- bind_rows(eval)
+  #eval <- bind_rows(eval)
+  eval
 }

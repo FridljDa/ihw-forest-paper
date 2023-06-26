@@ -26,30 +26,31 @@ if(Sys.info()["sysname"] == "Darwin"){
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
-tau = 0.5
-ntrees = 10
-nodedepth = 3
-nodesize = 1000
+m = 1000
+r = 5
+#tau = 0.5
+ntrees = c(5,10,20,30)
+nodedepth = c(3,4,5,6)
+nodesize = c(1000,2000,3000)
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 20, by = 2)
+dimensions <- seq(from = 2, to = 4, by = 1)
 
-print("dimensions\n")
-print(dimensions)
-print("\n")
+cat("dimensions\n")
+cat(dimensions)
+cat("\n")
 eval_high_dim_sim_param_df <- eval_high_dim_sim_param(
-  m = 10000,
-  r = 10,
-  tau = 0.5,
-  ntrees = 10,
-  nodedepth = 3,
-  nodesize = 1000,
+  m = m,
+  r = r,
   dimensions = dimensions,
-  forest_par,
-  lfdr_only = TRUE
+  tau = tau,
+  ntrees = ntrees,
+  nodedepth = nodedepth,
+  nodesize = nodesize,
+  forest_par
 )
-print("\n")
+cat("\n")
 print(head(eval_high_dim_sim_param_df))
 
-saveRDS(eval_high_dim_sim_param_df, paste0("simulation/data/", Sys.Date(), "_eval_high_dim_sim_param.Rds"))
+saveRDS(eval_high_dim_sim_param_df, paste0("grid_search/data/", Sys.Date(), "_eval_high_dim_sim_param.Rds"))
 
