@@ -31,7 +31,7 @@ r = 20
 #tau = 0.5
 ntrees = c(5,10,20,30,40)
 nodedepth = c(3,4,5,6,7)
-nodesize = c(500,1000,2000,3000,4000)
+nodesize = c(100,200,500,1000)
 
 ## -----high dim sim------
 dimensions <- seq(from = 2, to = 5, by = 1)

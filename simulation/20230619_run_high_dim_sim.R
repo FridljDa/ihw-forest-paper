@@ -35,14 +35,14 @@ forest_par <- list(
 
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 8, by = 1)
+dimensions <- seq(from = 2, to = 8, by = 2)
 
 cat("dimensions\n")
 print(dimensions)
 print("\n")
 eval_high_dim_sim <- eval_high_dim_sim(
-  m = 1000,
-  r = 30,
+  m = 10000,
+  r = 100,
   dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE

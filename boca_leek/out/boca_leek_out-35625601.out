@@ -1,0 +1,349 @@
+parameters_run
+       formula alphas lambdas stratification_method nbins_quantile
+1      ~, p, N   0.01    auto             quantiles              5
+2 ~, p, Fr....   0.01    auto             quantiles             25
+3 ~, p, Fr....   0.01    auto             quantiles            125
+4 ~, p, Fr....   0.01    auto             quantiles            625
+5 ~, p, Fr....   0.01    auto             quantiles           3125
+6 ~, p, Fr....   0.01    auto             quantiles          15625
+  nodedepth_forest n_censor_thres ntrees nodesize number_covariates
+1               NA             NA     NA       NA                 1
+2               NA             NA     NA       NA                 2
+3               NA             NA     NA       NA                 3
+4               NA             NA     NA       NA                 4
+5               NA             NA     NA       NA                 5
+6               NA             NA     NA       NA                 6
+                                                                      formula_string
+1                                                                              p ~ N
+2                                                            p ~ Freq_MAF_Hapmap + N
+3                                        p ~ Freq_MAF_Hapmap + N + minor_allele_freq
+4                           p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1
+5              p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2
+6 p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3
+
+128[1] "run:1"
+[1] "run:2"
+[1] "run:3"
+[1] "run:5"
+[1] "run:4"
+[1] "run:6"
+[1] "run:8"
+[1] "run:7"
+bh_rejections  stratification_method    formula formula_string number_covariates     alphas
+1                    BH pvalue ~ 1     pvalue ~ 1                 0 0.01000000
+2                    BH pvalue ~ 1     pvalue ~ 1                 0 0.02285714
+3                    BH pvalue ~ 1     pvalue ~ 1                 0 0.03571429
+4                    BH pvalue ~ 1     pvalue ~ 1                 0 0.04857143
+5                    BH pvalue ~ 1     pvalue ~ 1                 0 0.06142857
+6                    BH pvalue ~ 1     pvalue ~ 1                 0 0.07428571
+  rejections nbins_covariates
+1        935                0
+2       1215                0
+3       1479                0
+4       1725                0
+5       1995                0
+6       2271                0
+running IHWStarting 1th job.
+Starting 2th job.
+Starting 3th job.
+running IHW: 22.443 sec elapsed
+Finishing 1th job.
+Starting 4th job.
+running IHW: 23.47 sec elapsed
+Finishing 2th job.
+Starting 5th job.
+running IHW: 48.448 sec elapsed
+Finishing 3th job.
+Starting 6th job.
+running IHW: 190.936 sec elapsed
+Finishing 4th job.
+Starting 7th job.
+running IHW: 542.526 sec elapsed
+Finishing 5th job.
+Starting 8th job.
+running IHW: 1090.767 sec elapsed
+Finishing 6th job.
+Starting 9th job.
+running IHW: 22.663 sec elapsed
+Finishing 9th job.
+Starting 12th job.
+running IHW: 200.891 sec elapsed
+Finishing 12th job.
+Starting 15th job.
+running IHW: 3000.091 sec elapsed
+Finishing 7th job.
+Starting 10th job.
+running IHW: 36.834 sec elapsed
+Finishing 10th job.
+Starting 13th job.
+running IHW: 3000.058 sec elapsed
+Finishing 8th job.
+Starting 11th job.
+running IHW: 30.508 sec elapsed
+Finishing 11th job.
+Starting 14th job.
+running IHW: 912.176 sec elapsed
+Finishing 13th job.
+Starting 16th job.
+running IHW: 3000.297 sec elapsed
+Finishing 15th job.
+Starting 18th job.
+running IHW: 24.222 sec elapsed
+Finishing 18th job.
+Starting 21th job.
+running IHW: 1077.747 sec elapsed
+Finishing 14th job.
+Starting 17th job.
+running IHW: 22.735 sec elapsed
+Finishing 17th job.
+Starting 20th job.
+running IHW: 207.357 sec elapsed
+Finishing 20th job.
+Starting 23th job.
+running IHW: 652.927 sec elapsed
+Finishing 21th job.
+Starting 24th job.
+running IHW: 3051.803 sec elapsed
+Finishing 16th job.
+Starting 19th job.
+running IHW: 32.351 sec elapsed
+Finishing 19th job.
+Starting 22th job.
+running IHW: 3005.2 sec elapsed
+Finishing 23th job.
+Starting 26th job.
+running IHW: 28.968 sec elapsed
+Finishing 26th job.
+Starting 29th job.
+running IHW: 3113.812 sec elapsed
+Finishing 24th job.
+Starting 27th job.
+running IHW: 49.528 sec elapsed
+Finishing 27th job.
+Starting 30th job.
+running IHW: 965.692 sec elapsed
+Finishing 22th job.
+Starting 25th job.
+running IHW: 15.776 sec elapsed
+Finishing 25th job.
+Starting 28th job.
+running IHW: 136.591 sec elapsed
+Finishing 28th job.
+Starting 31th job.
+running IHW: 987.3 sec elapsed
+Finishing 29th job.
+Starting 32th job.
+running IHW: 1097.281 sec elapsed
+Finishing 30th job.
+Starting 33th job.
+running IHW: 16.292 sec elapsed
+Finishing 33th job.
+Starting 36th job.
+running IHW: 183.339 sec elapsed
+Finishing 36th job.
+Starting 39th job.
+running IHW: 3000.108 sec elapsed
+Finishing 31th job.
+Starting 34th job.
+running IHW: 32.076 sec elapsed
+Finishing 34th job.
+Starting 37th job.
+running IHW: 832.057 sec elapsed
+Finishing 37th job.
+Starting 40th job.
+running IHW: 3436.13 sec elapsed
+Finishing 32th job.
+Starting 35th job.
+running IHW: 31.888 sec elapsed
+Finishing 35th job.
+Starting 38th job.
+running IHW: 3000.038 sec elapsed
+Finishing 39th job.
+Starting 42th job.
+running IHW: 36.042 sec elapsed
+Finishing 42th job.
+Starting 45th job.
+running IHW: 826.36 sec elapsed
+Finishing 45th job.
+Starting 48th job.
+running IHW: 1216.235 sec elapsed
+Finishing 38th job.
+Starting 41th job.
+running IHW: 15.276 sec elapsed
+Finishing 41th job.
+Starting 44th job.
+running IHW: 136.315 sec elapsed
+Finishing 44th job.
+Starting 47th job.
+running IHW: 3682.685 sec elapsed
+Finishing 40th job.
+Starting 43th job.
+running IHW: 47.804 sec elapsed
+Finishing 43th job.
+Starting 46th job.
+running IHW: 3108.378 sec elapsed
+Finishing 48th job.
+Starting 51th job.
+running IHW: 31.826 sec elapsed
+Finishing 51th job.
+Starting 54th job.
+running IHW: 3006.375 sec elapsed
+Finishing 47th job.
+Starting 50th job.
+running IHW: 37.094 sec elapsed
+Finishing 50th job.
+Starting 53th job.
+sym_get_col_solution(): No solution has been stored!
+running IHW: 1424.194 sec elapsed
+Finishing 46th job.
+Starting 49th job.
+running IHW: 21.072 sec elapsed
+Finishing 49th job.
+Starting 52th job.
+running IHW: 993.063 sec elapsed
+Finishing 54th job.
+Starting 57th job.
+running IHW: 22.906 sec elapsed
+Finishing 57th job.
+Starting 60th job.
+running IHW: 221.812 sec elapsed
+Finishing 52th job.
+Starting 55th job.
+running IHW: 914.299 sec elapsed
+Finishing 53th job.
+Starting 56th job.
+running IHW: 231.07 sec elapsed
+Finishing 60th job.
+Starting 63th job.
+running IHW: 3000.079 sec elapsed
+Finishing 55th job.
+Starting 58th job.
+running IHW: 36.772 sec elapsed
+Finishing 58th job.
+Starting 61th job.
+running IHW: 3005.842 sec elapsed
+Finishing 63th job.
+Starting 66th job.
+running IHW: 3611.105 sec elapsed
+Finishing 56th job.
+Starting 59th job.
+running IHW: 30.389 sec elapsed
+Finishing 59th job.
+Starting 62th job.
+running IHW: 860.698 sec elapsed
+Finishing 61th job.
+Starting 64th job.
+running IHW: 956.183 sec elapsed
+Finishing 62th job.
+Starting 65th job.
+running IHW: 186.591 sec elapsed
+Finishing 65th job.
+Starting 68th job.
+running IHW: 417.07 sec elapsed
+Finishing 68th job.
+Starting 71th job.
+running IHW: 568.484 sec elapsed
+Finishing 71th job.
+Starting 74th job.
+running IHW: 258.822 sec elapsed
+Finishing 74th job.
+Starting 77th job.
+running IHW: 446.934 sec elapsed
+Finishing 77th job.
+Starting 80th job.
+running IHW: 598.003 sec elapsed
+Finishing 80th job.
+Starting 83th job.
+running IHW: 3837.243 sec elapsed
+Finishing 64th job.
+Starting 67th job.
+running IHW: 320.011 sec elapsed
+Finishing 67th job.
+Starting 70th job.
+running IHW: 420.29 sec elapsed
+Finishing 70th job.
+Starting 73th job.
+running IHW: 156.911 sec elapsed
+Finishing 73th job.
+Starting 76th job.
+running IHW: 350.808 sec elapsed
+Finishing 76th job.
+Starting 79th job.
+running IHW: 462.738 sec elapsed
+Finishing 79th job.
+Starting 82th job.
+running IHW: 223.516 sec elapsed
+Finishing 82th job.
+Starting 85th job.
+running IHW: 379.176 sec elapsed
+Finishing 85th job.
+Starting 88th job.
+running IHW: 491.293 sec elapsed
+Finishing 88th job.
+Starting 91th job.
+running IHW: 308.178 sec elapsed
+Finishing 91th job.
+Starting 94th job.
+running IHW: 421.507 sec elapsed
+Finishing 94th job.
+Starting 97th job.
+running IHW: 160.076 sec elapsed
+Finishing 97th job.
+Starting 100th job.
+running IHW: 356.129 sec elapsed
+Finishing 100th job.
+Starting 103th job.
+running IHW: 463.187 sec elapsed
+Finishing 103th job.
+Starting 106th job.
+running IHW: 223.933 sec elapsed
+Finishing 106th job.
+Starting 109th job.
+running IHW: 380.193 sec elapsed
+Finishing 109th job.
+Starting 112th job.
+running IHW: 496.282 sec elapsed
+Finishing 112th job.
+Starting 115th job.
+running IHW: 309.587 sec elapsed
+Finishing 115th job.
+Starting 118th job.
+running IHW: 423.15 sec elapsed
+Finishing 118th job.
+Starting 121th job.
+running IHW: 160.311 sec elapsed
+Finishing 121th job.
+Starting 124th job.
+running IHW: 356.245 sec elapsed
+Finishing 124th job.
+Starting 127th job.
+running IHW: 466.011 sec elapsed
+Finishing 127th job.
+        formula     alphas lambdas stratification_method nbins_quantile
+1       ~, p, N 0.01000000    auto             quantiles              5
+4  ~, p, Fr.... 0.01000000    auto             quantiles            625
+7  ~, p, Fr.... 0.01000000    auto             quantiles          78125
+10 ~, p, Fr.... 0.02285714    auto             quantiles             25
+13 ~, p, Fr.... 0.02285714    auto             quantiles           3125
+16 ~, p, Fr.... 0.02285714    auto             quantiles         390625
+   nodedepth_forest n_censor_thres ntrees nodesize number_covariates
+1                NA             NA     NA       NA                 1
+4                NA             NA     NA       NA                 4
+7                NA             NA     NA       NA                 7
+10               NA             NA     NA       NA                 2
+13               NA             NA     NA       NA                 5
+16               NA             NA     NA       NA                 8
+                                                                                                 formula_string
+1                                                                                                         p ~ N
+4                                                      p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1
+7               p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4
+10                                                                                      p ~ Freq_MAF_Hapmap + N
+13                                        p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2
+16 p ~ Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4 + covariate5
+   effective_nbins_covariates rejections elapsed_time
+1                           5       1057       22.443
+4                         625       1134      190.936
+7                          NA         NA     3000.091
+10                         25       1611       36.834
+13                       3125       1509      912.176
+16                         NA         NA     3051.803
