@@ -92,23 +92,26 @@ eval_high_dim_sim_param <- function(
 ){
   
   forest_param_grid <- expand.grid(
-    #tau = tau,
-    n_censor_thres = 1,
+    tau = tau,
+    #n_censor_thres = 1,
     ntrees = ntrees,
-    nodedepth = nodedepth,
+    #nodedepth = nodedepth,
     nodesize = nodesize
   )
+
   
   sim <- high_dim_sim(m, r, dimensions)
   n.cores <- parallel::detectCores()
-  doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+  doParallel::registerDoParallel(cores = min(6, n.cores - 1))
   
-  #eval <- lapply(seq_along(sim), function(i){
   eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
     #i <- 1
-    eval <- foreach(j = seq_along(nrow(forest_param_grid)), .combine = rbind) %dorng% {
       #j <- 1
-      print(paste0("simulation run:", i))
+            foreach(j = seq_len(nrow(forest_param_grid)),
+                   .combine = rbind) %dorng% { 
+                     
+                   
+      print(paste0("simulation run i ", i," j ", j))
       sim_i <- sim[[i]]
       forest_param_i <- as.list(forest_param_grid[j,])
       dimension_i <- sim_i$dimension
@@ -118,18 +121,30 @@ eval_high_dim_sim_param <- function(
       Xs_i <- sim_i$covariate
       Hs_i <- sim_i$Hs
       
-      sim_res_i <- run_ihw_forest(Ps_i, 
-                           Xs_i, 
-                           Hs_i, 
-                           seed_i, 
-                           alpha = 0.1, 
-                           m = m, 
-                           lfdr_only = lfdr_only, 
-                           forest_par = forest_param_i, 
-                           null_proportion = null_proportion)
+      ihw_forest <- IHW::ihw(Ps_i, Xs_i, alpha = 0.1,
+                             stratification_method = "forest", null_proportion = F,
+                             ntrees = forest_param_i$ntrees, 
+                             #n_censor_thres = forest_par$n_censor_thres, 
+                             #nodedepth = forest_par$nodedepth,
+                             tau = forest_param_i$tau,
+                             nodesize = forest_param_i$nodesize, 
+                             #nodedepth = nodedepth,
+                             #nodesize = nodesize,
+                             lambdas = Inf
+      )
+      
+      rej <- IHW::rejected_hypotheses(ihw_forest)
+      
+      sim_res_i <-  fdp_eval(Hs_i, rej) 
+      
+      sim_res_i <- sim_res_i %>% 
+                    mutate(method="IHW-forest",
+                           seed = seed_i,
+                           pi0s = mean(1-Hs_i),
+                           dimension = dimension_i,
+                           m = m)
       
       sim_res_i <- cbind(sim_res_i, forest_param_grid[j,], row.names = NULL)
-      sim_res_i <- mutate(sim_res_i, dimension = dimension_i)
       sim_res_i
     }
   }

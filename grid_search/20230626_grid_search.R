@@ -27,10 +27,11 @@ if(Sys.info()["sysname"] == "Darwin"){
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 m = 10000
-r = 3
-#tau = 0.5
-ntrees = c(5,10,20,30,40)
-nodedepth = NULL
+r = 5
+
+tau = c(0.4,0.5,0.6,0.7,0.8,0.9)
+ntrees = c(5,10,20,30,40,50)
+
 nodesize = c(50,100,200,300,500,1000)
 
 ## -----high dim sim------
