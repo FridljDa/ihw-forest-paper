@@ -91,19 +91,18 @@ eval_high_dim_sim_param <- function(
     null_proportion = T
 ){
   
-  forest_param_grid <- expand.grid(
+  forest_param_grid <- data.frame(
     tau = tau,
     #n_censor_thres = 1,
     ntrees = ntrees,
-    #nodedepth = nodedepth,
     nodesize = nodesize
   )
-
+  
   
   sim <- high_dim_sim(m, r, dimensions)
   n.cores <- parallel::detectCores()
   doParallel::registerDoParallel(cores = min(6, n.cores - 1))
-  
+
   eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
     #i <- 1
       #j <- 1
@@ -148,6 +147,7 @@ eval_high_dim_sim_param <- function(
       sim_res_i
     }
   }
+  
   #eval <- bind_rows(eval)
   eval
 }

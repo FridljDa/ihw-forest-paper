@@ -21,6 +21,18 @@ if(Sys.info()["sysname"] == "Darwin"){
 
 #devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 
+###---get input param---
+# Check if a command-line argument is provided
+if (length(commandArgs(trailingOnly = TRUE)) > 0) {
+  # Retrieve the command-line argument
+  seed <- commandArgs(trailingOnly = TRUE)[1]
+  seed <- as.numeric(seed)
+
+} else {
+  seed <- 1
+}
+set.seed(seed)
+
 ## ---parameters----
 # number of monte carlo replicates, increases run time immensely!
 
@@ -28,21 +40,24 @@ if(Sys.info()["sysname"] == "Darwin"){
 
 forest_par <- list(
   ntrees = 5,
-  n_censor_thres = 1,
+  tau = 0.5,
   nodedepth = 3,
   nodesize = 1000
 )
 
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 8, by = 2)
+dimensions <- seq(from = 2, to = 2, by = 2)
+
+cat("seed\n")
+print(seed)
 
 cat("dimensions\n")
 print(dimensions)
 print("\n")
 eval_high_dim_sim <- eval_high_dim_sim(
-  m = 10000,
-  r = 100,
+  m = 1000,
+  r = 1, #100
   dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE
@@ -50,5 +65,5 @@ eval_high_dim_sim <- eval_high_dim_sim(
 print("\n")
 print(head(eval_high_dim_sim))
 
-saveRDS(eval_high_dim_sim, paste0("simulation/data/", Sys.Date(), "_eval_high_dim_sim.Rds"))
+saveRDS(eval_high_dim_sim, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim.Rds"))
 
