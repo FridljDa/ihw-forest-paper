@@ -110,7 +110,7 @@ eval_high_dim_sim_param <- function(
                    .combine = rbind) %do% { 
                      
                    
-      print(paste0("simulation run i ", i," j ", j))
+      print(paste0("simulation run i: ", i,"/",length(sim),", j: ", j,"/ ",nrow(forest_param_grid)))
       sim_i <- sim[[i]]
       forest_param_i <- as.list(forest_param_grid[j,])
       dimension_i <- sim_i$dimension
