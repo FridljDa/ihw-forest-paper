@@ -43,7 +43,7 @@ set.seed(seed)
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 m = 10000
-r = 1
+r = 2
 
 #forest param
 tau = c(0.4,0.5,0.6,0.7,0.8,0.9)
@@ -63,7 +63,7 @@ param_grid <- expand.grid(
 )
 
 dimensions <- seq(from = 2, to = 5, by = 1)
-dimensions <- seq(from = 2, to = 2, by = 1)
+dimensions <- seq(from = 2, to = 3, by = 1)
 ##----extract ---
 
 
@@ -71,11 +71,11 @@ dimensions <- seq(from = 2, to = 2, by = 1)
 split_size <- ceiling(nrow(param_grid) / num_splits)
 
 # Adding a new column for split indices
-param_grid <- param_grid %>%
+param_grid_sub <- param_grid %>%
   mutate(split_index_del = rep(1:num_splits, each = split_size, length.out = n()))
 
 # Extracting the 3rd smaller data.frame
-param_grid <- param_grid %>%
+param_grid_sub <- param_grid_sub %>%
   filter(split_index_del == split_index) %>%
   select(-split_index_del)
 
@@ -89,12 +89,14 @@ eval_high_dim_sim_param_df <- eval_high_dim_sim_param(
   m = m,
   r = r,
   dimensions = dimensions,
-  tau = param_grid$tau,
-  ntrees = param_grid$ntrees,
-  nodesize = param_grid$nodesize
+  tau = param_grid_sub$tau,
+  ntrees = param_grid_sub$ntrees,
+  nodesize = param_grid_sub$nodesize
 )
 cat("\n")
 print(head(eval_high_dim_sim_param_df))
-
+#nrow(eval_high_dim_sim_param_df) ==nrow(param_grid_sub)*length(dimensions)*r
+#testthat::expect_equal(nrow(eval_high_dim_sim_param_df),
+#                        nrow(param_grid_sub)*length(dimensions)*r)
 saveRDS(eval_high_dim_sim_param_df, paste0("grid_search/data/", Sys.Date(), "_", seed, "_",split_index,"_eval_high_dim_sim_param.Rds"))
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Number of times to submit the job
-num_jobs=5
-num_splits=5
+num_jobs=2
+num_splits=2
 
 # Loop to submit the job multiple times
 for ((i=1; i<=$num_jobs; i++))
