@@ -6,6 +6,7 @@ editor: visual
 ---
 
 Find latest files
+
 ```{r, echo=FALSE, message=FALSE}
 # Load the required packages
 library(purrr)
@@ -15,7 +16,6 @@ library(dplyr)
 library(magrittr)
 library(GGally)
 ```
-
 
 ```{r}
 # Set the directory path
@@ -39,6 +39,7 @@ grid_search_res <- map_dfr(latest_files, ~ readRDS(here(directory, .x)))
 # Print the combined data
 head(grid_search_res)
 ```
+
 ## Show completly
 
 ```{r}
@@ -53,6 +54,7 @@ ggparcoord(grid_search_res, columns = c(2,3,8,10,11,12), groupColumn = "pow",
 ```
 
 ## Aggregate
+
 ```{r}
 grid_search_res_sum <- grid_search_res %>%
   group_by(tau, ntrees, nodesize) %>%
@@ -63,10 +65,10 @@ grid_search_res_sum %>%
   arrange(desc(pow)) %>%
   head()
 ```
+
 ```{r}
 ggparcoord(grid_search_res_sum,  
            groupColumn = "pow", 
            alphaLines = 0.5, 
            showPoints = TRUE)
 ```
-
