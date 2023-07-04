@@ -1,0 +1,72 @@
+---
+title: "display_grid_search"
+author: "Daniel Fridljand"
+format: html
+editor: visual
+---
+
+Find latest files
+```{r, echo=FALSE, message=FALSE}
+# Load the required packages
+library(purrr)
+library(data.table)
+library(here)
+library(dplyr)
+library(magrittr)
+library(GGally)
+```
+
+
+```{r}
+# Set the directory path
+directory <- "grid_search/data"
+
+# List all the files in the directory
+files <- list.files(here(directory))
+
+# Extract the date from the file names
+dates <- stringr::str_extract(files, "\\d{4}-\\d{2}-\\d{2}")
+
+# Identify the latest date
+latest_date <- max(as.Date(dates))
+
+# Filter files with the latest date
+latest_files <- files[dates == latest_date]
+
+# Read and combine the files with the latest date using purrr and rbindlist
+grid_search_res <- map_dfr(latest_files, ~ readRDS(here(directory, .x)))
+
+# Print the combined data
+head(grid_search_res)
+```
+## Show completly
+
+```{r}
+grid_search_res %>%
+  arrange(desc(pow)) %>%
+  head()
+```
+
+```{r}
+ggparcoord(grid_search_res, columns = c(2,3,8,10,11,12), groupColumn = "pow", 
+              alphaLines = 0.5, showPoints = TRUE)
+```
+
+## Aggregate
+```{r}
+grid_search_res_sum <- grid_search_res %>%
+  group_by(tau, ntrees, nodesize) %>%
+  summarise(pow = mean(pow)) %>%
+  ungroup() 
+
+grid_search_res_sum %>%
+  arrange(desc(pow)) %>%
+  head()
+```
+```{r}
+ggparcoord(grid_search_res_sum,  
+           groupColumn = "pow", 
+           alphaLines = 0.5, 
+           showPoints = TRUE)
+```
+
