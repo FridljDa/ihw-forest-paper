@@ -32,7 +32,7 @@ ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T, p
   ihw_forest <- IHW::ihw(Ps, Xs, alpha,
     stratification_method = "forest", null_proportion = null_proportion,
     ntrees = forest_par$ntrees, 
-    n_censor_thres = forest_par$n_censor_thres, 
+    tau = forest_par$tau, 
     #nodedepth = forest_par$nodedepth,
     #nodesize = forest_par$nodesize, 
     #nodedepth = nodedepth,
