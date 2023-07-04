@@ -23,20 +23,20 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_pro
 #'
 #' @export
 ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T, per_covariate_bins = 5) {
-  number_covariates <- ncol(Xs)
+  #number_covariates <- ncol(Xs)
   
   #nodedepth <- number_covariates * log2(per_covariate_bins)
-  nbins_quantile <- per_covariate_bins^number_covariates
-  nodesize <- ceiling(length(Ps)/nbins_quantile)
+  #nbins_quantile <- per_covariate_bins^number_covariates
+  #nodesize <- ceiling(length(Ps)/nbins_quantile)
     
   ihw_forest <- IHW::ihw(Ps, Xs, alpha,
     stratification_method = "forest", null_proportion = null_proportion,
     ntrees = forest_par$ntrees, 
-    n_censor_thres = forest_par$n_censor_thres, 
+    #n_censor_thres = forest_par$n_censor_thres, 
     #nodedepth = forest_par$nodedepth,
     #nodesize = forest_par$nodesize, 
     #nodedepth = nodedepth,
-    nodesize = nodesize,
+    #nodesize = nodesize,
     lambdas = Inf
   )
   
