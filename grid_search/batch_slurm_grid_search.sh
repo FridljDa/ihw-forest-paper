@@ -8,8 +8,8 @@
 #SBATCH --mail-user=daniel.fridljand@embl.de # send-to address
 
 # Number of times to submit the job
-num_jobs=2
-num_splits=2
+num_jobs=20 #monte carlo replicates *5
+num_splits=5
 
 # Loop to submit the job multiple times
 for ((i=1; i<=$num_jobs; i++))

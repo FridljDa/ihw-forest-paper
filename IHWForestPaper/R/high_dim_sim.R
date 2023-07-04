@@ -101,13 +101,13 @@ eval_high_dim_sim_param <- function(
   
   sim <- high_dim_sim(m, r, dimensions)
   n.cores <- parallel::detectCores()
-  doParallel::registerDoParallel(cores = min(6, n.cores - 1))
+  doParallel::registerDoParallel(cores = min(6, n.cores))
 
-  eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
+  eval <- foreach(i = seq_along(sim), .combine = rbind) %do% {#TODO #dorng
     #i <- 1
       #j <- 1
             foreach(j = seq_len(nrow(forest_param_grid)),
-                   .combine = rbind) %dorng% { 
+                   .combine = rbind) %do% { 
                      
                    
       print(paste0("simulation run i ", i," j ", j))

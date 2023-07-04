@@ -1,0 +1,30 @@
+WARNING: ignoring environment value of R_HOME
+dimensions
+2 3
+[1] "simulation run i 1 j 1"
+[1] "simulation run i 1 j 2"
+[1] "simulation run i 1 j 3"
+[1] "simulation run i 2 j 1"
+[1] "simulation run i 2 j 2"
+[1] "simulation run i 2 j 3"
+[1] "simulation run i 3 j 1"
+[1] "simulation run i 3 j 2"
+[1] "simulation run i 3 j 3"
+[1] "simulation run i 4 j 1"
+[1] "simulation run i 4 j 2"
+[1] "simulation run i 4 j 3"
+
+  rjs        pow        FDP FWER     method seed   pi0s dimension     m tau
+1  88 0.08449304 0.03409091 TRUE IHW-forest    1 0.8994         2 10000 0.4
+2  87 0.08349901 0.03448276 TRUE IHW-forest    1 0.8994         2 10000 0.5
+3  87 0.08349901 0.03448276 TRUE IHW-forest    1 0.8994         2 10000 0.6
+4 139 0.12964824 0.07194245 TRUE IHW-forest    1 0.9005         3 10000 0.4
+5 139 0.13065327 0.06474820 TRUE IHW-forest    1 0.9005         3 10000 0.5
+6 146 0.13266332 0.09589041 TRUE IHW-forest    1 0.9005         3 10000 0.6
+  ntrees nodesize
+1     10       50
+2     10       50
+3     10       50
+4     10       50
+5     10       50
+6     10       50

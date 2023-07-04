@@ -43,15 +43,15 @@ set.seed(seed)
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 m = 10000
-r = 2
+r = 5
 
 #forest param
 tau = c(0.4,0.5,0.6,0.7,0.8,0.9)
-tau = c(0.4,0.5,0.6)
+#tau = c(0.4,0.5,0.6)
 ntrees = c(5,10,20,30,40,50)
-ntrees = c(5,10)
+#ntrees = c(5,10)
 nodesize = c(50,100,200,300,500,1000)
-nodesize = c(50)
+#nodesize = c(50)
 
 
 param_grid <- expand.grid(
@@ -62,8 +62,8 @@ param_grid <- expand.grid(
   #seed = seq_len(r) #TODO
 )
 
-dimensions <- seq(from = 2, to = 5, by = 1)
-dimensions <- seq(from = 2, to = 3, by = 1)
+dimensions <- seq(from = 2, to = 8, by = 1)
+#dimensions <- seq(from = 2, to = 3, by = 1)
 ##----extract ---
 
 
