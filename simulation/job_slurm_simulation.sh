@@ -2,7 +2,7 @@
 
 # Example of running R script with a job array
 
-#sbatch --job-name=high.dim.sim
+#SBATCH --job-name=high.dim.sim.job
 #SBATCH -A huber                # group to which you belong
 #SBATCH -N 1                        # number of nodes
 #SBATCH -n 3                        # number of cores

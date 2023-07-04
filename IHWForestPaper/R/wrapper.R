@@ -28,13 +28,13 @@ ihw_forest_wrapper <- function(Ps, Xs, alpha, forest_par, null_proportion = T, p
   #nodedepth <- number_covariates * log2(per_covariate_bins)
   #nbins_quantile <- per_covariate_bins^number_covariates
   #nodesize <- ceiling(length(Ps)/nbins_quantile)
-    
+
   ihw_forest <- IHW::ihw(Ps, Xs, alpha,
     stratification_method = "forest", null_proportion = null_proportion,
     ntrees = forest_par$ntrees, 
     tau = forest_par$tau, 
     #nodedepth = forest_par$nodedepth,
-    #nodesize = forest_par$nodesize, 
+    nodesize = forest_par$nodesize, 
     #nodedepth = nodedepth,
     #nodesize = nodesize,
     lambdas = Inf

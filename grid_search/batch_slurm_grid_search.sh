@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#SBATCH --job-name=batch_grid_search
 #SBATCH -A huber                # group to which you belong
 #SBATCH -t 0-0:01                   # runtime limit (D-HH:MM:SS)
 #SBATCH -o grid_search/out/grid_search_out_batch-%j.out
