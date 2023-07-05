@@ -46,7 +46,7 @@ forest_par <- list(
 
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 8, by = 2)
+dimensions <- seq(from = 2, to = 2, by = 2)
 
 cat("seed\n")
 print(seed)
@@ -56,7 +56,7 @@ print(dimensions)
 print("\n")
 eval_high_dim_sim <- eval_high_dim_sim(
   m = 10000,
-  r = 2, #100
+  r = 1, #100
   dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE
@@ -65,4 +65,3 @@ print("\n")
 print(head(eval_high_dim_sim))
 
 saveRDS(eval_high_dim_sim, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim.Rds"))
-

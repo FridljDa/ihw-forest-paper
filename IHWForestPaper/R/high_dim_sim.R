@@ -55,9 +55,9 @@ eval_high_dim_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_on
   sim <- high_dim_sim(m, r, dimensions)
   n.cores <- parallel::detectCores()
   doParallel::registerDoParallel(cores = min(3, n.cores - 1))
-  
+
   #eval <- lapply(seq_along(sim), function(i){
-  eval <- foreach(i = seq_along(sim)) %dorng% {
+  eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
     #i <- 1
     print(paste0("simulation run:", i))
     sim_i <- sim[[i]]
