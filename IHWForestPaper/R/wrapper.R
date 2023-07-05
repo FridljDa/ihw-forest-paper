@@ -1,14 +1,32 @@
-ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_proportion = T) {
+#' @import R.utils
+ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_proportion = T, timeout = 300) {
+  #number of covariates
   number_covariates <- ncol(Xs)
+
+  ihw_quantile <- tryCatch(
+    {
+      R.utils::withTimeout(
+        {
+          IHW::ihw(Ps, 
+                   Xs, 
+                   alpha, 
+                   nbins = per_covariate_bins^number_covariates,
+                   stratification_method = "quantiles", 
+                   null_proportion = null_proportion)
+        },
+        timeout = timeout
+      )
+    },
+    error = function(e) {
+      NULL
+    }
+  )
   
-  ihw_quantile <- IHW::ihw(Ps, 
-                           Xs, 
-                           alpha, 
-                           nbins = per_covariate_bins^number_covariates,
-                           stratification_method = "quantiles", 
-                           null_proportion = null_proportion)
-  
-  IHW::rejected_hypotheses(ihw_quantile)
+  if (isS4(ihw_quantile)) {
+    IHW::rejected_hypotheses(ihw_quantile)
+  } else {
+    NA
+  }
 }
 
 #' Wrapper for the IHW-Forest procedure

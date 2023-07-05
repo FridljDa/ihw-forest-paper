@@ -39,14 +39,14 @@ set.seed(seed)
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
 forest_par <- list(
-  ntrees = 20,
-  tau = 0.6,
-  nodesize = 500
+  ntrees = 50,
+  tau = 0.4,
+  nodesize = 300
 )
 
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 2, by = 2)
+dimensions <- seq(from = 2, to = 10, by = 1)
 
 cat("seed\n")
 print(seed)
@@ -56,7 +56,7 @@ print(dimensions)
 print("\n")
 eval_high_dim_sim <- eval_high_dim_sim(
   m = 10000,
-  r = 1, #100
+  r = 5, #100
   dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE
