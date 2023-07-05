@@ -55,8 +55,8 @@ cat("dimensions\n")
 print(dimensions)
 print("\n")
 eval_high_dim_sim <- eval_high_dim_sim(
-  m = 1000,
-  r = 1, #100
+  m = 10000,
+  r = 2, #100
   dimensions = dimensions,
   forest_par,
   lfdr_only = TRUE
