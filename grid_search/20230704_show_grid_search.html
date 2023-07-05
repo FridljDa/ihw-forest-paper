@@ -157,12 +157,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid_search_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  rjs        pow        FDP FWER     method seed   pi0s dimension     m tau
-1  88 0.08548708 0.02272727 TRUE IHW-forest    1 0.8994         2 10000 0.4
-2  92 0.08946322 0.02173913 TRUE IHW-forest    1 0.8994         2 10000 0.5
-3  92 0.09045726 0.01086957 TRUE IHW-forest    1 0.8994         2 10000 0.6
-4 133 0.12361809 0.07518797 TRUE IHW-forest    1 0.9005         3 10000 0.4
-5 143 0.13467337 0.06293706 TRUE IHW-forest    1 0.9005         3 10000 0.5
-6 143 0.13266332 0.07692308 TRUE IHW-forest    1 0.9005         3 10000 0.6
+1  89 0.08449304 0.04494382 TRUE IHW-forest    1 0.8994         2 10000 0.4
+2  89 0.08250497 0.06741573 TRUE IHW-forest    1 0.8994         2 10000 0.5
+3  93 0.08548708 0.07526882 TRUE IHW-forest    1 0.8994         2 10000 0.6
+4  94 0.09045726 0.03191489 TRUE IHW-forest    1 0.8994         2 10000 0.7
+5  99 0.09145129 0.07070707 TRUE IHW-forest    1 0.8994         2 10000 0.8
+6 101 0.09542744 0.04950495 TRUE IHW-forest    1 0.8994         2 10000 0.9
   ntrees nodesize
 1      5       50
 2      5       50
@@ -175,67 +175,70 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="show-completly" class="level2">
 <h2 class="anchored" data-anchor-id="show-completly">Show completly</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>grid_search_res <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(grid_search_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  rjs       pow        FDP FWER     method seed   pi0s dimension     m tau
-1 184 0.1736527 0.05434783 TRUE IHW-forest    4 0.8998         3 10000 0.6
-2 181 0.1706587 0.05524862 TRUE IHW-forest    4 0.8998         3 10000 0.6
-3 188 0.1666667 0.10106383 TRUE IHW-forest    3 0.8986         4 10000 0.6
-4 190 0.1666667 0.11052632 TRUE IHW-forest    3 0.8986         4 10000 0.4
-5 177 0.1666667 0.05649718 TRUE IHW-forest    4 0.8998         3 10000 0.6
-6 183 0.1655307 0.07103825 TRUE IHW-forest    5 0.8973         5 10000 0.5
-  ntrees nodesize
-1     50      500
-2     30     1000
-3     50      500
-4     50     1000
-5     40     1000
-6     30     1000</code></pre>
+<pre><code>[1] 151200</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggparcoord</span>(grid_search_res, <span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>), <span class="at">groupColumn =</span> <span class="st">"pow"</span>, </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">alphaLines =</span> <span class="fl">0.5</span>, <span class="at">showPoints =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="20230704_show_grid_search_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>grid_search_res <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  rjs       pow        FDP FWER     method seed   pi0s dimension     m tau
+1 188 0.1796407 0.04255319 TRUE IHW-forest    4 0.8998         3 10000 0.6
+2 190 0.1766467 0.06842105 TRUE IHW-forest    4 0.8998         3 10000 0.5
+3 184 0.1746507 0.04891304 TRUE IHW-forest    4 0.8998         3 10000 0.6
+4 196 0.1745562 0.09693878 TRUE IHW-forest    3 0.8986         4 10000 0.4
+5 182 0.1736527 0.04395604 TRUE IHW-forest    4 0.8998         3 10000 0.6
+6 184 0.1736527 0.05434783 TRUE IHW-forest    4 0.8998         3 10000 0.6
+  ntrees nodesize
+1     20      300
+2     30      200
+3     40      200
+4     40      200
+5     20      200
+6     50      500</code></pre>
 </div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggparcoord</span>(grid_search_res, <span class="at">columns =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">12</span>), <span class="at">groupColumn =</span> <span class="st">"pow"</span>, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">alphaLines =</span> <span class="fl">0.5</span>, <span class="at">showPoints =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="aggregate" class="level2">
 <h2 class="anchored" data-anchor-id="aggregate">Aggregate</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>grid_search_res_sum <span class="ot">&lt;-</span> grid_search_res <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tau, ntrees, nodesize) <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pow =</span> <span class="fu">mean</span>(pow)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>grid_search_res_sum <span class="ot">&lt;-</span> grid_search_res <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tau, ntrees, nodesize) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pow =</span> <span class="fu">mean</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'tau', 'ntrees'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>grid_search_res_sum <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>grid_search_res_sum <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
     tau ntrees nodesize   pow
   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
-1   0.6     50      500 0.119
-2   0.5     10       50 0.117
-3   0.7     50      500 0.117
-4   0.4     20     1000 0.116
-5   0.6     10       50 0.116
-6   0.4     30     1000 0.115</code></pre>
+1   0.4     50      300 0.122
+2   0.4     30      300 0.122
+3   0.4     30      500 0.122
+4   0.4     50      500 0.122
+5   0.4     40      500 0.122
+6   0.4     40      300 0.122</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggparcoord</span>(grid_search_res_sum,  </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">groupColumn =</span> <span class="st">"pow"</span>, </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">alphaLines =</span> <span class="fl">0.5</span>, </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">showPoints =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggparcoord</span>(grid_search_res_sum,  </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">groupColumn =</span> <span class="st">"pow"</span>, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">alphaLines =</span> <span class="fl">0.5</span>, </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">showPoints =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="20230704_show_grid_search_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="20230704_show_grid_search_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
