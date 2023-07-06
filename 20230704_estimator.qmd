@@ -1,0 +1,130 @@
+---
+title: "20230704_estimator"
+format: html
+editor: visual
+---
+
+Let $P_1, \ldots , P_m$ be the pvalues and $X_1,\ldots, X_m$ be the covariates. Let $\pi_{0,1},\ldots ,\pi_{0,m}$ be the null-proportion estimates. Note, that we estimate the null-proportion s.t. $\pi_{0,i} \perp P_i \mid H_i = 0$ for all $i$. Let $W_i=\pi_{0,i}$.
+
+$$
+\text { Reject hypothesis } i \Longleftrightarrow P_i \leq \min \left\{w_i \cdot \hat{t}, \tau\right\}
+$$
+
+where 
+$$
+\widehat{t}=\frac{\alpha \hat{k}}{m}, \widehat{k}=\max \left\{k \in \mathbb{N}_{\geq 0} \mid P_i \leq\left(\frac{\alpha w_i k}{m}\right) \wedge \tau \text { for at least } k p \text {-values }\right\}
+$$
+
+```{r}
+#' Stratify hypotheses based on random forest construction
+#'
+#' Hypotheses are stratified into bins based on random forest construction, alternative to \code{prior_prob_by_filter_multivariate}
+#'   prior_prob are homogenous wrt to Storeys null proportion estimator
+#'
+#'  see https://doi.org/10.7717/peerj.6035 for details on BocaLeek construction
+#' @param pvalues Numeric vector of unadjusted p-values.
+#' @param covariates Matrix which contains the covariates (independent under the H0 of the p-value) for each test.
+#' @param folds Integer vector, Pre-specify assignment of hypotheses into folds.
+#' @param ntrees Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}}
+#' @param tau Double, censoring threshold tau of the pvalues in the stratification method "forest". See more in group_by_forest
+#' @param nodedepth Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}}
+#' @param nodesize Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}}
+#' @param mtry Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}}
+#'               Use "auto" for automatic selection.
+#' @param seed Integer, specifies random seed to be used
+#' @importFrom randomForestSRC rfsrc
+#' @importFrom stats predict
+#' @return list of data.frames representing group membership for each test. list length equals the number of folds.
+#' @examples
+#'
+#' save.seed <- .Random.seed
+#' set.seed(1)
+#' X <- runif(20000, min = 0, max = 2.5) # covariate
+#' H <- rbinom(20000, 1, 0.1) # hypothesis true or false
+#' Z <- rnorm(20000, H * X) # Z-score
+#' folds <- sample(1:5, 20000, replace = TRUE)
+#' .Random.seed <- save.seed
+#' pvalue <- 1 - pnorm(Z) # pvalue
+#' prior_prob <- group_by_forest(pvalue, as.matrix(X), folds)
+#' m_prior_prob <- lapply(prior_prob, function(group) {
+#'   lapply(group, function(group_i) table(group_i, folds))
+#' })
+#' @export
+estimate_prior_prob <- function(pvalues, covariates, folds, ntrees = 10, tau = 0.5, nodedepth = NULL, nodesize = 300, mtry = "auto", seed = NULL) {
+  m <- length(pvalues)
+  nfolds <- length(unique(folds))
+
+  #if (mtry == "auto") mtry <- ceiling(0.9 * ncol(covariates)) # a lot of noise data => high mtry
+
+  nodesize <- as.integer(nodesize)
+  #mtry <- as.integer(mtry)
+  nodedepth <- as.integer(nodedepth)
+
+  prior_prob <- lapply(seq_len(nfolds), function(i) {
+    # binary indicator from Boca and leek/storey
+    data <- data.frame(
+      indic = (pvalues >= tau)/(1-tau),
+      covariates = covariates
+    )
+    browser()
+    data_other_folds <- data[folds != i, ]
+    data_hold_out_fold <- data[folds == i, "covariates"]
+    
+    # grow forest based on other folds
+    forest_other_fold <- randomForestSRC::rfsrc(
+      indic ~ . - indic,
+      data = data_other_folds,
+      ntree = ntrees,
+      #mtry = mtry,
+      nodesize = nodesize,
+      nodedepth = nodedepth,
+      splitrule = "mse",
+      block.size = FALSE,
+      forest.wt = FALSE,
+      seed = seed
+    )
+
+    # predict terminal nodes for all covariates based on the forest structure
+    predict_prior_prob <- stats::predict(forest_other_fold, data_hold_out_fold)
+    
+    browser()
+    prior_prob <- predict_prior_prob$yvar
+   
+    prior_prob
+  })
+
+  return(prior_prob)
+}
+
+```
+
+```{r}
+ X <- runif(20000, min = 0, max = 2.5) # covariate
+ H <- rbinom(20000, 1, 0.1) # hypothesis true or false
+ Z <- rnorm(20000, H * X) # Z-score
+ folds <- sample(1:5, 20000, replace = TRUE)
+ pvalue <- 1 - pnorm(Z) # pvalue
+ prior_prob <- estimate_prior_prob(pvalue, as.matrix(X), folds)
+```
+
+
+```{r}
+mean(prior_prob[[1]])
+max(prior_prob[[1]]-prior_prob[[3]])
+```
+```{r}
+length(train)
+nrow(veteran)
+```
+
+```{r}
+data(veteran, package = "randomForestSRC")
+train <- sample(1:nrow(veteran), round(nrow(veteran) * 0.80))
+veteran.grow <- rfsrc(Surv(time, status) ~ ., veteran[train, ], ntree = 100) 
+veteran.pred <- predict(veteran.grow, veteran[-train, ])
+print(veteran.pred)
+```
+```{r}
+veteran.pred$yvar
+```
+

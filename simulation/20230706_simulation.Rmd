@@ -1,0 +1,265 @@
+---
+title: "Boca Leek IHW Benchmark"
+author: "Daniel Fridljand"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+header-includes:
+   - \usepackage{bbm}
+output: html_document
+---
+
+## Preperation
+First some cleaning and basic packages.
+```{r setup, message = F}
+library(magrittr)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(cowplot)
+library(RColorBrewer)
+library(here)
+library(purrr)
+knitr::opts_chunk$set(echo = TRUE)
+
+set.seed(123)
+theme_set(theme_cowplot())
+options(bitmapType = "cairo")
+```
+
+## Colors and method names used throughout 
+
+```{r}
+options(bitmapType = "cairo")
+# (from https://github.com/dill/beyonce)
+beyonce_colors <- c(
+  "#b72da0", "#7c5bd2", "#0097ed", "#00c6c3",
+  "#9cd78a", "#f7f7a7", "#ebab5f", "#e24344",
+  "#04738d"
+) # ,"#d8cdc9")
+beyonce_colors[6] <- c("#dbcb09") # thicker yellow
+pretty_colors <- beyonce_colors[c(2, 1, 3:5)]
+alpha <- 0.1
+```
+
+```{r}
+method_names <- c("BH", "Clfdr-oracle", "Clfdr-EM", "AdaPT", "IHW-Storey-BetaMix", "IHW-BH-Grenander")
+method_colors <- c("Black", beyonce_colors[c(3, 4, 6, 2, 1)])
+names(method_colors) <- method_names
+method_shapes <- c(20, 0, 1, 2, 12, 13)
+names(method_shapes) <- method_names
+```
+
+# Noise simulation
+
+\begin{eqnarray}
+& X_i \sim U[0,1]^d \\
+&\pi_1(X) = \mathbf{1}(X^1 \leq 0.5)0.9\\
+&H_i \mid X_i \sim \text{Bernoulli}(\pi_1(X_i))\\
+&P_i \mid H_i = 0, X_i \sim U[0,1]\\
+&P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
+\end{eqnarray}
+Note parameter $d$ in the first line. Hereafter, dimension = $d$.
+
+
+## Load result files
+```{r}
+# Set the directory path
+directory <- "simulation/data"
+
+# List all the files in the directory
+files <- list.files(here(directory))
+
+# Extract the date from the file names
+dates <- stringr::str_extract(files, "\\d{4}-\\d{2}-\\d{2}")
+
+# Identify the latest date
+latest_date <- max(as.Date(dates), na.rm = TRUE)
+
+# Filter files with the latest date
+latest_files <- files[dates == latest_date]
+latest_files <- na.omit(latest_files)
+# Read and combine the files with the latest date using purrr and rbindlist
+high_dim_res <- map_dfr(latest_files, ~ readRDS(here(directory, .x)))
+
+# Print the combined data
+head(high_dim_res)
+```
+
+```{r}
+#noise_sim_res <- readRDS(file = "../precomputed_results/noise_sim.Rds")
+#noise_sim_res <- readRDS(file = "../precomputed_results/0613_noise_sim.Rds")
+#noise_sim_res <- 
+#readRDS(file = here::here("simulation/data/2023-06-26_eval_high_dim_sim.Rds"))
+noise_sim_res <- high_dim_res
+noise_sim_res <- noise_sim_res %>% mutate(method = forcats::fct_recode(method,
+  "IHW-Quantile" = "IHW-quantile",
+  "IHW-Forest" = "IHW-forest"
+))
+```
+
+```{r, message=FALSE, warning=FALSE}
+noise_sim_res <- noise_sim_res %>%
+  group_by(dimension, method) %>%
+  summarize(
+    FDR = mean(FDP, na.rm = TRUE),
+    Power = mean(pow, na.rm = TRUE),
+    # Power_lower = quantile() #TODO
+    n_monte_carlo = sum(!is.na(FDP)),
+    pow_se = sd(pow, na.rm = TRUE) / sqrt(n_monte_carlo)
+  ) %>%
+  ungroup()
+
+noise_sim_res %>% 
+  arrange(n_monte_carlo)
+```
+```{r, eval = F, include=FALSE}
+df<- noise_sim_res %>% 
+  arrange(n_monte_carlo) %>%
+  select(method, dimension, n_monte_carlo) %>%
+  head
+
+# Plain latex output 
+knitr::kable(df, "latex")
+  #knitr::kbl(caption = "Example", # Adding caption  
+  #      format = "latex") #%>% # Output format = latex 
+   # knitr::kable_classic(html_font = "Cambria") # Font = Cambria 
+```
+
+## Plot FDR
+```{r}
+noise_sim_res_FDR <- ggplot(noise_sim_res, aes(x = dimension, y = FDR, shape = method, col = method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_hline(yintercept = alpha, linetype = 2) +
+  guides(
+    color = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
+    shape = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
+    nrow=2
+  ) +
+  scale_x_continuous(breaks = scales::pretty_breaks())
+
+#+ xlab(expression(bar(beta)))
+#+ #scale_y_log10(breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4))
+# scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))# fill=guide_legend(nrow=2,byrow=TRUE)
+noise_sim_res_FDR
+```
+
+## Plot Power
+
+```{r}
+noise_sim_res_power <- ggplot(noise_sim_res, aes(x = dimension, y = Power, shape = method, col = method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Power") +
+  guides(
+    color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+    shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
+  ) +
+  scale_x_continuous(breaks = scales::pretty_breaks()) #+
+# scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
+noise_sim_res_power
+```
+
+## Combine and save
+
+```{r}
+g_combined <- ggarrange(noise_sim_res_FDR, noise_sim_res_power,
+  nrow = 1, widths = c(1, 1),
+  common.legend = TRUE, legend = "bottom"
+)
+
+# g_combined <- annotate_figure(g_combined, top = text_grob("ifelse(sum(cov_row[1]^2) <= 1, 0.9, 0)",
+#               color = "red", face = "bold", size = 14))
+g_combined
+ggplot2::ggsave("../figures/noise_sim.png", g_combined,
+  width = 5, height = 3.25
+)
+```
+
+# Small region simulation
+
+\begin{eqnarray}
+& X_i \sim U[0,l] \\
+&\pi_1(X) = \mathbf{1}(X^1 \leq 1)0.9\\
+&H_i \mid X_i \sim \text{Bernoulli}(\pi_1(X_i))\\
+&P_i \mid H_i = 0, X_i \sim U[0,1]\\
+&P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
+\end{eqnarray}
+
+Note parameter $l$ in the first line. Hereafter, length = $l$.
+
+## Load result files
+```{r}
+small_region_sim_res <- readRDS(file = "../precomputed_results/small_region_sim.Rds")
+small_region_sim_res <- small_region_sim_res %>% mutate(method = forcats::fct_recode(method,
+  "IHW-Quantile" = "IHW-quantile",
+  "IHW-Forest" = "IHW-forest"
+))
+```
+
+```{r, message=FALSE, warning=FALSE}
+small_region_sim_res <- small_region_sim_res %>%
+  group_by(length, method) %>%
+  summarize(
+    FDR = mean(FDP, na.rm = TRUE),
+    Power = mean(pow, na.rm = TRUE),
+    # Power_lower = quantile() #TODO
+    n_monte_carlo = sum(!is.na(FDP)),
+    pow_se = sd(pow, na.rm = TRUE) / sqrt(n_monte_carlo)
+  ) %>%
+  ungroup()
+```
+
+## Plot FDR
+```{r}
+small_region_sim_res_FDR <- ggplot(small_region_sim_res, aes(x = length, y = FDR, shape = method, col = method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_hline(yintercept = alpha, linetype = 2) +
+  guides(
+    color = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
+    shape = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
+    nrow=2
+  ) +
+  scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
+  scale_y_log10()
+#+ xlab(expression(bar(beta)))
+#+ #scale_y_log10(breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4))
+# scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))# fill=guide_legend(nrow=2,byrow=TRUE)
+small_region_sim_res_FDR
+```
+
+## Plot Power
+
+```{r}
+small_region_sim_res_power <- ggplot(small_region_sim_res, aes(x = length, y = Power, shape = method, col = method)) +
+  geom_line() +
+  geom_point(size = 2) +
+  ylab("Power") +
+  guides(
+    color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
+    shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
+  ) +
+  scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
+  scale_y_log10()
+# breaks = c(0.003, 0.01, 0.025, 0.05, 0.1, 0.2, 0.4)
+# scale_color_manual(values = c("#00AFBB", "#52854C", "#FC4E07"))
+small_region_sim_res_power
+```
+
+## Combine and save
+
+```{r}
+g_combined <- ggarrange(small_region_sim_res_FDR, small_region_sim_res_power,
+  nrow = 1, widths = c(1, 1),
+  common.legend = TRUE, legend = "bottom"
+)
+
+g_combined
+```
+
+```{r}
+ggplot2::ggsave("../figures/small_region_sim.png", g_combined,
+  width = 5, height = 3.25
+)
+```
