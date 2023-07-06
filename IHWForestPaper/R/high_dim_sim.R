@@ -53,13 +53,13 @@ high_dim_sim <- function(m, r, dimensions){
 #' @export
 eval_high_dim_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only = FALSE, null_proportion = T){
   sim <- high_dim_sim(m, r, dimensions)
-  n.cores <- parallel::detectCores()
-  doParallel::registerDoParallel(cores = min(3, n.cores - 1))
-
-  #eval <- lapply(seq_along(sim), function(i){
-  eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
+  #n.cores <- parallel::detectCores()
+  #doParallel::registerDoParallel(cores = min(3, n.cores - 1))
+  #browser()
+  eval <- lapply(seq_along(sim), function(i){
+  #eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
     #i <- 1
-    print(paste0("simulation run:", i))
+    print(paste0("simulation run:", i,"/", length(sim)))
     sim_i <- sim[[i]]
     dimension_i <- sim_i$dimension
     seed_i <- sim_i$seed
@@ -71,7 +71,7 @@ eval_high_dim_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_on
     sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
     
     mutate(sim_res_i, dimension = dimension_i)
-  }
+  })
   eval <- bind_rows(eval)
 }
 
