@@ -106,7 +106,7 @@ rejected_hypotheses.GBH <- function(object, alpha= object$alpha){
 }
 
 setOldClass("GBH")
-setMethod("rejected_hypotheses", signature("GBH"), rejected_hypotheses.GBH)
+#setMethod("rejected_hypotheses", signature("GBH"), rejected_hypotheses.GBH)
 
 #' stratified_bh: Stratified Benjamini Hochberg
 #'
@@ -151,7 +151,7 @@ rejected_hypotheses.SBH <- function(object, alpha= object$alpha){
 }
 
 setOldClass("SBH")
-setMethod("rejected_hypotheses", signature("SBH"), rejected_hypotheses.SBH)
+#setMethod("rejected_hypotheses", signature("SBH"), rejected_hypotheses.SBH)
 
 
 #' clfdr: Cai's local fdr based method
@@ -208,7 +208,7 @@ rejected_hypotheses.Clfdr <- function(object, alpha= object$alpha){
 }
 
 setOldClass("Clfdr")
-setMethod("rejected_hypotheses", signature("Clfdr"), rejected_hypotheses.Clfdr)
+#setMethod("rejected_hypotheses", signature("Clfdr"), rejected_hypotheses.Clfdr)
 
 
 
