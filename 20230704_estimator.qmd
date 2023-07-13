@@ -10,8 +10,7 @@ $$
 \text { Reject hypothesis } i \Longleftrightarrow P_i \leq \min \left\{w_i \cdot \hat{t}, \tau\right\}
 $$
 
-where 
-$$
+where $$
 \widehat{t}=\frac{\alpha \hat{k}}{m}, \widehat{k}=\max \left\{k \in \mathbb{N}_{\geq 0} \mid P_i \leq\left(\frac{\alpha w_i k}{m}\right) \wedge \tau \text { for at least } k p \text {-values }\right\}
 $$
 
@@ -66,9 +65,8 @@ estimate_prior_prob <- function(pvalues, covariates, folds, ntrees = 10, tau = 0
       indic = (pvalues >= tau)/(1-tau),
       covariates = covariates
     )
-    browser()
     data_other_folds <- data[folds != i, ]
-    data_hold_out_fold <- data[folds == i, "covariates"]
+    data_hold_out_fold <- data[folds == i, "covariates", drop = FALSE]
     
     # grow forest based on other folds
     forest_other_fold <- randomForestSRC::rfsrc(
@@ -85,7 +83,7 @@ estimate_prior_prob <- function(pvalues, covariates, folds, ntrees = 10, tau = 0
     )
 
     # predict terminal nodes for all covariates based on the forest structure
-    predict_prior_prob <- stats::predict(forest_other_fold, data_hold_out_fold)
+    predict_prior_prob <- randomForestSRC::predict.rfsrc(forest_other_fold, data_hold_out_fold)
     
     browser()
     prior_prob <- predict_prior_prob$yvar
@@ -107,11 +105,16 @@ estimate_prior_prob <- function(pvalues, covariates, folds, ntrees = 10, tau = 0
  prior_prob <- estimate_prior_prob(pvalue, as.matrix(X), folds)
 ```
 
+```{r}
+randomForestSRC::predict.rfsrc
+randomForestSRC::predict
+```
 
 ```{r}
 mean(prior_prob[[1]])
 max(prior_prob[[1]]-prior_prob[[3]])
 ```
+
 ```{r}
 length(train)
 nrow(veteran)
@@ -119,12 +122,28 @@ nrow(veteran)
 
 ```{r}
 data(veteran, package = "randomForestSRC")
-train <- sample(1:nrow(veteran), round(nrow(veteran) * 0.80))
-veteran.grow <- rfsrc(Surv(time, status) ~ ., veteran[train, ], ntree = 100) 
+train <- sample(1:nrow(veteran), round(nrow(veteran) * 0.10))
+veteran.grow <- rfsrc(Surv(time, status) ~ ., veteran[train, ], ntree = 1, membership = TRUE) 
 veteran.pred <- predict(veteran.grow, veteran[-train, ])
+veteran.pred.rfsrc <- randomForestSRC::predict.rfsrc(veteran.grow, veteran[-train, ])
 print(veteran.pred)
-```
-```{r}
-veteran.pred$yvar
+print(veteran.pred.rfsrc)
 ```
 
+```{r, eval = FALSE}
+veteran.grow[["inbag"]]
+```
+
+```{r}
+data(veteran, package = "randomForestSRC")
+train <- sample(1:nrow(veteran), round(nrow(veteran) * 0.10))
+veteran.grow <- rfsrc(Surv(time, status) ~ ., veteran[train, ], ntree = 1, membership = TRUE) 
+veteran.pred <- predict(veteran.grow, veteran[-train, ])
+
+cbind(veteran.pred$yvar,
+      veteran[-train, c("time","status")])
+```
+
+```{r}
+
+```

@@ -4,7 +4,34 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Clfdr
+
+```{r}
+library(IHW)
+library(fdrtool)
+devtools::load_all(here::here("IHWForestPaper"))
+
+# regular simulation
+wasserman_normal_sim <- function(m, pi0, xi_min, xi_max, seed = NULL) {
+  if (!is.null(seed)) set.seed(seed)
+  
+  X <- runif(m, min = xi_min, max = xi_max)
+  H <- rbinom(m, 1, 1 - pi0)
+  Z <- rnorm(m, H * X)
+  pvalue <- 1 - pnorm(Z)
+  simDf <- data.frame(pvalue = pvalue, filterstat = X, H = H, Z = Z, noise = 0)
+}
+m <- 10000
+sim_df <- wasserman_normal_sim(m, 0.85, 0, 3, seed = 1)
+sim_df$group <- groups_by_filter(sim_df$filterstat, 20)
+obj <- clfdr(sim_df$pvalue, sim_df$group, .1)
+```
+
+```{r}
+rejected_hypotheses.Clfdr(obj)
+```
+
+## adaptMT
 
 ```{r}
 devtools::load_all(here::here("IHWForestPaper/adaptMT"))
