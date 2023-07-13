@@ -50,9 +50,11 @@ run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, fores
     
     #see https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/betamix_simulations_functions.R#L32
     lfdr_em_res <- error_fdp_table(try(fdp_eval(Hs,  betamix_datadriven_lfdr(Ps, as.data.frame(Xs), alpha, formula_rhs = "~."))))
+    boca_leek_res <- error_fdp_table(try(fdp_eval(Hs,  boca_leek_wrapper(Ps, as.data.frame(Xs), alpha))))
 
     sim_res <- bind_rows(sim_res,
                          mutate(adapt_res, method="AdaPT"),
+                         mutate(boca_leek_res, method="Boca-Leek"),
                          #mutate(adapt_xgboost_res, method="AdaPT-xgboost"),
                          mutate(lfdr_em_res, method="Clfdr-EM")
                          )
