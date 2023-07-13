@@ -112,6 +112,7 @@ noise_sim_res <- noise_sim_res %>%
 noise_sim_res %>% 
   arrange(n_monte_carlo)
 ```
+
 ```{r, eval = F, include=FALSE}
 df<- noise_sim_res %>% 
   arrange(n_monte_carlo) %>%
