@@ -35,12 +35,14 @@ fdp_eval <- function(Hs, rjs){
 run_sim <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par, null_proportion = T){
   ihw_quantile_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_quantile_wrapper(Ps, Xs, alpha, null_proportion = null_proportion))))
   
-  ihw_forest_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion)))) 
+  ihw_forest_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion, drop_inbag = FALSE)))) 
+  ihw_forest_drop_inbag_res <-  error_fdp_table(try(fdp_eval(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion, drop_inbag = TRUE)))) 
   
   bh_res <- fdp_eval(Hs,  p.adjust(Ps, method="BH") <= alpha)
   
   sim_res <-  bind_rows(mutate(ihw_quantile_res, method="IHW-quantile"),
                         mutate(ihw_forest_res, method="IHW-forest"),
+                        mutate(ihw_forest_drop_inbag_res, method="IHW-forest-drop-inbag"),
                         mutate(bh_res, method="BH"))
   
   if (!lfdr_only){
