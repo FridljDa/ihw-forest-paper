@@ -98,10 +98,11 @@ run_sim_adapt <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE,
   
   sim_res <-  bind_rows(mutate(adapt_xgboost_cv_res, method="AdaPT-xgboost-cv"),
                         mutate(adapt_xgboost_res, method="AdaPT-xgboost"))
+
   mutate(sim_res,
          seed = seed,
          pi0s = mean(1-Hs),
-         alpha=alpha,
+         alpha = 0.1,
          m = m)
 }
 

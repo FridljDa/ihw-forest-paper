@@ -19,7 +19,7 @@ if(Sys.info()["sysname"] == "Darwin"){
   devtools::load_all("/g/huber/users/fridljand/R/IHW")
 }
 
-#devtools::load_all(here::here("IHWForestPaper/adaptMT"))
+devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 
 ###---get input param---
 # Check if a command-line argument is provided
@@ -38,9 +38,10 @@ set.seed(seed)
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
-
+r <- 1
+m <- 10000
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 2, by = 1)
+dimensions <- seq(from = 2, to = 10, by = 1)
 
 cat("seed\n")
 print(seed)
