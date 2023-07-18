@@ -93,11 +93,10 @@ run_ihw_forest <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE
 #' @return Data frame with FDP and Power of different methods on this simulation.
 #' @export
 run_sim_adapt <- function(Ps, Xs, Hs, seed, alpha=0.1, m=10000, lfdr_only=FALSE, forest_par, null_proportion = T){
-  adapt_xgboost_cv_res <- error_fdp_table(try(fdp_eval(Hs, adapt_xgboost_cv_wrapper(Ps, Xs, alpha))))
-  adapt_xgboost_res <- error_fdp_table(try(fdp_eval(Hs, adapt_xgboost(Ps, Xs, alpha))))
+  #adapt_xgboost_cv_res <- error_fdp_table(try(fdp_eval(Hs, adapt_xgboost_cv_wrapper(Ps, Xs))))
+  adapt_xgboost_res <- error_fdp_table(try(fdp_eval(Hs, adapt_xgboost_wrapper(Ps, Xs))))
   
-  sim_res <-  bind_rows(mutate(adapt_xgboost_cv_res, method="AdaPT-xgboost-cv"),
-                        mutate(adapt_xgboost_res, method="AdaPT-xgboost"))
+  sim_res <-  mutate(adapt_xgboost_res, method="AdaPT-xgboost")
 
   mutate(sim_res,
          seed = seed,

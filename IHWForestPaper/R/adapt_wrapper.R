@@ -51,13 +51,13 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
                                        "verbose" = 0,
                                        "nthread" = 2
                                      ))) {
-    
+ 
   res <- adaptMT::adapt_xgboost_cv(
     as.matrix(Xs),
     Ps,
     piargs = args_search,
     muargs = args_search,
-    alphas = alpha
+    alphas = alphas
   )
   
   rejections <- rep(0, 20000)
@@ -84,7 +84,7 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
 adapt_xgboost_wrapper <- function(Ps, 
                                   Xs, 
                                   alpha = 0.1) {
-  
+
   res <- adapt_xgboost(as.matrix(Xs), 
                        Ps, 
                        alphas = alpha, 

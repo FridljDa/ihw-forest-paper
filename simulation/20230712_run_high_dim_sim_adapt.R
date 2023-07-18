@@ -12,14 +12,13 @@ library(dplyr)
 
 # library("IHW")
 devtools::load_all(here::here("IHWForestPaper"))
+devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 
 if(Sys.info()["sysname"] == "Darwin"){
   devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 }else{
   devtools::load_all("/g/huber/users/fridljand/R/IHW")
 }
-
-devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 
 ###---get input param---
 # Check if a command-line argument is provided
@@ -67,7 +66,7 @@ eval_adapt <- lapply(seq_along(sim), function(i){
   Xs_i <- sim_i$covariate
   Hs_i <- sim_i$Hs
   
-  sim_res_i <- run_sim_adapt(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
+  sim_res_i <- run_sim_adapt(Ps_i, Xs_i, Hs_i, seed_i, alpha = 0.1, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
   
   mutate(sim_res_i, dimension = dimension_i)
 })
