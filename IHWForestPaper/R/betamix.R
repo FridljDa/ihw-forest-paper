@@ -62,8 +62,8 @@ betamix_oracle_lfdr <- function(Ps, pi1s, mu_alphas, alpha){
 }
 
 
-
 #' Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
+#' from https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76
 #'
 #' @param Ps     Numeric vector of unadjusted p-values.
 #' @param Xs     Data frame with features

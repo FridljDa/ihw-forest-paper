@@ -49,6 +49,9 @@ cat("dimensions\n")
 print(dimensions)
 print("\n")
 
+m = 10000
+r = 1
+
 ##---eval high dim sim---
 sim <- high_dim_sim(m, r, dimensions)
 #n.cores <- parallel::detectCores()
