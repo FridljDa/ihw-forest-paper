@@ -37,10 +37,10 @@ set.seed(seed)
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
-r <- 1
+r <- 100
 m <- 10000
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 10, by = 1)
+dimensions <- seq(from = 2, to = 2, by = 1)
 
 cat("seed\n")
 print(seed)
@@ -76,4 +76,4 @@ eval_adapt <- bind_rows(eval_adapt)
 print("\n")
 print(head(eval_adapt))
 
-saveRDS(eval_high_dim_sim, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim_adapt.Rds"))
+saveRDS(eval_adapt, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim_adapt.Rds"))
