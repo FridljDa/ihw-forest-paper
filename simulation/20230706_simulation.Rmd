@@ -152,6 +152,7 @@ noise_sim_res_FDR <- ggplot(noise_sim_res, aes(x = dimension, y = FDR, shape = m
   geom_line() +
   geom_point(size = 2) +
   geom_hline(yintercept = alpha, linetype = 2) +
+  ylim(0,NA)+
   guides(
     color = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
     shape = guide_legend(nrow=2, title = "Method", legend.text = element_text(size = 4)),
@@ -171,6 +172,7 @@ noise_sim_res_FDR
 noise_sim_res_power <- ggplot(noise_sim_res, aes(x = dimension, y = Power, shape = method, col = method)) +
   geom_line() +
   geom_point(size = 2) +
+  ylim(0,NA)+
   ylab("Power") +
   guides(
     color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
