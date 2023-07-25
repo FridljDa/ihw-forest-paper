@@ -1,0 +1,30 @@
+---
+title: "adapt_xgboost"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+if(Sys.info()["sysname"] == "Darwin"){
+  devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+}else{
+  devtools::load_all("/g/huber/users/fridljand/R/IHW")
+}
+devtools::load_all(here::here("IHWForestPaper/adaptMT"))
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+Xs <- runif(20000, min=0, max=2.5) # covariate
+ Hs <- rbinom(20000,1,0.1) # hypothesis true or false
+ Zs <- rnorm(20000, Xs*Hs) # Z-score
+ Ps <- 1-pnorm(Zs) # pvalue
+ Xs <- cbind(Xs, Xs)
+ adapt_xgboost_wrapper(Ps, Xs)
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

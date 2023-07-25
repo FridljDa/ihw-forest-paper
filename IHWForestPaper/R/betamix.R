@@ -73,7 +73,7 @@ betamix_oracle_lfdr <- function(Ps, pi1s, mu_alphas, alpha){
 #'
 #' @return Binary vector of rejected/non-rejected hypotheses.
 #' @export
-betamix_datadriven_lfdr <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", maxiter=200,...){
+betamix_datadriven_lfdr <- function(Ps, Xs, alpha, formula_rhs="~.", maxiter=200,...){
   gamma_glm_fit  <- gamma_glm_basic_em(Ps, Xs, formula_rhs=formula_rhs, maxiter = maxiter, tau_pi0=0.5,...)
   betamix_oracle_lfdr(Ps, gamma_glm_fit$pi1s, gamma_glm_fit$alphas, alpha)
 }
@@ -93,7 +93,7 @@ betamix_datadriven_lfdr <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", maxiter
 
 #' @return List with parameters of fitted conditional Beta-Uniform mixture
 #' @export
-gamma_glm_basic_em <- function(Ps, Xs, formula_rhs="~X1+X2", maxiter = 50, tau_pi0=0.5,
+gamma_glm_basic_em <- function(Ps, Xs, formula_rhs="~.", maxiter = 50, tau_pi0=0.5,
                                pi1_min = 0.01, pi1_max = 0.9, alpha_min=0.1, alpha_max=0.9){
   # basic transform
   Ys <- -log(Ps)
@@ -150,7 +150,7 @@ gamma_glm_basic_em <- function(Ps, Xs, formula_rhs="~X1+X2", maxiter = 50, tau_p
 #' @return List with parameters of fitted conditional Beta-Uniform mixture
 #' @export
 
-gamma_glm_censored_em <- function(censored_Ps, Xs,  tau_censor, formula_rhs="~X1+X2",
+gamma_glm_censored_em <- function(censored_Ps, Xs,  tau_censor, formula_rhs="~.",
                                   maxiter = 50, tau_pi0 = 0.5, alpha_min = 0.1,
                                   pi1_min = 0.01, pi1_max = 0.9, alpha_max=0.9){
   # basic transform

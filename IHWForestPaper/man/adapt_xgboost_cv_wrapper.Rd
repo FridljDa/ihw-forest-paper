@@ -7,7 +7,7 @@
 adapt_xgboost_cv_wrapper(
   Ps,
   Xs,
-  alpha = 0.1,
+  alphas = 0.1,
   args_search = list(nrounds100md2 = list(nrounds = 15, max_depth = 3, verbose = 0,
     nthread = 2))
 )

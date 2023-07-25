@@ -12,14 +12,13 @@ library(dplyr)
 
 # library("IHW")
 devtools::load_all(here::here("IHWForestPaper"))
+devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 
 if(Sys.info()["sysname"] == "Darwin"){
   devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
 }else{
   devtools::load_all("/g/huber/users/fridljand/R/IHW")
 }
-
-#devtools::load_all(here::here("IHWForestPaper/adaptMT"))
 
 ###---get input param---
 # Check if a command-line argument is provided
@@ -29,7 +28,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   seed <- as.numeric(seed)
 
 } else {
-  seed <- 1
+  seed <- 2
 }
 set.seed(seed)
 
@@ -38,9 +37,10 @@ set.seed(seed)
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
-
+r <- 50
+m <- 10000
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 2, by = 1)
+dimensions <- seq(from = 2, to = 10, by = 1)
 
 cat("seed\n")
 print(seed)
@@ -69,7 +69,7 @@ eval_adapt <- lapply(seq_along(sim), function(i){
   Xs_i <- sim_i$covariate
   Hs_i <- sim_i$Hs
   
-  sim_res_i <- run_sim_adapt(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
+  sim_res_i <- run_sim_adapt(Ps_i, Xs_i, Hs_i, seed_i, alpha = 0.1, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
   
   mutate(sim_res_i, dimension = dimension_i)
 })
@@ -79,4 +79,4 @@ eval_adapt <- bind_rows(eval_adapt)
 print("\n")
 print(head(eval_adapt))
 
-saveRDS(eval_high_dim_sim, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim_adapt.Rds"))
+saveRDS(eval_adapt, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim_adapt.Rds"))

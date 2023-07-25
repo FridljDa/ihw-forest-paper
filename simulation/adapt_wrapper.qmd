@@ -4,6 +4,27 @@ format: html
 editor: visual
 ---
 
+## Adapt Mult
+
+```{r}
+library(adaptMT)
+data(estrogen)
+pvals <- as.numeric(estrogen$pvals)
+x <- data.frame(x = as.numeric(estrogen$ord_high))
+dist <- beta_family()
+
+# Subsample the data for convenience
+inds <- (x$x <= 5000)
+pvals <- pvals[inds]
+x <- x[inds,,drop = FALSE]
+
+# Run adapt_glm
+library("splines")
+formulas <- paste0("ns(x, df = ", 6:10, ")")
+res <- adapt_glm(x = x, pvals = pvals, pi_formulas = "~.",
+                 mu_formulas = "~.", dist = dist, nfits = 10)
+```
+
 ## Clfdr
 
 ```{r}
@@ -35,9 +56,10 @@ rejected_hypotheses.Clfdr(obj)
 
 ```{r}
 devtools::load_all(here::here("IHWForestPaper/adaptMT"))
+devtools::load_all(here::here("IHWForestPaper"))
 ```
 
-```{r}
+```{r, eval = FALSE}
 adapt_xgboost_wrapper <- function(Ps, 
                                   Xs, 
                                   alpha = 0.1) {
@@ -53,8 +75,6 @@ adapt_xgboost_wrapper <- function(Ps,
   rejections[rejection_position] <- 1
   rejections
 }
-
-
 ```
 
 ```{r}
@@ -62,5 +82,9 @@ adapt_xgboost_wrapper <- function(Ps,
  Hs <- rbinom(20000,1,0.1) # hypothesis true or false
  Zs <- rnorm(20000, Xs*Hs) # Z-score
  Ps <- 1-pnorm(Zs) # pvalue
- adapt_xgboost_wrapper(Ps, Xs)
+ res <- adapt_xgboost_wrapper(Ps, Xs, alpha = 0.2)
+```
+
+```{r}
+sum(res) 
 ```
