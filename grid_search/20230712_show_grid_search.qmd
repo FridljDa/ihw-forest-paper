@@ -94,8 +94,8 @@ ggplot(grid_search_res) +
 ```{r}
 grid_search_res %>%
   group_by(tau) %>% 
-  summarise(pow = mean(pow)) %>%
-  arrange(desc(pow)) %>%
+  summarise(mean_pow = mean(pow), var_pow = var(pow)) %>%
+  arrange(desc(mean_pow)) %>%
   head()
 ```
 
@@ -114,8 +114,8 @@ ggplot(grid_search_res) +
 ```{r}
 grid_search_res %>%
   group_by(nodesize) %>% 
-  summarise(pow = mean(pow)) %>%
-  arrange(desc(pow)) %>%
+  summarise(mean_pow = mean(pow), var_pow = var(pow)) %>%
+  arrange(desc(mean_pow)) %>%
   head()
 ```
 
@@ -134,7 +134,7 @@ ggplot(grid_search_res) +
 ```{r}
 grid_search_res %>%
   group_by(ntrees) %>% 
-  summarise(pow = mean(pow)) %>%
-  arrange(desc(pow)) %>%
+  summarise(mean_pow = mean(pow), variance_pow = var(pow)) %>%
+  arrange(desc(mean_pow)) %>%
   head()
 ```

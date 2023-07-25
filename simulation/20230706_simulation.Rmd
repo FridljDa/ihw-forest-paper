@@ -9,7 +9,9 @@ output: html_document
 ---
 
 ## Preperation
+
 First some cleaning and basic packages.
+
 ```{r setup, message = F}
 library(magrittr)
 library(dplyr)
@@ -26,7 +28,7 @@ theme_set(theme_cowplot())
 options(bitmapType = "cairo")
 ```
 
-## Colors and method names used throughout 
+## Colors and method names used throughout
 
 ```{r}
 options(bitmapType = "cairo")
@@ -48,18 +50,6 @@ names(method_colors) <- method_names
 method_shapes <- c(20, 0, 1, 2, 12, 13)
 names(method_shapes) <- method_names
 ```
-
-# Noise simulation
-
-\begin{eqnarray}
-& X_i \sim U[0,1]^d \\
-&\pi_1(X) = \mathbf{1}(X^1 \leq 0.5)0.9\\
-&H_i \mid X_i \sim \text{Bernoulli}(\pi_1(X_i))\\
-&P_i \mid H_i = 0, X_i \sim U[0,1]\\
-&P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
-\end{eqnarray}
-Note parameter $d$ in the first line. Hereafter, dimension = $d$.
-
 
 ## Load result files
 
@@ -104,7 +94,6 @@ high_dim_res <- rbind(high_dim_res_adapt, high_dim_res_sim)
 head(high_dim_res)
 ```
 
-
 ```{r}
 #noise_sim_res <- readRDS(file = "../precomputed_results/noise_sim.Rds")
 #noise_sim_res <- readRDS(file = "../precomputed_results/0613_noise_sim.Rds")
@@ -146,7 +135,45 @@ knitr::kable(df, "latex")
    # knitr::kable_classic(html_font = "Cambria") # Font = Cambria 
 ```
 
+
+# Noise simulation
+
+With $X_i$ be the covariate
+
+$$
+\begin{eqnarray}
+& X_i \sim U[0,1]^d \\
+&\pi_1(X) = \mathbf{1}(X^1 \leq 0.5)0.9\\
+&H_i \mid X_i \sim \text{Bernoulli}(\pi_1(X_i))\\
+&P_i \mid H_i = 0, X_i \sim U[0,1]\\
+&P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
+\end{eqnarray} 
+$$ Note parameter $d$ in the first line. Hereafter, dimension = $d$.
+
+$$
+\begin{eqnarray}
+& \beta_{\pi} = [3, 3, \underbrace{0, \dots, 0}_{d-2}] \\
+& \beta_{\mu} = [2, 2, \underbrace{0, \dots, 0}_{d-2}] \\
+& \beta_{0_{\mu}} = 0 \\
+\end{eqnarray}
+$$
+
+$$
+\begin{eqnarray}
+& X \sim U[0,1]^{d} \\
+& \pi_1(X) = \left(\frac{1}{{1 + e^{-(X \times \beta_{\pi} + \beta_{0_{\pi}})}}}\right) \\
+& \mu(X) = \max(1, X \times \beta_{\mu} + \beta_{0_{\mu}}) \\
+& H \mid X \sim \text{{Bernoulli}}(\pi(X))\\
+& Y \mid H = 1 \sim \text{{Exponential}}(1/\mu(X)) \\
+& Y \mid H = 0 \sim \text{{Exponential}}(1) \\
+& P = e^{-Y} 
+\end{eqnarray}
+$$
+
+Here $\beta_{0_{\pi}}$ is chosen s.t. $\pi_1(X)$ averages to $0.1$. +
+
 ## Plot FDR
+
 ```{r}
 noise_sim_res_FDR <- ggplot(noise_sim_res, aes(x = dimension, y = FDR, shape = method, col = method)) +
   geom_line() +
@@ -201,6 +228,7 @@ ggplot2::ggsave("../figures/noise_sim.png", g_combined,
 
 # Small region simulation
 
+```{=tex}
 \begin{eqnarray}
 & X_i \sim U[0,l] \\
 &\pi_1(X) = \mathbf{1}(X^1 \leq 1)0.9\\
@@ -208,10 +236,11 @@ ggplot2::ggsave("../figures/noise_sim.png", g_combined,
 &P_i \mid H_i = 0, X_i \sim U[0,1]\\
 &P_i \mid H_i = 1, X_i \sim Beta(0.25, 1)
 \end{eqnarray}
-
+```
 Note parameter $l$ in the first line. Hereafter, length = $l$.
 
 ## Load result files
+
 ```{r}
 small_region_sim_res <- readRDS(file = "../precomputed_results/small_region_sim.Rds")
 small_region_sim_res <- small_region_sim_res %>% mutate(method = forcats::fct_recode(method,
@@ -234,6 +263,7 @@ small_region_sim_res <- small_region_sim_res %>%
 ```
 
 ## Plot FDR
+
 ```{r}
 small_region_sim_res_FDR <- ggplot(small_region_sim_res, aes(x = length, y = FDR, shape = method, col = method)) +
   geom_line() +

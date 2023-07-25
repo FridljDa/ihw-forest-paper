@@ -124,20 +124,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the combined data</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid_search_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  rjs        pow        FDP FWER     method seed   pi0s dimension     m tau
-1  98 0.09343936 0.04081633 TRUE IHW-forest    1 0.8994         2 10000 0.4
-2  95 0.09244533 0.02105263 TRUE IHW-forest    1 0.8994         2 10000 0.5
-3  98 0.09343936 0.04081633 TRUE IHW-forest    1 0.8994         2 10000 0.6
-4  99 0.09343936 0.05050505 TRUE IHW-forest    1 0.8994         2 10000 0.7
-5  99 0.09443340 0.04040404 TRUE IHW-forest    1 0.8994         2 10000 0.8
-6  87 0.08349901 0.03448276 TRUE IHW-forest    1 0.8994         2 10000 0.9
+<pre><code>  rjs       pow        FDP FWER     method seed   pi0s dimension     m tau
+1 143 0.1381781 0.05594406 TRUE IHW-forest    1 0.9023         2 10000 0.6
+2 143 0.1351075 0.07692308 TRUE IHW-forest    1 0.9023         2 10000 0.7
+3 145 0.1392016 0.06206897 TRUE IHW-forest    1 0.9023         2 10000 0.8
+4 136 0.1289662 0.07352941 TRUE IHW-forest    1 0.9023         2 10000 0.9
+5 154 0.1453429 0.07792208 TRUE IHW-forest    1 0.9023         2 10000 0.4
+6 146 0.1392016 0.06849315 TRUE IHW-forest    1 0.9023         2 10000 0.5
   ntrees nodesize
-1     20      100
-2     20      100
-3     20      100
-4     20      100
-5     20      100
-6     20      100</code></pre>
+1     50      500
+2     50      500
+3     50      500
+4     50      500
+5      5     1000
+6      5     1000</code></pre>
 </div>
 </div>
 <section id="show-completly" class="level2">
@@ -145,7 +145,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(grid_search_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 201600</code></pre>
+<pre><code>[1] 1400</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -154,19 +154,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  rjs       pow        FDP FWER     method seed   pi0s dimension     m tau
-1 192 0.1786427 0.06770833 TRUE IHW-forest    4 0.8998         3 10000 0.6
-2 191 0.1786427 0.06282723 TRUE IHW-forest    4 0.8998         3 10000 0.6
-3 187 0.1776447 0.04812834 TRUE IHW-forest    4 0.8998         3 10000 0.6
-4 185 0.1766467 0.04324324 TRUE IHW-forest    4 0.8998         3 10000 0.6
-5 188 0.1766467 0.05851064 TRUE IHW-forest    4 0.8998         3 10000 0.6
-6 196 0.1765286 0.08673469 TRUE IHW-forest    3 0.8986         4 10000 0.6
+1 174 0.1484230 0.08045977 TRUE IHW-forest    5 0.8922         7 10000 0.4
+2 154 0.1467337 0.05194805 TRUE IHW-forest    5 0.9005         5 10000 0.6
+3 171 0.1465677 0.07602339 TRUE IHW-forest    5 0.8922         7 10000 0.4
+4 147 0.1464700 0.05442177 TRUE IHW-forest    1 0.9051         4 10000 0.5
+5 174 0.1456401 0.09770115 TRUE IHW-forest    5 0.8922         7 10000 0.6
+6 173 0.1456401 0.09248555 TRUE IHW-forest    5 0.8922         7 10000 0.7
   ntrees nodesize
-1     10      200
-2     30      300
-3    500      300
-4    100      300
-5    200      300
-6    100      200</code></pre>
+1     30     1000
+2     50      500
+3     40     1000
+4     40     1000
+5     50      500
+6     50      500</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -192,12 +192,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 6 × 4
     tau ntrees nodesize   pow
   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
-1   0.4    500      300 0.122
-2   0.4    300      500 0.122
-3   0.4     50      300 0.122
-4   0.4    100      300 0.122
-5   0.4    300      300 0.122
-6   0.4    200      300 0.122</code></pre>
+1   0.6     50      500 0.122
+2   0.4     20     1000 0.119
+3   0.7     50      500 0.118
+4   0.4     50     1000 0.118
+5   0.4     40     1000 0.117
+6   0.4     30     1000 0.117</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -231,19 +231,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>grid_search_res <span class="sc">%&gt;%</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tau) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pow =</span> <span class="fu">mean</span>(pow)) <span class="sc">%&gt;%</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_pow =</span> <span class="fu">mean</span>(pow), <span class="at">var_pow =</span> <span class="fu">var</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_pow)) <span class="sc">%&gt;%</span></span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-    tau   pow
-  &lt;dbl&gt; &lt;dbl&gt;
-1   0.4 0.119
-2   0.5 0.119
-3   0.6 0.117
-4   0.7 0.115
-5   0.8 0.113
-6   0.9 0.110</code></pre>
+<pre><code># A tibble: 6 × 3
+    tau mean_pow  var_pow
+  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1   0.4    0.117 0.000197
+2   0.5    0.116 0.000200
+3   0.6    0.116 0.000208
+4   0.7    0.113 0.000208
+5   0.8    0.111 0.000215
+6   0.9    0.108 0.000263</code></pre>
 </div>
 </div>
 </section>
@@ -266,18 +266,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>grid_search_res <span class="sc">%&gt;%</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(nodesize) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pow =</span> <span class="fu">mean</span>(pow)) <span class="sc">%&gt;%</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_pow =</span> <span class="fu">mean</span>(pow), <span class="at">var_pow =</span> <span class="fu">var</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_pow)) <span class="sc">%&gt;%</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 5 × 2
-  nodesize   pow
-     &lt;dbl&gt; &lt;dbl&gt;
-1      300 0.117
-2      200 0.117
-3      500 0.117
-4      100 0.115
-5     1000 0.111</code></pre>
+<pre><code># A tibble: 2 × 3
+  nodesize mean_pow  var_pow
+     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1      500    0.117 0.000234
+2     1000    0.113 0.000223</code></pre>
 </div>
 </div>
 </section>
@@ -300,19 +297,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>grid_search_res <span class="sc">%&gt;%</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ntrees) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pow =</span> <span class="fu">mean</span>(pow)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_pow =</span> <span class="fu">mean</span>(pow), <span class="at">variance_pow =</span> <span class="fu">var</span>(pow)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_pow)) <span class="sc">%&gt;%</span></span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 2
-  ntrees   pow
-   &lt;dbl&gt; &lt;dbl&gt;
-1    500 0.116
-2    200 0.116
-3    300 0.116
-4    100 0.116
-5     50 0.116
-6     40 0.116</code></pre>
+<pre><code># A tibble: 6 × 3
+  ntrees mean_pow variance_pow
+   &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;
+1     50    0.115     0.000226
+2     20    0.114     0.000235
+3     30    0.113     0.000215
+4     40    0.113     0.000234
+5     10    0.113     0.000218
+6      5    0.112     0.000225</code></pre>
 </div>
 </div>
 </section>
