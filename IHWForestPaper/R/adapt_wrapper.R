@@ -10,7 +10,7 @@
 #'
 #' @references AdaptMT CRAN package
 #' @export
-adapt_mtp <- function(Ps, Xs, alpha, formula_rhs="~X1+X2", return_fit=FALSE){
+adapt_mtp <- function(Ps, Xs, alpha, formula_rhs="~.", return_fit=FALSE){
   adapt_glm_fit <- adaptMT::adapt_glm(as.data.frame(Xs), Ps, formula_rhs, formula_rhs, alphas=alpha)
   adapt_glm_rjs <- adapt_glm_fit$qvals <= alpha
   if (return_fit){

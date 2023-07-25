@@ -28,7 +28,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   seed <- as.numeric(seed)
 
 } else {
-  seed <- 1
+  seed <- 2
 }
 set.seed(seed)
 
@@ -37,10 +37,10 @@ set.seed(seed)
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
-r <- 100
+r <- 50
 m <- 10000
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 2, by = 1)
+dimensions <- seq(from = 2, to = 10, by = 1)
 
 cat("seed\n")
 print(seed)
