@@ -56,16 +56,16 @@ formulas_mt <- sapply(summands_list, function(x) paste(x, collapse = " + "))
 # print the formulas
 print(formulas_mt)
 
-formula_mt <- paste0("p ~ ", formula_mt)
-formula_mt <- sapply(formula_mt, as.formula)
+formulas_mt <- paste0("p ~ ", formulas_mt)
+formulas_mt <- sapply(formulas_mt, as.formula)
 
 ## ---------------------------------------------------------------------------
 # create a data frame
 parameters_run <- data.frame(
-  formula = formulas_mt,
+  #formula = formulas_mt,
   summands = I(summands_list),
-  number_covariates = sapply(summands_list, length),
-  formula_string = sapply(formulas_mt, as.character)  
+  number_covariates = sapply(summands_list, length)#,
+  #formula_string = sapply(formulas_mt, as.character)  
 )
 
 parameters_run <- parameters_run %>%
