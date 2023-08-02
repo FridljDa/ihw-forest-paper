@@ -1,0 +1,7 @@
+WARNING: ignoring environment value of R_HOME
+seed 2 
+dimensions 2 
+[1] "\n"
+simulation run:1/1
+alpha = 0.1: FDPhat 0.087, Number of Rej. 23
+Task completed!

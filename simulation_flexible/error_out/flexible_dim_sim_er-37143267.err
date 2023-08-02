@@ -1,0 +1,18 @@
+ℹ Loading IHWForestPaper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+/var/spool/slurm/job37143267/slurm_script: line 22: 4145438 Killed                  Rscript simulation_flexible/20230802_run_simulation_flexible_rule.R $seed
+slurmstepd: error: Detected 1 oom-kill event(s) in StepId=37143267.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.

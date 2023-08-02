@@ -4,7 +4,7 @@
 
 #SBATCH -A huber                    # group to which you belong
 #SBATCH -N 1                        # number of nodes
-#SBATCH -n 6                        # number of cores
+#SBATCH -n 3                        # number of cores
 #SBATCH --mem 10G                    # memory pool for all cores
 #SBATCH -t 2-2:00                   # runtime limit (D-HH:MM:SS)
 #SBATCH -o boca_leek/out/boca_leek_out-%j.out

@@ -78,20 +78,24 @@ cat("\n")
 cat(nrow(parameters_run))
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
-#parameters_run_copy <- parameters_run
-BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
+dry_run <- FALSE
+if(dry_run){
+  #parameters_run_copy <- parameters_run
+  BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
     #group_by(chr_name) %>%
     sample_n(2000)# %>%
-    #ungroup()
+  #ungroup()
+  
+  parameters_run <- parameters_run %>%
+    filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
+           #& 
+           # stratification_method == "quantiles" &
+           #number_covariates %in% c(1) & 
+           #       alphas == 0.04 
+    )
+  #parameters_run
+}
 
-parameters_run <- parameters_run %>%
-  filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
-         #& 
-          # stratification_method == "quantiles" &
-     #number_covariates %in% c(1) & 
-#       alphas == 0.04 
-         )
-#parameters_run
 
 folds <- BMI_GIANT_GWAS$chr_name %>%
   as.factor() %>%
@@ -110,8 +114,7 @@ result <- foreach(i = seq_len(nrow(parameters_run))
                    , .combine = rbind
                    ) %dopar% {
 #for(i in seq_len(nrow(parameters_run))){
-  cat('Starting ', i, 'th job.\n', sep = '')
-  tic("running IHW")
+  cat('Starting ', i, 'th job of', nrow(parameters_run),'.\n')
     
   # Define the function call parameters
   formula <- parameters_run$formula[[i]]
