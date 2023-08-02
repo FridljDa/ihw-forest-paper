@@ -1,0 +1,8 @@
+[1] "N"                                                                                                       
+[2] "Freq_MAF_Hapmap + N"                                                                                     
+[3] "Freq_MAF_Hapmap + N + minor_allele_freq"                                                                 
+[4] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1"                                                    
+[5] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2"                                       
+[6] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3"                          
+[7] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4"             
+[8] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4 + covariate5"
