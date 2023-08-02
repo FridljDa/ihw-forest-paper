@@ -79,18 +79,18 @@ cat(nrow(parameters_run))
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
 #parameters_run_copy <- parameters_run
-#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
     #group_by(chr_name) %>%
-#    sample_n(2000)# %>%
+    sample_n(2000)# %>%
     #ungroup()
 
-#parameters_run <- parameters_run %>%
-#  filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
+parameters_run <- parameters_run %>%
+  filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
          #& 
           # stratification_method == "quantiles" &
      #number_covariates %in% c(1) & 
 #       alphas == 0.04 
-#         )
+         )
 #parameters_run
 
 folds <- BMI_GIANT_GWAS$chr_name %>%
