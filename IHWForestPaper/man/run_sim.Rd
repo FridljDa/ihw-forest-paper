@@ -8,13 +8,12 @@ run_sim(
   Ps,
   Xs,
   Hs = NULL,
-  seed,
+  seed = NA,
   alpha = 0.1,
-  m = 10000,
   forest_par = NULL,
   null_proportion = T,
-  methods = c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT",
-    "Boca-Leek", "Clfdr-EM")
+  methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"),
+  folds = NULL
 )
 }
 \arguments{
@@ -27,8 +26,6 @@ run_sim(
 \item{seed}{Seed for reproducibility.}
 
 \item{alpha}{Significance level. Default is 0.1.}
-
-\item{m}{The number of hypotheses. Default is 10000.}
 
 \item{forest_par}{Parameter for the forest method.}
 
@@ -43,11 +40,12 @@ Data frame with columns for each method and associated statistics.
 Simulates and evaluates multiple testing procedures.
 }
 \examples{
-save.seed <- .Random.seed; set.seed(1)
-X   <- runif(20000, min=0, max=2.5)   # covariate
-H   <- rbinom(20000,1,0.1)            # hypothesis true or false
-Z   <- rnorm(20000, H*X)              # Z-score
+save.seed <- .Random.seed
+set.seed(1)
+X <- runif(20000, min = 0, max = 2.5) # covariate
+H <- rbinom(20000, 1, 0.1) # hypothesis true or false
+Z <- rnorm(20000, H * X) # Z-score
 .Random.seed <- save.seed
-pvalue <- 1-pnorm(Z)                  # pvalue
+pvalue <- 1 - pnorm(Z) # pvalue
 run_sim(pvalue, X, H, 1)
 }

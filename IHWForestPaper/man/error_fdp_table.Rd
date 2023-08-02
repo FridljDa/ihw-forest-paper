@@ -14,16 +14,17 @@ A data frame with columns `rjs`, `pow`, `FDP`, `FWER`. If the input has 'try-err
 }
 \description{
 This function takes as input the output of fdp_eval function
-and checks if it inherits from 'try-error'. If so, it 
+and checks if it inherits from 'try-error'. If so, it
 returns a data frame with NA values, otherwise, it returns the original input.
 }
 \examples{
-save.seed <- .Random.seed; set.seed(1)
-X   <- runif(20000, min=0, max=2.5)   # covariate
-H   <- rbinom(20000,1,0.1)            # hypothesis true or false
-Z   <- rnorm(20000, H*X)              # Z-score
+save.seed <- .Random.seed
+set.seed(1)
+X <- runif(20000, min = 0, max = 2.5) # covariate
+H <- rbinom(20000, 1, 0.1) # hypothesis true or false
+Z <- rnorm(20000, H * X) # Z-score
 .Random.seed <- save.seed
-pvalue <- 1-pnorm(Z)                  # pvalue
-rjs <- p.adjust(pvalue, method="BH") <= 0.1
+pvalue <- 1 - pnorm(Z) # pvalue
+rjs <- p.adjust(pvalue, method = "BH") <= 0.1
 error_fdp_table(fdp_eval(H, rjs)) # Expected output: data frame with fdp_eval output
 }
