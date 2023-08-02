@@ -21,6 +21,7 @@ library(cowplot)
 library(RColorBrewer)
 library(here)
 library(purrr)
+devtools::load_all(here("IHWForestPaper"))
 knitr::opts_chunk$set(echo = TRUE)
 
 set.seed(123)
@@ -54,45 +55,16 @@ names(method_shapes) <- method_names
 ## Load result files
 
 ```{r}
-# Set the directory path
-directory <- "simulation/data"
+# Usage:
 
-# List all the files in the directory
-files <- list.files(here(directory))
+# For "_eval_high_dim_sim.Rds"
+high_dim_res_sim <- latest_files(here("simulation/data"), "_eval_high_dim_sim.Rds")
 
-# Extract the date from the file names
-dates <- stringr::str_extract(files, "\\d{4}-\\d{2}-\\d{2}")
-dates <- as.Date(dates)
+# For "_eval_high_dim_sim_adapt.Rds"
+high_dim_res_adapt <- latest_files(here("simulation/data"), "_eval_high_dim_sim_adapt.Rds")
 
-# Identify the latest date for files ending with "_eval_high_dim_sim.Rds"
-latest_date_sim <- max(dates[grep("_eval_high_dim_sim.Rds", files)], na.rm = TRUE)
-
-# Identify the latest date for files ending with "_eval_high_dim_sim_adapt.Rds"
-latest_date_adapt <- max(dates[grep("_eval_high_dim_sim_adapt.Rds", files)], na.rm = TRUE)
-
-# Filter files with the latest date for "_eval_high_dim_sim.Rds"
-latest_files_sim <- files[dates == latest_date_sim & grep("_eval_high_dim_sim.Rds", files)]
-latest_files_sim <- na.omit(latest_files_sim)
-
-# Filter files with the latest date for "_eval_high_dim_sim_adapt.Rds"
-latest_files_adapt <- files[dates == latest_date_adapt & grep("_eval_high_dim_sim_adapt.Rds", files)]
-latest_files_adapt <- na.omit(latest_files_adapt)
-
-# Read and combine the files with the latest date for "_eval_high_dim_sim.Rds" using purrr and rbindlist
-high_dim_res_sim <- map_dfr(latest_files_sim, ~ readRDS(here(directory, .x)))
-
-# Read and combine the files with the latest date for "_eval_high_dim_sim_adapt.Rds" using purrr and rbindlist
-high_dim_res_adapt <- map_dfr(latest_files_adapt, ~ readRDS(here(directory, .x)))
-
-
-# ... (previous code remains the same)
-
-# Row-bind high_dim_res_adapt and high_dim_res_sim
-high_dim_res <- rbind(high_dim_res_adapt, high_dim_res_sim)
-
-# Print the combined data
-head(high_dim_res)
 ```
+
 
 ```{r}
 #noise_sim_res <- readRDS(file = "../precomputed_results/noise_sim.Rds")
@@ -136,7 +108,7 @@ knitr::kable(df, "latex")
 ```
 
 
-# Noise simulation
+# High dim simulation
 
 With $X_i$ be the covariate
 

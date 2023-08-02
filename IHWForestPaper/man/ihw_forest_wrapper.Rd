@@ -8,8 +8,8 @@ ihw_forest_wrapper(
   Ps,
   Xs,
   alpha,
-  forest_par,
-  null_proportion = T,
+  forest_par = NULL,
+  null_proportion = TRUE,
   per_covariate_bins = 5,
   drop_inbag = FALSE
 )
@@ -17,20 +17,28 @@ ihw_forest_wrapper(
 \arguments{
 \item{Ps}{Numeric vector of unadjusted p-values.}
 
-\item{Xs}{Vector or matrix of covariates}
+\item{Xs}{Vector or matrix of covariates.}
 
-\item{alpha}{Significance level at which to apply method}
+\item{alpha}{Significance level at which to apply method.}
 
-\item{forest_par}{TODO}
+\item{forest_par}{List of parameters for the forest stratification method.}
 
-\item{drop_inbag}{do not use hypotheses, which have already been used for the 
-construction of the partition for the construction of the weights as well}
+\item{null_proportion}{Logical; if TRUE, estimates the null proportion. Default is TRUE.}
 
-\item{Storey}{Bool (default: FALSE): is the procedure pi0 adaptive or not?}
+\item{per_covariate_bins}{Number of bins for the covariate stratification. Default is 5.}
+
+\item{drop_inbag}{Logical; if TRUE, does not use hypotheses, which have already been used for the construction of the partition for the construction of the weights as well. Default is FALSE.}
 }
 \value{
 Binary vector of rejected/non-rejected hypotheses.
 }
 \description{
-Wrapper for the IHW-Forest procedure
+This function applies the IHW-Forest procedure to a given set of p-values and covariates.
+}
+\examples{
+# Generate some example data
+Ps <- runif(100)  # P-values
+Xs <- rnorm(100)  # Covariates
+# Run the IHW-Forest procedure
+rejections <- ihw_forest_wrapper(Ps, Xs, alpha = 0.05)
 }

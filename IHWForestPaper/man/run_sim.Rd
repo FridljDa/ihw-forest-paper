@@ -2,36 +2,52 @@
 % Please edit documentation in R/helper.R
 \name{run_sim}
 \alias{run_sim}
-\title{Apply multiple testing methods to the simulation with the continuous covariate.}
+\title{Simulates and evaluates multiple testing procedures.}
 \usage{
 run_sim(
   Ps,
   Xs,
-  Hs,
+  Hs = NULL,
   seed,
   alpha = 0.1,
   m = 10000,
-  lfdr_only = FALSE,
-  forest_par,
-  null_proportion = T
+  forest_par = NULL,
+  null_proportion = T,
+  methods = c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT",
+    "Boca-Leek", "Clfdr-EM")
 )
 }
 \arguments{
-\item{seed}{Integer; used for printing which simulation it running (does not set an actual RNG seed)}
+\item{Ps}{Vector of p-values.}
 
-\item{alpha}{Numeric (default: 0.1), nominal significance level at which to apply methods}
+\item{Xs}{Vector of covariates.}
 
-\item{m}{Number of hypotheses (default: m=10000)}
+\item{Hs}{Vector with indicators of alternatives (1) and true nulls (0). Default is NULL.}
 
-\item{lfdr_only}{Bool (default:FALSE), whether to run all methods (if FALSE) or only lfdr based methods (if TRUE)}
+\item{seed}{Seed for reproducibility.}
 
-\item{forest_par}{TODO}
+\item{alpha}{Significance level. Default is 0.1.}
 
-\item{null_proportion}{TODO}
+\item{m}{The number of hypotheses. Default is 10000.}
+
+\item{forest_par}{Parameter for the forest method.}
+
+\item{null_proportion}{Logical; if TRUE, estimates the null proportion. Default is TRUE.}
+
+\item{methods}{Vector of methods to run. Default includes all valid methods: "IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM", "AdaPT-xgboost".}
 }
 \value{
-Data frame with FDP and Power of different methods on this simulation.
+Data frame with columns for each method and associated statistics.
 }
 \description{
-Apply multiple testing methods to the simulation with the continuous covariate.
+Simulates and evaluates multiple testing procedures.
+}
+\examples{
+save.seed <- .Random.seed; set.seed(1)
+X   <- runif(20000, min=0, max=2.5)   # covariate
+H   <- rbinom(20000,1,0.1)            # hypothesis true or false
+Z   <- rnorm(20000, H*X)              # Z-score
+.Random.seed <- save.seed
+pvalue <- 1-pnorm(Z)                  # pvalue
+run_sim(pvalue, X, H, 1)
 }

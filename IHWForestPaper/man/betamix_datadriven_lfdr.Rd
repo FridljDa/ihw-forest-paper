@@ -2,16 +2,10 @@
 % Please edit documentation in R/betamix.R
 \name{betamix_datadriven_lfdr}
 \alias{betamix_datadriven_lfdr}
-\title{Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml}
+\title{Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
+from https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76}
 \usage{
-betamix_datadriven_lfdr(
-  Ps,
-  Xs,
-  alpha,
-  formula_rhs = "~X1+X2",
-  maxiter = 200,
-  ...
-)
+betamix_datadriven_lfdr(Ps, Xs, alpha, formula_rhs = "~.", maxiter = 200, ...)
 }
 \arguments{
 \item{Ps}{Numeric vector of unadjusted p-values.}
@@ -29,4 +23,5 @@ Binary vector of rejected/non-rejected hypotheses.
 }
 \description{
 Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
+from https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76
 }

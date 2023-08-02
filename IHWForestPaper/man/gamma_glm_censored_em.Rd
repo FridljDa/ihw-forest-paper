@@ -8,7 +8,7 @@ gamma_glm_censored_em(
   censored_Ps,
   Xs,
   tau_censor,
-  formula_rhs = "~X1+X2",
+  formula_rhs = "~.",
   maxiter = 50,
   tau_pi0 = 0.5,
   alpha_min = 0.1,

@@ -4,7 +4,7 @@
 \alias{adapt_mtp}
 \title{Wrapper of AdaPT multiple testing procedure}
 \usage{
-adapt_mtp(Ps, Xs, alpha, formula_rhs = "~X1+X2", return_fit = FALSE)
+adapt_mtp(Ps, Xs, alpha, formula_rhs = "~.", return_fit = FALSE)
 }
 \arguments{
 \item{Ps}{Numeric vector of p-values}

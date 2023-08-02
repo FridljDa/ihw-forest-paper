@@ -7,7 +7,7 @@
 gamma_glm_basic_em(
   Ps,
   Xs,
-  formula_rhs = "~X1+X2",
+  formula_rhs = "~.",
   maxiter = 50,
   tau_pi0 = 0.5,
   pi1_min = 0.01,

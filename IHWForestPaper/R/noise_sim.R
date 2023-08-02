@@ -61,7 +61,7 @@ noise_sim <- function(m, r, dimensions){
 #' @import doParallel
 #' @import parallel
 #' @export
-eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only = FALSE, null_proportion = T){
+eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, methods = c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"), null_proportion = T){
   sim <- noise_sim(m, r, dimensions)
   n.cores <- parallel::detectCores()
   doParallel::registerDoParallel(cores = min(3, n.cores - 1))
@@ -78,7 +78,7 @@ eval_noise_sim <- function(m, r, dimensions, forest_par, alpha = 0.1, lfdr_only 
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
+    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, methods = methods, forest_par, null_proportion = null_proportion)
     
     mutate(sim_res_i, dimension = dimension_i)
   }
