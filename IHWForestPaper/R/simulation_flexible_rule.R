@@ -46,7 +46,9 @@ ball_volume <- function(radius, lp_norm, dimension) {
 #' @param seed The seed for random number generation (optional).
 #' @param dimensions The total number of dimensions in the covariate matrix.
 #' @param ndim The number of dimensions to consider when calculating the alternative probability (default is 1).
-#' @param c A scaling factor to adjust the alternative probability (default is 0.9).
+#' @param signal_strength signal_strength, between 0 and 1
+#' @param lp_norm The norm to consider for the calculation (default is 1).
+#' @param target_average_alt_prob The target average for the alternative probability.
 #'
 #' @return A function that generates discrete alternative probabilities based on input covariate values.
 #'
@@ -57,41 +59,16 @@ ball_volume <- function(radius, lp_norm, dimension) {
 #' alt_prob <- alt_prob_generator(c(0.2, 0.5, 0.1, 0.8, 0.4))
 #'
 #' @export
-discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, c = 0.9, lp_norm = 1, target_average_alt_prob = 0.1) {
-  # Set the random seed for reproducibility (optional)
+discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strength = 0.9, lp_norm = 1, target_average_alt_prob = 0.1) {
   set.seed(seed)
-  
-  # Select relevant dimensions randomly
   selected_dimensions <- sample(seq_len(dimensions), ndim, replace = FALSE)
-  
-  #interval_boundary <- (0.1 / c)^(1 / ndim)
-  target_volume <- target_average_alt_prob/c
-  
-  #we are using ndim, because this is the effective dimension
-  # and the Lebesgue integral commutates with the cartesian product
+  target_volume <- target_average_alt_prob/signal_strength
   radius <- uniroot(function(radius) ball_volume(radius, lp_norm, ndim) - target_volume, 
-                  interval = c(0,1))$root
+                    interval = c(0,1))$root
   
-  #' Generate discrete alternative probabilities based on input covariate values.
-  #'
-  #' This function calculates the discrete alternative probability based on randomly selected covariates.
-  #'
-  #' @param covariate_row A vector of covariate values with dimensions matching the input matrix.
-  #' 
-  #' @return A numeric value representing the discrete alternative probability.
-  #'
   discrete_prop_alt <- function(covariate_row) {
-    # Extract the covariate values corresponding to selected dimensions
     covariate_row_selected <- covariate_row[selected_dimensions]
-    
-    # Check if each selected covariate value is within the interval_boundary
-    #in_intervals <- covariate_row_selected <= interval_boundary
-    
-    # Calculate the alternative probability using the product of in_intervals
-    #in_intervals <- prod(in_intervals)
-    
-    # Return the alternative probability using the scaling factor c if in_intervals is TRUE, otherwise return 0
-    ifelse(in_ball(covariate_row_selected, radius, lp_norm), c, 0)
+    ifelse(in_ball(covariate_row_selected, radius, lp_norm), signal_strength, 0)
   }
   
   return(discrete_prop_alt)
