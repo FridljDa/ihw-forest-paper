@@ -46,7 +46,7 @@ forest_par <- list(
 
 
 ## -----high dim sim------
-dimensions <- seq(from = 2, to = 10, by = 1)
+dimensions <- seq(from = 2, to = 10, by = 1) #10
 
 cat("seed\n")
 print(seed)
@@ -54,13 +54,15 @@ print(seed)
 cat("dimensions\n")
 print(dimensions)
 print("\n")
-eval_high_dim_sim <- eval_high_dim_sim(
-  m = 10000,
-  r = 50, #10
-  dimensions = dimensions,
-  forest_par,
-  lfdr_only = FALSE
-)
+
+sim_list <- high_dim_sim(m = 10000,  #10000
+                         r = 100, #100
+                         dimensions = dimensions)
+
+eval_high_dim_sim <- eval_sim_parallel(sim_list, 
+                              alpha = 0.1, 
+                              methods = c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"), 
+                              context_information = c("dimension","seed"))
 print("\n")
 print(head(eval_high_dim_sim))
 

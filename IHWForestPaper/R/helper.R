@@ -1,3 +1,4 @@
+library(dplyr)
 #' Error handling for the fdp_eval function output
 #'
 #' This function takes as input the output of fdp_eval function
@@ -64,89 +65,4 @@ fdp_eval <- function(Hs = NULL, rjs) {
 # fdp_eval_error_wrapper(Hs = c(1,1,0,0,1), rjs = c(0,1,1,1,0)) # Execute with both hypotheses and rejections vectors
 fdp_eval_error_wrapper <- function(Hs = NULL, rjs) {
   error_fdp_table(try(fdp_eval(Hs, rjs)))
-}
-
-
-#' Simulates and evaluates multiple testing procedures.
-#'
-#' @param Ps Vector of p-values.
-#' @param Xs Vector of covariates.
-#' @param Hs Vector with indicators of alternatives (1) and true nulls (0). Default is NULL.
-#' @param seed Seed for reproducibility.
-#' @param alpha Significance level. Default is 0.1.
-#' @param forest_par Parameter for the forest method.
-#' @param null_proportion Logical; if TRUE, estimates the null proportion. Default is TRUE.
-#' @param methods Vector of methods to run. Default includes all valid methods: "IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM", "AdaPT-xgboost".
-#' @return Data frame with columns for each method and associated statistics.
-#' @import dplyr
-#' @examples
-#' save.seed <- .Random.seed
-#' set.seed(1)
-#' X <- runif(20000, min = 0, max = 2.5) # covariate
-#' H <- rbinom(20000, 1, 0.1) # hypothesis true or false
-#' Z <- rnorm(20000, H * X) # Z-score
-#' .Random.seed <- save.seed
-#' pvalue <- 1 - pnorm(Z) # pvalue
-#' run_sim(pvalue, X, H, 1)
-#' @export
-run_sim <- function(Ps, Xs, Hs = NULL, seed = NA, alpha = 0.1, forest_par = NULL, null_proportion = T, methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"), folds = NULL) {  valid_methods <- c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM", "AdaPT-xgboost")
-  invalid_methods <- setdiff(methods, valid_methods)
-
-  if (length(invalid_methods) > 0) {
-    stop(paste("The following methods are not valid:", paste(invalid_methods, collapse = ", "), ". Valid methods are:", paste(valid_methods, collapse = ", "), "."))
-  }
-  
-  Xs <- as.matrix(Xs)
-  sim_res <- data.frame()
-
-  if ("IHW-quantile" %in% methods) {
-    ihw_quantile_res <- fdp_eval_error_wrapper(Hs, ihw_quantile_wrapper(Ps, Xs, alpha, null_proportion = null_proportion, folds = folds))
-    sim_res <- bind_rows(sim_res, mutate(ihw_quantile_res, method = "IHW-quantile"))
-  }
-  
-  if ("IHW-forest" %in% methods) {
-    ihw_forest_res <- fdp_eval_error_wrapper(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion, drop_inbag = FALSE, folds = folds))
-    sim_res <- bind_rows(sim_res, mutate(ihw_forest_res, method = "IHW-forest"))
-  }
-  
-  if ("IHW-forest-drop-inbag" %in% methods) {
-    ihw_forest_drop_inbag_res <- fdp_eval_error_wrapper(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion, drop_inbag = TRUE, folds = folds))
-    sim_res <- bind_rows(sim_res, mutate(ihw_forest_drop_inbag_res, method = "IHW-forest-drop-inbag"))
-  }
-
-  if ("BH" %in% methods) {
-    bh_res <- fdp_eval(Hs, p.adjust(Ps, method = "BH") <= alpha)
-    sim_res <- bind_rows(sim_res, mutate(bh_res, method = "BH"))
-  }
-
-  if ("AdaPT" %in% methods) {
-    adapt_res <- fdp_eval_error_wrapper(Hs, adapt_mtp(Ps, Xs, alpha, formula_rhs = "~."))
-    sim_res <- bind_rows(sim_res, mutate(adapt_res, method = "AdaPT"))
-  }
-
-  if ("Boca-Leek" %in% methods) {
-    boca_leek_res <- fdp_eval_error_wrapper(Hs, boca_leek_wrapper(Ps, as.data.frame(Xs), alpha))
-    sim_res <- bind_rows(sim_res, mutate(boca_leek_res, method = "Boca-Leek"))
-  }
-
-  if ("Clfdr-EM" %in% methods) {
-    ## see https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/betamix_simulations_functions.R#L32
-    lfdr_em_res <- fdp_eval_error_wrapper(Hs, betamix_datadriven_lfdr(Ps, as.data.frame(Xs), alpha, formula_rhs = "~."))
-    sim_res <- bind_rows(sim_res, mutate(lfdr_em_res, method = "Clfdr-EM"))
-  }
-
-  if ("AdaPT-xgboost" %in% methods) {
-    adapt_xgboost_res <- fdp_eval_error_wrapper(Hs, adapt_xgboost_wrapper(Ps, Xs))
-    sim_res <- bind_rows(sim_res, mutate(adapt_xgboost_res, method = "AdaPT-xgboost"))
-  }
-  
-  if(!is.null(Hs)) sim_res <- sim_res %>% mutate(
-    pi0s = mean(1 - Hs)
-  )
-  
-  sim_res <- sim_res %>% mutate(
-    seed = seed,
-    alpha = alpha,
-    m = length(Ps)
-  )
 }

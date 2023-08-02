@@ -6,6 +6,7 @@
 #'
 #' @param alpha    Nominal testing level
 #' @param return_fit  Boolean, whether to return the fitted adapt object (or only the indicator of rejections), defaults to false
+#' @importFrom adaptMT adapt_glm
 #' @return Binary vector of rejected/non-rejected hypotheses.
 #'
 #' @references AdaptMT CRAN package
@@ -68,11 +69,11 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
 
 #devtools::load_all(""IHWForestPaper/adaptMT")
 #' Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
-#'
+#' @importFrom adaptMT adapt_xgboost
 #' @param Ps   Numeric vector of unadjusted p-values.
 #' @param Xs   Vector or matrix of covariates
 #' @param alpha    Significance level at which to apply method
-#'
+#' @examples 
 #' Xs <- runif(20000, min=0, max=2.5) # covariate
 #' Hs <- rbinom(20000,1,0.1) # hypothesis true or false
 #' Zs <- rnorm(20000, Xs*Hs) # Z-score

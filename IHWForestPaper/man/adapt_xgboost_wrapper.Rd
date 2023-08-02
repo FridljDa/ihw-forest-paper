@@ -11,17 +11,19 @@ adapt_xgboost_wrapper(Ps, Xs, alpha = 0.1)
 
 \item{Xs}{Vector or matrix of covariates}
 
-\item{alpha}{Significance level at which to apply method
-
-Xs <- runif(20000, min=0, max=2.5) # covariate
-Hs <- rbinom(20000,1,0.1) # hypothesis true or false
-Zs <- rnorm(20000, Xs*Hs) # Z-score
-Ps <- 1-pnorm(Zs) # pvalue
-adapt_xgboost_wrapper(Ps, Xs)}
+\item{alpha}{Significance level at which to apply method}
 }
 \value{
 Binary vector of rejected/non-rejected hypotheses.
 }
 \description{
 Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
+}
+\examples{
+Xs <- runif(20000, min=0, max=2.5) # covariate
+Hs <- rbinom(20000,1,0.1) # hypothesis true or false
+Zs <- rnorm(20000, Xs*Hs) # Z-score
+Ps <- 1-pnorm(Zs) # pvalue
+adapt_xgboost_wrapper(Ps, Xs)
+
 }
