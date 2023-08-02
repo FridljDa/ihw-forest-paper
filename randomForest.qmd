@@ -4,27 +4,28 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## 
 
 ```{r}
-library(randomForestSRC)
-# New York air quality measurements. Mean ozone in parts per billion.
-airq.obj <- rfsrc(Ozone ~ ., data = airquality)
-print(airq.obj)
-
+if(Sys.info()["sysname"] == "Darwin"){
+  devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+}else{
+  devtools::load_all(here("../IHW"))
+}
+devtools::load_all("IHWForestPaper")
 ```
-
-You can add options to executable code like this
 
 ```{r}
-#| echo: false
-2 * 2
+X   <- runif(20000, min=0, max=2.5)   # covariate
+H   <- rbinom(20000,1,0.1)            # hypothesis true or false
+Z   <- rnorm(20000, H*X)              # Z-score
+pvalue <- 1-pnorm(Z)   
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+test <- run_sim_no_ground_truth(pvalue, X)
+```
+
+```{r}
+#ihw_quantile_wrapper(pvalue, X, alpha = 0.1)
+```

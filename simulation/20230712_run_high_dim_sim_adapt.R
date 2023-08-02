@@ -37,8 +37,7 @@ set.seed(seed)
 
 # folds_fdp_eval <- sample(1:3, m, replace = TRUE)
 
-r <- 50
-m <- 10000
+
 ## -----high dim sim------
 dimensions <- seq(from = 2, to = 10, by = 1)
 
@@ -49,34 +48,50 @@ cat("dimensions\n")
 print(dimensions)
 print("\n")
 
+
 m = 10000
-r = 1
+r = 100
 
 ##---eval high dim sim---
 sim <- high_dim_sim(m, r, dimensions)
 #n.cores <- parallel::detectCores()
 #doParallel::registerDoParallel(cores = min(3, n.cores - 1))
 #browser()
-eval_adapt <- lapply(seq_along(sim), function(i){
-  #eval <- foreach(i = seq_along(sim), .combine = rbind) %dorng% {
-  #i <- 1
-  print(paste0("simulation run:", i,"/", length(sim)))
+# Define the filename where the simulation results will be stored
+simulation_results_filename <- paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim_adapt.csv")
+
+# Loop over each simulation
+for(i in seq_along(sim)) {
+  
+  # Display the current simulation run
+  cat("simulation run:", i,"/", length(sim), "\n")
+  
+  # Get the current simulation parameters
   sim_i <- sim[[i]]
   dimension_i <- sim_i$dimension
   seed_i <- sim_i$seed
-  
   Ps_i <- sim_i$pvalue
   Xs_i <- sim_i$covariate
   Hs_i <- sim_i$Hs
   
+  # Run the simulation with the current parameters
   sim_res_i <- run_sim_adapt(Ps_i, Xs_i, Hs_i, seed_i, alpha = 0.1, m = m, lfdr_only = lfdr_only, forest_par, null_proportion = null_proportion)
   
-  mutate(sim_res_i, dimension = dimension_i)
-})
-eval_adapt <- bind_rows(eval_adapt)
-##------
+  # Add additional data to the simulation results
+  sim_res_i <- mutate(sim_res_i, dimension = dimension_i, timestamp = as.character(Sys.time()))
+  
+  # If this is the first simulation, create a new CSV file.
+  # Otherwise, append the results to the existing file.
+  if(!file.exists(simulation_results_filename)) {
+    write.csv(sim_res_i, simulation_results_filename, row.names = FALSE) 
+  } else {
+    write.table(sim_res_i, simulation_results_filename, append = TRUE, sep = ",", col.names = FALSE, row.names = FALSE)
+  }
+}
 
-print("\n")
-print(head(eval_adapt))
+#print the head 
+# Load the data from the CSV file
+simulation_results_data <- read.csv(simulation_results_filename)
 
-saveRDS(eval_adapt, paste0("simulation/data/", Sys.Date(), "_", seed,"_eval_high_dim_sim_adapt.Rds"))
+# Print the first few rows
+head(simulation_results_data)
