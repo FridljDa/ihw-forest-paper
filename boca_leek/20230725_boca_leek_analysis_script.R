@@ -16,11 +16,11 @@ options(bitmapType ="cairo")
 
 ## ---------------------------------------------------------------------------
 ##list.files("../../IHW")
-if(Sys.info()["sysname"] == "Darwin"){
-  devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
-}else{
-  devtools::load_all(here("../IHW"))
-}
+#if(Sys.info()["sysname"] == "Darwin"){
+#  devtools::load_all("/Users/default/Google Drive/currentDocumants/research/2022_IHW-Forest/Code/IHW")
+#}else{
+#  devtools::load_all(here("../IHW"))
+#}
 devtools::load_all(here::here("IHWForestPaper"))
 
 ## ---------------------------------------------------------------------------
@@ -33,9 +33,6 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
   filter(chr_name %in% c("1","10"))
 #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% rename(pvalue = p)
 #
-folds <- BMI_GIANT_GWAS$chr_name %>%
-  as.factor() %>%
-  as.integer()
 
 ## ---------------------------------------------------------------------------
 BMI_GIANT_GWAS <- inner_join(BMI_GIANT_GWAS, ucsc_additional_covariates,
@@ -82,19 +79,23 @@ cat(nrow(parameters_run))
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
 #parameters_run_copy <- parameters_run
-BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
+#BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>% 
     #group_by(chr_name) %>%
-    sample_n(20000)# %>%
+#    sample_n(2000)# %>%
     #ungroup()
 
-parameters_run <- parameters_run %>%
-  filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
+#parameters_run <- parameters_run %>%
+#  filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
          #& 
           # stratification_method == "quantiles" &
      #number_covariates %in% c(1) & 
 #       alphas == 0.04 
-         )
+#         )
 #parameters_run
+
+folds <- BMI_GIANT_GWAS$chr_name %>%
+  as.factor() %>%
+  as.integer()
 
 ## ---------------------------------------------------------------------------
 # Set the timeout duration in seconds
@@ -104,10 +105,11 @@ timeout <- 60*50
 ## ---- eval = TRUE-----------------------------------------------------------
 pvalue <- BMI_GIANT_GWAS$p
 
-#result <- foreach(i = seq_len(nrow(parameters_run))
-#                   , .combine = rbind
-#                   ) %dopar% {
-for(i in seq_len(nrow(parameters_run))){
+i <- 2
+result <- foreach(i = seq_len(nrow(parameters_run))
+                   , .combine = rbind
+                   ) %dopar% {
+#for(i in seq_len(nrow(parameters_run))){
   cat('Starting ', i, 'th job.\n', sep = '')
   tic("running IHW")
     
@@ -116,7 +118,7 @@ for(i in seq_len(nrow(parameters_run))){
   alpha_i <- parameters_run$alphas[[i]]
   summands_i <- parameters_run$summands[[i]]
   
-  covariate_i <- BMI_GIANT_GWAS[,summands_i]
+  covariate_i <- BMI_GIANT_GWAS[, summands_i]
   
   # Run the function
   res_i <- run_sim(Ps = pvalue,
@@ -124,17 +126,20 @@ for(i in seq_len(nrow(parameters_run))){
                    H = NULL,
                    seed = 1, 
                    alpha = alpha_i, 
-                   #methods = methods, 
+                   methods = c("IHW-quantile", "IHW-forest", "AdaPT", "BH", "Boca-Leek"), #  "Clfdr-EM",
+                   #methods = c("Clfdr-EM"), #  "Clfdr-EM",
                    forest_par = NULL, 
                    null_proportion = TRUE,
                    folds = folds)
   
   #save elapsed time
   tic_toc_object <- toc()
-  elapsed_time <- tic_toc_object[["toc"]][["elapsed"]]-tic_toc_object[["tic"]][["elapsed"]]
+  elapsed_time <- tic_toc_object[["toc"]][["elapsed"]] - tic_toc_object[["tic"]][["elapsed"]]
   res_i <- res_i %>%
-        mutate(elapsed_time = elapsed_time)
-
+    merge(parameters_run[i,]) %>%
+    mutate(elapsed_time = elapsed_time,
+               timestamp = Sys.time())
+  
   cat('Finishing ', i, 'th job.\n', sep = '')
   res_i # this will become part of the out object
 }#)

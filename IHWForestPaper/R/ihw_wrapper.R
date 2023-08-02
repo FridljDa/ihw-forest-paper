@@ -23,6 +23,10 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_pro
   
   # Determine the number of covariates
   number_covariates <- if(is.matrix(Xs) || is.data.frame(Xs)) ncol(Xs) else 1
+  nbins <- per_covariate_bins^number_covariates
+  
+  #if too many bins for the observations, abort
+  if(nbins >= 2*length(Ps)) return(NA)
   
   # Run the IHW-Quantile procedure, catching any errors and setting a timeout
   ihw_quantile <- tryCatch(
@@ -32,7 +36,7 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_pro
           IHW::ihw(Ps, 
                    Xs, 
                    alpha, 
-                   nbins = per_covariate_bins^number_covariates,
+                   nbins = nbins,
                    stratification_method = "quantiles", 
                    null_proportion = null_proportion,
                    folds = folds)
