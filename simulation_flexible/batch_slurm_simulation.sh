@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=high.dim.sim.batch
+#SBATCH --job-name=flexible.sim.batch
 #SBATCH -A huber                # group to which you belong
 #SBATCH -t 0-0:01                   # runtime limit (D-HH:MM:SS)
 #SBATCH -o simulation/out/high_dim_sim_out_batch-%j.out
@@ -14,5 +14,5 @@ num_jobs=10
 # Loop to submit the job multiple times
 for ((i=1; i<=$num_jobs; i++))
 do
-    sbatch simulation/job_slurm_simulation.sh $i
+    sbatch simulation_flexible/job_slurm_simulation.sh $i
 done
