@@ -1,0 +1,22 @@
+here() starts at /g/huber/users/fridljand/R/ihw-forest-paper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+ℹ Loading IHW
+Creating a generic function for ‘nrow’ from package ‘base’ in package ‘IHW’
+There were 50 or more warnings (use warnings() to see the first 50)
+ℹ Loading IHWForestPaper
+Error in paste0("p ~ ", formula_mt) : object 'formula_mt' not found
+Execution halted
