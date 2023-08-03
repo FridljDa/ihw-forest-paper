@@ -7,10 +7,10 @@ devtools::load_all(here::here("IHWForestPaper"))
 # Check if a command-line argument is provided
 if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   # Retrieve the command-line argument
-  num_splits <- commandArgs(trailingOnly = TRUE)[1]
-  num_splits <- as.numeric(num_splits)
-  split_index <- commandArgs(trailingOnly = TRUE)[2]
+  split_index <- commandArgs(trailingOnly = TRUE)[1]
   split_index <- as.numeric(split_index)
+  num_splits <- commandArgs(trailingOnly = TRUE)[2]
+  num_splits <- as.numeric(num_splits)
   dry_run <- TRUE
 } else {
   num_splits <- 3
@@ -22,6 +22,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
 prop_alt_function_creator <- discrete_prop_alt_creator
 prop_alt_function_name <- "discrete_prop_alt"
 
+## -----flexible alternative sim------
 ## -----flexible alternative sim------
 if (dry_run) {
   dimensions <- seq(from = 2, to = 2, by = 1)
@@ -62,9 +63,12 @@ list_of_parameters <- list(
 )
 
 sim_parameters <- create_dataframe(list_of_parameters)
+
+cat(timestamp(),"\n")
+
+print("\n")
+
 ##----extract ---
-
-
 # Calculating the size of each smaller data.frame
 split_size <- ceiling(nrow(sim_parameters) / num_splits)
 
@@ -86,8 +90,8 @@ simulation_list <- flexible_prop_alt_sim(
 
 ##---evaluate mehtods on simulation---
 evaluated_simulation <- eval_sim_parallel(simulation_list,
-  alpha = 0.1,
-  methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
+                                          alpha = 0.1,
+                                          methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 )
 
 print("\n")
