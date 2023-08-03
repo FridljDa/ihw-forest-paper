@@ -46,7 +46,6 @@ if (dry_run) {
   kappa = seq(0, 0.1, length.out = 5)
 }
 
-cat(timestamp(),"\n")
 
 print("\n")
 
