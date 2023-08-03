@@ -11,7 +11,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   split_index <- as.numeric(split_index)
   num_splits <- commandArgs(trailingOnly = TRUE)[2]
   num_splits <- as.numeric(num_splits)
-  dry_run <- TRUE
+  dry_run <- FALSE
 } else {
   num_splits <- 3
   split_index <- 2
