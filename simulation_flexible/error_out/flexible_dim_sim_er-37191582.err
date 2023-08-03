@@ -1,0 +1,77 @@
+ℹ Loading IHWForestPaper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning messages:
+1: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+2: step size truncated due to divergence 
+3: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+4: step size truncated due to divergence 
+5: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+6: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+7: step size truncated due to divergence 
+8: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+9: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced

@@ -1,0 +1,21 @@
+ℹ Loading IHWForestPaper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+Error in flexible_prop_alt_sim(sim_parameters = sim_parameters_sub, prop_alt_function_creator = prop_alt_function_creator,  : 
+  unused argument (sim_parameters = sim_parameters_sub)
+Execution halted

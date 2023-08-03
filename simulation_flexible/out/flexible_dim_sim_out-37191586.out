@@ -1,0 +1,34 @@
+WARNING: ignoring environment value of R_HOME
+[1] "\n"
+##------ Thu Aug  3 19:48:08 2023 ------##
+##------ Thu Aug  3 19:48:08 2023 ------## 
+[1] "\n"
+simulation run:1/14
+simulation run:2/14
+simulation run:3/14
+simulation run:4/14
+simulation run:5/14
+simulation run:6/14
+simulation run:7/14
+simulation run:8/14
+simulation run:9/14
+simulation run:10/14
+simulation run:11/14
+simulation run:13/14
+simulation run:12/14
+simulation run:14/14
+alpha = 0.1: FDPhat 0.0984, Number of Rej. 61
+Task completed!
+alpha = 0.1: FDPhat 0.0896, Number of Rej. 67
+Task completed!
+alpha = 0.1: FDPhat 0.087, Number of Rej. 69
+Task completed!
+alpha = 0.1: FDPhat 0.0986, Number of Rej. 142
+Task completed!
+alpha = 0.1: FDPhat 0.0938, Number of Rej. 32
+Task completed!
+alpha = 0.1: FDPhat 0.0833, Number of Rej. 12
+Task completed!
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 21
+Task completed!
+[1] "\n"
