@@ -360,3 +360,64 @@ simulation run:243/360
 simulation run:234/360
 simulation run:231/360
 simulation run:202/360
+simulation run:139/360
+simulation run:224/360
+simulation run:140/360
+simulation run:203/360
+simulation run:223/360
+simulation run:159/360
+simulation run:230/360
+simulation run:251/360
+simulation run:227/360
+simulation run:246/360
+simulation run:205/360
+simulation run:252/360
+simulation run:358/360
+alpha = 0.1: FDPhat 0.0833, Number of Rej. 12
+Task completed!
+alpha = 0.1: FDPhat 0.0667, Number of Rej. 15
+Task completed!
+alpha = 0.1: FDPhat 0.0625, Number of Rej. 16
+Task completed!
+simulation run:266/360
+simulation run:308/360
+simulation run:354/360
+simulation run:287/360
+simulation run:329/360
+simulation run:285/360
+simulation run:309/360
+simulation run:351/360
+simulation run:267/360
+simulation run:357/360
+simulation run:286/360
+simulation run:282/360
+simulation run:352/360
+simulation run:326/360
+simulation run:350/360
+simulation run:332/360
+alpha = 0.1: FDPhat 0.1, Number of Rej. 90
+Task completed!
+alpha = 0.1: FDPhat 0.0921, Number of Rej. 76
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 70
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 90
+Task completed!
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 126
+Task completed!
+alpha = 0.1: FDPhat 0.097, Number of Rej. 134
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 140
+Task completed!
+alpha = 0.1: FDPhat 0.093, Number of Rej. 43
+Task completed!
+alpha = 0.1: FDPhat 0.0959, Number of Rej. 146
+Task completed!
+alpha = 0.1: FDPhat 0.0947, Number of Rej. 169
+Task completed!
+alpha = 0.1: FDPhat 0.087, Number of Rej. 23
+Task completed!
+alpha = 0.1: FDPhat 0.0976, Number of Rej. 82
+Task completed!
+alpha = 0.1: FDPhat 0.0963, Number of Rej. 135
+Task completed!

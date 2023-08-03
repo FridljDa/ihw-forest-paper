@@ -102,3 +102,126 @@ Task completed!
 running IHW: 978.913 sec elapsed
 Finishing 26th job.
 Starting 29th job.
+alpha = 0.0485714285714286: FDPhat 0.0452, Number of Rej. 221
+Task completed!
+running IHW: 1101.297 sec elapsed
+Finishing 28th job.
+Starting 31th job.
+alpha = 0.0485714285714286: FDPhat 0.0452, Number of Rej. 221
+Task completed!
+running IHW: 1306.362 sec elapsed
+Finishing 29th job.
+Starting 32th job.
+alpha = 0.0485714285714286: FDPhat 0.0452, Number of Rej. 221
+Task completed!
+running IHW: 1494.453 sec elapsed
+Finishing 31th job.
+Starting 34th job.
+alpha = 0.0485714285714286: FDPhat 0.045, Number of Rej. 222
+Task completed!
+running IHW: 1619.985 sec elapsed
+Finishing 32th job.
+Starting 35th job.
+alpha = 0.0614285714285714: FDPhat 0.0583, Number of Rej. 223
+Task completed!
+running IHW: 977.659 sec elapsed
+Finishing 34th job.
+Starting 37th job.
+alpha = 0.0614285714285714: FDPhat 0.0588, Number of Rej. 221
+Task completed!
+running IHW: 1008.835 sec elapsed
+Finishing 35th job.
+Starting 38th job.
+alpha = 0.0614285714285714: FDPhat 0.0586, Number of Rej. 222
+Task completed!
+running IHW: 1317.351 sec elapsed
+Finishing 37th job.
+Starting 40th job.
+alpha = 0.0614285714285714: FDPhat 0.0586, Number of Rej. 222
+Task completed!
+running IHW: 1378.912 sec elapsed
+Finishing 38th job.
+Starting 41th job.
+alpha = 0.0742857142857143: FDPhat 0.0732, Number of Rej. 328
+Task completed!
+running IHW: 926.582 sec elapsed
+Finishing 41th job.
+Starting 44th job.
+alpha = 0.0614285714285714: FDPhat 0.0586, Number of Rej. 222
+Task completed!
+running IHW: 1591.19 sec elapsed
+Finishing 40th job.
+Starting 43th job.
+alpha = 0.0742857142857143: FDPhat 0.0724, Number of Rej. 221
+Task completed!
+running IHW: 1077.524 sec elapsed
+Finishing 44th job.
+Starting 47th job.
+alpha = 0.0742857142857143: FDPhat 0.0724, Number of Rej. 221
+Task completed!
+running IHW: 1014.007 sec elapsed
+Finishing 43th job.
+Starting 46th job.
+alpha = 0.0742857142857143: FDPhat 0.0721, Number of Rej. 222
+Task completed!
+running IHW: 1491.443 sec elapsed
+Finishing 47th job.
+Starting 50th job.
+alpha = 0.0742857142857143: FDPhat 0.0721, Number of Rej. 222
+Task completed!
+running IHW: 1384.518 sec elapsed
+Finishing 46th job.
+Starting 49th job.
+alpha = 0.0871428571428571: FDPhat 0.0854, Number of Rej. 328
+Task completed!
+alpha = 0.0871428571428571: FDPhat 0.0848, Number of Rej. 224
+Task completed!
+running IHW: 920.54 sec elapsed
+Finishing 49th job.
+Starting 52th job.
+running IHW: 967.709 sec elapsed
+Finishing 50th job.
+Starting 53th job.
+alpha = 0.0871428571428571: FDPhat 0.086, Number of Rej. 221
+Task completed!
+running IHW: 1078.224 sec elapsed
+Finishing 52th job.
+Starting 55th job.
+alpha = 0.0871428571428571: FDPhat 0.0856, Number of Rej. 222
+Task completed!
+running IHW: 1323.156 sec elapsed
+Finishing 53th job.
+Starting 56th job.
+alpha = 0.0871428571428571: FDPhat 0.0852, Number of Rej. 223
+Task completed!
+running IHW: 1492.229 sec elapsed
+Finishing 55th job.
+Starting 58th job.
+alpha = 0.0871428571428571: FDPhat 0.0856, Number of Rej. 222
+Task completed!
+running IHW: 1789.996 sec elapsed
+Finishing 56th job.
+Starting 59th job.
+alpha = 0.1: FDPhat 0.0982, Number of Rej. 224
+Task completed!
+running IHW: 976.576 sec elapsed
+Finishing 58th job.
+Starting 61th job.
+alpha = 0.1: FDPhat 0.0995, Number of Rej. 221
+Task completed!
+running IHW: 1000.124 sec elapsed
+Finishing 59th job.
+Starting 62th job.
+alpha = 0.1: FDPhat 0.0991, Number of Rej. 222
+Task completed!
+running IHW: 1324.495 sec elapsed
+Finishing 61th job.
+Starting 64th job.
+alpha = 0.1: FDPhat 0.0987, Number of Rej. 223
+Task completed!
+running IHW: 1413.124 sec elapsed
+Finishing 62th job.
+alpha = 0.1: FDPhat 0.0991, Number of Rej. 222
+Task completed!
+running IHW: 1545.332 sec elapsed
+Finishing 64th job.

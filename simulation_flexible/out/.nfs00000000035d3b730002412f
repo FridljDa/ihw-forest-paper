@@ -167,3 +167,43 @@ simulation run:3556/9375
 alpha = 0.1: FDPhat 0.0882, Number of Rej. 34
 Task completed!
 simulation run:3683/9375
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 22
+Task completed!
+simulation run:3810/9375
+simulation run:3937/9375
+simulation run:4064/9375
+simulation run:4191/9375
+simulation run:4318/9375
+simulation run:4445/9375
+simulation run:4572/9375
+simulation run:4699/9375
+simulation run:4826/9375
+simulation run:4953/9375
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 155
+Task completed!
+simulation run:5080/9375
+alpha = 0.1: FDPhat 0.0833, Number of Rej. 24
+Task completed!
+simulation run:5207/9375
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 93
+Task completed!
+simulation run:5334/9375
+alpha = 0.1: FDPhat 0.0971, Number of Rej. 103
+Task completed!
+simulation run:5461/9375
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 126
+Task completed!
+simulation run:5588/9375
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 155
+Task completed!
+simulation run:5715/9375
+simulation run:5842/9375
+simulation run:5969/9375
+simulation run:6096/9375
+simulation run:6223/9375
+simulation run:6350/9375
+simulation run:6477/9375
+simulation run:6604/9375
+alpha = 0.1: FDPhat 0.0957, Number of Rej. 94
+Task completed!
+simulation run:6731/9375
