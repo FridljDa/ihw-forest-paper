@@ -7,10 +7,10 @@ devtools::load_all(here::here("IHWForestPaper"))
 # Check if a command-line argument is provided
 if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   # Retrieve the command-line argument
-  num_splits <- commandArgs(trailingOnly = TRUE)[1]
-  num_splits <- as.numeric(num_splits)
-  split_index <- commandArgs(trailingOnly = TRUE)[2]
+  split_index <- commandArgs(trailingOnly = TRUE)[1]
   split_index <- as.numeric(split_index)
+  num_splits <- commandArgs(trailingOnly = TRUE)[2]
+  num_splits <- as.numeric(num_splits)
   dry_run <- TRUE
 } else {
   num_splits <- 3
@@ -86,8 +86,8 @@ simulation_list <- flexible_prop_alt_sim(
 
 ##---evaluate mehtods on simulation---
 evaluated_simulation <- eval_sim_parallel(simulation_list,
-  alpha = 0.1,
-  methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
+                                          alpha = 0.1,
+                                          methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 )
 
 print("\n")

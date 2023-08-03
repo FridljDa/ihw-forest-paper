@@ -5,50 +5,35 @@
 \title{Simulate alternative proportions flexibly}
 \usage{
 flexible_prop_alt_sim(
-  sim_parameters,
+  m,
+  r,
+  dimensions,
   prop_alt_function_creator = discrete_prop_alt_creator,
-  prop_alt_function_name = "discrete_prop_alt_creator"
+  prop_alt_function_name = "discrete_prop_alt_creator",
+  additional_arguments_prop_alt_function_creator = NULL
 )
 }
 \arguments{
-\item{sim_parameters}{A data frame containing simulation parameters with the following columns:
-\describe{
-  \item{seed}{A vector specifying the random seed for each simulation.}
-  \item{dimensions}{A vector specifying the dimensionality of the covariates in the simulations.}
-  \item{m}{A vector specifying the number of observations per simulation.}
-  \item{kappa}{A vector specifying the mixing parameter for generating alternative proportions.}
-}}
+\item{m}{A vector specifying the number of observations per simulation}
 
-\item{prop_alt_function_creator}{A function that creates alternative proportion functions, default is 'discrete_prop_alt_creator'.}
+\item{r}{An integer specifying the number of replications for the simulation}
 
-\item{prop_alt_function_name}{A string naming the proportion alternative function creator, default is "discrete_prop_alt_creator".}
+\item{dimensions}{A vector specifying the dimensionality of the covariates in the simulations}
 
-\item{additional_arguments_prop_alt_function_creator}{A data frame that contains additional arguments needed for the prop_alt_function_creator function.}
+\item{prop_alt_function_creator}{A function that creates alternative proportion functions, default is 'discrete_prop_alt_creator'}
+
+\item{prop_alt_function_name}{A string naming the proportion alternative function creator, default is "discrete_prop_alt_creator"}
+
+\item{additional_arguments_prop_alt_function_creator}{A dataframe that contains additional arguments needed for the prop_alt_function_creator function}
 }
 \value{
-A list containing the simulation results for each combination of m, dimension, and seed, including additional arguments if provided.
+A list containing the simulation results for each combination of m, dimension, and seed, including additional arguments if provided
 }
 \description{
-This function is designed to perform multiple simulations
+This function is designed to perform multiple simulations 
 to calculate the proportion of alternative cases given various conditions.
-
-The function assumes the following model:
-\deqn{
-  \begin{aligned}
-  &X_i \stackrel{\text{iid.}}{\sim} \operatorname{U}[-0.5,0.5]^d, \\
-  &H_i \mid X_i \sim  \operatorname{Bernoulli}(1-\pi_0(X_i)),\\
-  &P_i \mid H_i = 0, X_i \stackrel{\text{iid.}}{\sim} (1-\kappa) \operatorname{U}[0,1]+\kappa \operatorname{Beta}(1,0.5),\\
-  &P_i \mid H_i = 1, X_i  \sim \operatorname{Beta}(0.25,1).
-  \end{aligned}
-}
 }
 \examples{
-flexible_prop_alt_sim(
-  sim_parameters = data.frame(
-    seed = c(123, 456),
-    dimensions = c(2, 3),
-    m = c(100, 200),
-    kappa = c(0.2, 0.3)
-  )
-)
+flexible_prop_alt_sim(m = c(100,200), r = 2, dimensions = c(2,3))
+
 }

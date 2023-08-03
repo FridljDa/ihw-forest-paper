@@ -20,8 +20,7 @@ discrete_prop_alt_creator(
 
 \item{ndim}{The number of dimensions to consider when calculating the alternative probability (default is 1).}
 
-\item{signal_strength}{signal_strength, between 0 and 1. If \code{target_average_alt_prob} is fixed, a high \code{signal_strength}
-results in a small radius internally, i.e. small covariate region with signal.}
+\item{signal_strength}{signal_strength, between 0 and 1}
 
 \item{lp_norm}{The norm to consider for the calculation (default is 1).}
 
