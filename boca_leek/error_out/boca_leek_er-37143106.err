@@ -1,0 +1,131 @@
+here() starts at /g/huber/users/fridljand/R/ihw-forest-paper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+ℹ Loading IHWForestPaper
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+
+ *** caught segfault ***
+address 0x9515fe20, cause 'memory not mapped'
+
+Traceback:
+ 1: lpsymphony::lpsymphony_solve_LP(obj, constr_matrix, rep("<=",     nrow(constr_matrix)), rhs, max = TRUE, verbosity = -2, first_feasible = FALSE)
+ 2: ihw_convex(filtered_split_sorted_pvalues, alpha, m_groups_holdout_fold,     m_groups_other_folds, penalty = penalty, lambda = lambda,     lp_solver = lp_solver, adjustment_type = adjustment_type,     quiet = quiet, ...)
+ 3: ihw_internal(filtered_sorted_groups, filtered_sorted_pvalues,     alpha, lambda, m_groups_other_folds, seed = NULL, quiet = quiet,     nfolds = nfolds_internal, distrib_estimator = distrib_estimator,     lp_solver = lp_solver, adjustment_type = adjustment_type,     ...)
+ 4: ihw_internal(sorted_groups, sorted_pvalues, alpha, lambdas, m_groups,     penalty = penalty, quiet = quiet, sorted_folds = sorted_folds,     nfolds = nfolds, nfolds_internal = nfolds_internal, nsplits_internal = nsplits_internal,     seed = NULL, distrib_estimator = distrib_estimator, lp_solver = lp_solver,     adjustment_type = adjustment_type, null_proportion = null_proportion,     null_proportion_level = null_proportion_level, ...)
+ 5: ihw.default(Ps, Xs, alpha, nbins = nbins, stratification_method = "quantiles",     null_proportion = null_proportion, folds = folds)
+ 6: IHW::ihw(Ps, Xs, alpha, nbins = nbins, stratification_method = "quantiles",     null_proportion = null_proportion, folds = folds)
+ 7: eval(expr, envir = envir)
+ 8: eval(expr, envir = envir)
+ 9: doTryCatch(return(expr), name, parentenv, handler)
+10: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+11: tryCatchList(expr, classes, parentenv, handlers)
+12: tryCatch({    eval(expr, envir = envir)}, error = function(ex) {    msg <- ex$message    pattern <- gettext("reached elapsed time limit", "reached CPU time limit",         domain = "R")    pattern <- paste(pattern, collapse = "|")    if (regexpr(pattern, msg) != -1L) {        ex <- TimeoutException(msg, cpu = cpu, elapsed = elapsed)        if (onTimeout == "error") {            throw(ex)        }        else if (onTimeout == "warning") {            warning(getMessage(ex))            NULL        }        else if (onTimeout == "silent") {            NULL        }    }    else {        throw(ex)    }})
+13: R.utils::withTimeout({    IHW::ihw(Ps, Xs, alpha, nbins = nbins, stratification_method = "quantiles",         null_proportion = null_proportion, folds = folds)}, timeout = timeout)
+14: doTryCatch(return(expr), name, parentenv, handler)
+15: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+16: tryCatchList(expr, classes, parentenv, handlers)
+17: tryCatch({    R.utils::withTimeout({        IHW::ihw(Ps, Xs, alpha, nbins = nbins, stratification_method = "quantiles",             null_proportion = null_proportion, folds = folds)    }, timeout = timeout)}, error = function(e) {    NULL})
+18: ihw_quantile_wrapper(Ps, Xs, alpha, null_proportion = null_proportion,     folds = folds)
+19: fdp_eval(Hs, rjs)
+20: doTryCatch(return(expr), name, parentenv, handler)
+21: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+22: tryCatchList(expr, classes, parentenv, handlers)
+23: tryCatch(expr, error = function(e) {    call <- conditionCall(e)    if (!is.null(call)) {        if (identical(call[[1L]], quote(doTryCatch)))             call <- sys.call(-4L)        dcall <- deparse(call, nlines = 1L)        prefix <- paste("Error in", dcall, ": ")        LONG <- 75L        sm <- strsplit(conditionMessage(e), "\n")[[1L]]        w <- 14L + nchar(dcall, type = "w") + nchar(sm[1L], type = "w")        if (is.na(w))             w <- 14L + nchar(dcall, type = "b") + nchar(sm[1L],                 type = "b")        if (w > LONG)             prefix <- paste0(prefix, "\n  ")    }    else prefix <- "Error : "    msg <- paste0(prefix, conditionMessage(e), "\n")    .Internal(seterrmessage(msg[1L]))    if (!silent && isTRUE(getOption("show.error.messages"))) {        cat(msg, file = outFile)        .Internal(printDeferredWarnings())    }    invisible(structure(msg, class = "try-error", condition = e))})
+24: try(fdp_eval(Hs, rjs))
+25: inherits(x, "try-error")
+26: error_fdp_table(try(fdp_eval(Hs, rjs)))
+27: fdp_eval_error_wrapper(Hs, ihw_quantile_wrapper(Ps, Xs, alpha,     null_proportion = null_proportion, folds = folds))
+28: run_sim(Ps = pvalue, X = covariate_i, H = NULL, seed = 1, alpha = alpha_i,     methods = c("IHW-quantile", "IHW-forest", "AdaPT", "BH",         "Boca-Leek"), forest_par = NULL, null_proportion = TRUE,     folds = folds)
+29: eval(c.expr, envir = args, enclos = envir)
+30: eval(c.expr, envir = args, enclos = envir)
+31: doTryCatch(return(expr), name, parentenv, handler)
+32: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+33: tryCatchList(expr, classes, parentenv, handlers)
+34: tryCatch(eval(c.expr, envir = args, enclos = envir), error = function(e) e)
+35: FUN(X[[i]], ...)
+36: lapply(X = S, FUN = FUN, ...)
+37: doTryCatch(return(expr), name, parentenv, handler)
+38: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+39: tryCatchList(expr, classes, parentenv, handlers)
+40: tryCatch(expr, error = function(e) {    call <- conditionCall(e)    if (!is.null(call)) {        if (identical(call[[1L]], quote(doTryCatch)))             call <- sys.call(-4L)        dcall <- deparse(call, nlines = 1L)        prefix <- paste("Error in", dcall, ": ")        LONG <- 75L        sm <- strsplit(conditionMessage(e), "\n")[[1L]]        w <- 14L + nchar(dcall, type = "w") + nchar(sm[1L], type = "w")        if (is.na(w))             w <- 14L + nchar(dcall, type = "b") + nchar(sm[1L],                 type = "b")        if (w > LONG)             prefix <- paste0(prefix, "\n  ")    }    else prefix <- "Error : "    msg <- paste0(prefix, conditionMessage(e), "\n")    .Internal(seterrmessage(msg[1L]))    if (!silent && isTRUE(getOption("show.error.messages"))) {        cat(msg, file = outFile)        .Internal(printDeferredWarnings())    }    invisible(structure(msg, class = "try-error", condition = e))})
+41: try(lapply(X = S, FUN = FUN, ...), silent = TRUE)
+42: sendMaster(try(lapply(X = S, FUN = FUN, ...), silent = TRUE))
+43: FUN(X[[i]], ...)
+44: lapply(seq_len(cores), inner.do)
+45: mclapply(argsList, FUN, mc.preschedule = preschedule, mc.set.seed = set.seed,     mc.silent = silent, mc.cores = cores)
+46: e$fun(obj, substitute(ex), parent.frame(), e$data)
+47: foreach(i = seq_len(nrow(parameters_run)), .combine = rbind) %dopar%     {        cat("Starting ", i, "th job.\n", sep = "")        tic("running IHW")        formula <- parameters_run$formula[[i]]        alpha_i <- parameters_run$alphas[[i]]        summands_i <- parameters_run$summands[[i]]        covariate_i <- BMI_GIANT_GWAS[, summands_i]        res_i <- run_sim(Ps = pvalue, X = covariate_i, H = NULL,             seed = 1, alpha = alpha_i, methods = c("IHW-quantile",                 "IHW-forest", "AdaPT", "BH", "Boca-Leek"), forest_par = NULL,             null_proportion = TRUE, folds = folds)        tic_toc_object <- toc()        elapsed_time <- tic_toc_object[["toc"]][["elapsed"]] -             tic_toc_object[["tic"]][["elapsed"]]        res_i <- res_i %>% merge(parameters_run[i, ]) %>% mutate(elapsed_time = elapsed_time,             timestamp = Sys.time())        cat("Finishing ", i, "th job.\n", sep = "")        res_i    }
+An irrecoverable exception occurred. R is aborting now ...
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 317010 non-na pvalues, we recommend 40  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.

@@ -16,7 +16,8 @@
 module load R
 
 # Retrieve the command-line argument
-seed=$1
+num_splits=$1
+split_index=$2
 
 # Run R script
-Rscript simulation_flexible/20230802_run_simulation_flexible_rule.R $seed
+Rscript simulation_flexible/20230802_run_simulation_flexible_rule.R $num_splits $split_index

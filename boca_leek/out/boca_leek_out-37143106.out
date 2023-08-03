@@ -1,0 +1,104 @@
+WARNING: ignoring environment value of R_HOME
+[1] "N"                                                                                                       
+[2] "Freq_MAF_Hapmap + N"                                                                                     
+[3] "Freq_MAF_Hapmap + N + minor_allele_freq"                                                                 
+[4] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1"                                                    
+[5] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2"                                       
+[6] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3"                          
+[7] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4"             
+[8] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4 + covariate5"
+parameters_run
+      summands number_covariates alphas
+1            N                 1   0.01
+2 Freq_MAF....                 2   0.01
+3 Freq_MAF....                 3   0.01
+4 Freq_MAF....                 4   0.01
+5 Freq_MAF....                 5   0.01
+6 Freq_MAF....                 6   0.01
+
+64Starting 1th job.
+Starting 2th job.
+Starting 3th job.
+alpha = 0.01: FDPhat 0.0091, Number of Rej. 328
+Task completed!
+running IHW: 997.637 sec elapsed
+Finishing 1th job.
+Starting 4th job.
+running IHW: 1049.332 sec elapsed
+Finishing 2th job.
+Starting 5th job.
+running IHW: 1074.194 sec elapsed
+Finishing 3th job.
+Starting 6th job.
+running IHW: 1133.404 sec elapsed
+Finishing 4th job.
+Starting 7th job.
+running IHW: 1320.692 sec elapsed
+Finishing 5th job.
+Starting 8th job.
+running IHW: 1538.832 sec elapsed
+Finishing 7th job.
+Starting 10th job.
+running IHW: 1639.516 sec elapsed
+Finishing 8th job.
+Starting 11th job.
+alpha = 0.0228571428571429: FDPhat 0.0225, Number of Rej. 222
+Task completed!
+running IHW: 1013.181 sec elapsed
+Finishing 10th job.
+Starting 13th job.
+alpha = 0.0228571428571429: FDPhat 0.0227, Number of Rej. 220
+Task completed!
+running IHW: 1031.219 sec elapsed
+Finishing 11th job.
+Starting 14th job.
+alpha = 0.0228571428571429: FDPhat 0.0185, Number of Rej. 216
+Task completed!
+running IHW: 1306.967 sec elapsed
+Finishing 13th job.
+Starting 16th job.
+alpha = 0.0228571428571429: FDPhat 0.0189, Number of Rej. 212
+Task completed!
+running IHW: 1407.833 sec elapsed
+Finishing 14th job.
+Starting 17th job.
+alpha = 0.0357142857142857: FDPhat 0.0335, Number of Rej. 328
+Task completed!
+running IHW: 925.991 sec elapsed
+Finishing 17th job.
+Starting 20th job.
+alpha = 0.0228571428571429: FDPhat 0.0187, Number of Rej. 214
+Task completed!
+running IHW: 1568.485 sec elapsed
+Finishing 16th job.
+Starting 19th job.
+alpha = 0.0357142857142857: FDPhat 0.0317, Number of Rej. 221
+Task completed!
+running IHW: 1086.603 sec elapsed
+Finishing 20th job.
+Starting 23th job.
+alpha = 0.0357142857142857: FDPhat 0.0317, Number of Rej. 221
+Task completed!
+running IHW: 1023.058 sec elapsed
+Finishing 19th job.
+Starting 22th job.
+alpha = 0.0357142857142857: FDPhat 0.0318, Number of Rej. 220
+Task completed!
+alpha = 0.0357142857142857: FDPhat 0.0321, Number of Rej. 218
+Task completed!
+running IHW: 1497.115 sec elapsed
+Finishing 23th job.
+Starting 26th job.
+running IHW: 1397.702 sec elapsed
+Finishing 22th job.
+Starting 25th job.
+alpha = 0.0485714285714286: FDPhat 0.0457, Number of Rej. 328
+Task completed!
+running IHW: 934.091 sec elapsed
+Finishing 25th job.
+Starting 28th job.
+alpha = 0.0485714285714286: FDPhat 0.045, Number of Rej. 222
+Task completed!
+running IHW: 978.913 sec elapsed
+Finishing 26th job.
+Starting 29th job.
