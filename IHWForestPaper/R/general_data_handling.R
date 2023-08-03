@@ -1,52 +1,45 @@
 #general data handling
 
-#' Create a data.frame by expanding the grid of a list of vectors
+#' This function iteratively creates a data.frame from a list of vectors.
 #'
-#' @param list_of_vectors A list of numeric vectors.
-#'
-#' @return A data.frame where each row is a combination of elements from each vector in the input list.
-#' @export
+#' It iterates over all vectors in the list, applies expand.grid to each vector 
+#' with the first element of all other vectors, row binds all the data frames 
+#' and then returns the resulting data frame.
 #' 
+#' @param vec_list List of vectors.
+#' @return Data frame resulting from the operation.
+#'
 #' @examples
-#' v1 <- c(1, 2, 3)
-#' v2 <- c(4, 5, 6)
-#' v3 <- c(7, 8, 9)
-#' list_of_vectors <- list(v1, v2, v3)
-#' df <- expand_vectors(list_of_vectors)
-#' print(df)
-expand_vectors <- function(list_of_vectors) {
-  expand.grid(list_of_vectors)
+#' vec1 <- c(1,2,3)
+#' vec2 <- c(4,5,6)
+#' vec3 <- c(7,8,9)
+#' vec_list <- list(vec1, vec2, vec3)
+#' create_dataframe(vec_list)
+#' @export
+create_dataframe <- function(vec_list) {
+  
+  # Create an empty list to store data frames
+  df_list <- list()
+  
+  # Loop over the vector list
+  for(i in seq_along(vec_list)) {
+    
+    # Create a copy of vec_list to avoid mutation
+    temp_list <- vec_list
+    
+    # Replace the current vector with its first element
+    temp_list[-i] <- lapply(temp_list[-i], function(x) x[1])
+    
+    # Expand.grid and add the result to df_list
+    df_list[[i]] <- do.call(expand.grid, temp_list)
+  }
+  
+  result <- do.call(rbind, df_list)
+  result <- result %>% distinct()
+  # rbind all data frames and return
+  return(result)
 }
 
-#' Expand each vector in a list with the first element of all other vectors
-#'
-#' @param list_of_vectors A list of numeric vectors.
-#'
-#' @return A data.frame where each row is a combination of each vector in the input list
-#'         with the first element of all other vectors.
-#' @export
-#' 
-#' @examples
-#' v1 <- c(1, 2, 3)
-#' v2 <- c(4, 5, 6)
-#' v3 <- c(7, 8, 9)
-#' list_of_vectors <- list(v1, v2, v3)
-#' df <- create_dataframe(list_of_vectors)
-#' print(df)
-create_dataframe <- function(list_of_vectors) {
-  requireNamespace("purrr", quietly = TRUE)
-  
-  purrr::map_dfr(list_of_vectors, function(current_vector) {
-    # Create a copy of the list and remove the current vector
-    other_vectors <- list_of_vectors[-which(list_of_vectors == current_vector)]
-    
-    # Get the first element of all other vectors
-    first_elements <- unlist(lapply(other_vectors, function(x) x[1]))
-    
-    # Expand.grid the current vector with the first element of all other vectors
-    expand.grid(current_vector, first_elements)
-  })
-}
 
 #' Extract and Combine Latest Files Based on File Ending
 #'

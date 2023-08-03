@@ -2,25 +2,25 @@
 % Please edit documentation in R/general_data_handling.R
 \name{create_dataframe}
 \alias{create_dataframe}
-\title{Expand each vector in a list with the first element of all other vectors}
+\title{This function iteratively creates a data.frame from a list of vectors.}
 \usage{
-create_dataframe(list_of_vectors)
+create_dataframe(vec_list)
 }
 \arguments{
-\item{list_of_vectors}{A list of numeric vectors.}
+\item{vec_list}{List of vectors.}
 }
 \value{
-A data.frame where each row is a combination of each vector in the input list
-        with the first element of all other vectors.
+Data frame resulting from the operation.
 }
 \description{
-Expand each vector in a list with the first element of all other vectors
+It iterates over all vectors in the list, applies expand.grid to each vector 
+with the first element of all other vectors, row binds all the data frames 
+and then returns the resulting data frame.
 }
 \examples{
-v1 <- c(1, 2, 3)
-v2 <- c(4, 5, 6)
-v3 <- c(7, 8, 9)
-list_of_vectors <- list(v1, v2, v3)
-df <- create_dataframe(list_of_vectors)
-print(df)
+vec1 <- c(1,2,3)
+vec2 <- c(4,5,6)
+vec3 <- c(7,8,9)
+vec_list <- list(vec1, vec2, vec3)
+create_dataframe(vec_list)
 }
