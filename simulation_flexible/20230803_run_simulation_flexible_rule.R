@@ -23,7 +23,6 @@ prop_alt_function_creator <- discrete_prop_alt_creator
 prop_alt_function_name <- "discrete_prop_alt"
 
 ## -----flexible alternative sim------
-## -----flexible alternative sim------
 if (dry_run) {
   dimensions <- seq(from = 2, to = 2, by = 1)
   m <- 1000
@@ -37,11 +36,11 @@ if (dry_run) {
 } else {
   dimensions <- seq(from = 2, to = 6, by = 1)
   m <- 10000
-  r <- 5
+  r <- 100
   seed = seq_len(r)
   ndim = dimensions
   signal_strength = seq(0.1, 0.8, length.out = 2)
-  lp_norm = c(1, 2,0.5)
+  lp_norm = c(1, 2, 0.5)
   target_average_alt_prob = c(0.1,0.01,0.05)
   kappa = seq(0, 0.1, length.out = 5)
 }
@@ -51,7 +50,7 @@ print("\n")
 
 ##---parameters ---
 list_of_parameters <- list(
-  seed = seq_len(r),
+  #seed = seed,
   dimensions = dimensions,
   m = m, 
   kappa = kappa,
@@ -62,7 +61,7 @@ list_of_parameters <- list(
 )
 
 sim_parameters <- create_dataframe(list_of_parameters)
-
+sim_parameters <- sim_parameters %>% merge(data.frame(seed = seed))
 cat(timestamp(),"\n")
 
 print("\n")
