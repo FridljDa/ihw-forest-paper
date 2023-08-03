@@ -46,7 +46,8 @@ ball_volume <- function(radius, lp_norm, dimension) {
 #' @param seed The seed for random number generation (optional).
 #' @param dimensions The total number of dimensions in the covariate matrix.
 #' @param ndim The number of dimensions to consider when calculating the alternative probability (default is 1).
-#' @param signal_strength signal_strength, between 0 and 1
+#' @param signal_strength signal_strength, between 0 and 1. If \code{target_average_alt_prob} is fixed, a high \code{signal_strength} 
+#' results in a small radius internally, i.e. small covariate region with signal.
 #' @param lp_norm The norm to consider for the calculation (default is 1).
 #' @param target_average_alt_prob The target average for the alternative probability.
 #'
@@ -80,6 +81,16 @@ discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strengt
 #' @description This function is designed to perform multiple simulations 
 #' to calculate the proportion of alternative cases given various conditions.
 #'
+#' The function assumes the following model:
+#' \deqn{
+#'   \begin{aligned}
+#'   &X_i \stackrel{\text{iid.}}{\sim} \operatorname{U}[-0.5,0.5]^d, \\
+#'   &H_i \mid X_i \sim  \operatorname{Bernoulli}(1-\pi_0(\textcolor{red}{X_i}))\\
+#'   &P_i \mid H_i = 0, X_i \stackrel{\text{iid.}}{\sim} (1-\kappa) \operatorname{U}[0,1]+\kappa \operatorname{Beta}(1,0.5),\\
+#'   &P_i \mid H_i = 1, X_i  \sim \operatorname{Beta}(0.25,1).
+#'   \end{aligned}
+#' }
+#'
 #' @param m A vector specifying the number of observations per simulation
 #' @param r An integer specifying the number of replications for the simulation
 #' @param dimensions A vector specifying the dimensionality of the covariates in the simulations
@@ -95,7 +106,8 @@ discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strengt
 flexible_prop_alt_sim <- function(m, r, dimensions, 
                                   prop_alt_function_creator = discrete_prop_alt_creator, 
                                   prop_alt_function_name = "discrete_prop_alt_creator",
-                                  additional_arguments_prop_alt_function_creator = NULL) {
+                                  additional_arguments_prop_alt_function_creator = NULL,
+                                  kappa = 0) {
   
   # Create a dataframe with all combinations of seeds, dimensions, and m values
   sim_combs <- expand.grid(
@@ -118,7 +130,9 @@ flexible_prop_alt_sim <- function(m, r, dimensions,
   # Add the proportion alternative function to each row of the dataframe
   sim_combs$prop_alt_function <- purrr::pmap(sim_combs, prop_alt_function_creator)
   
-  sim_combs <- sim_combs %>% merge(data.frame(m = m))
+  sim_combs <- sim_combs %>% 
+    merge(data.frame(m = m)) %>% 
+    merge(data.frame(kappa = kappa))
   
   # Apply simulation for each row in the combinations
   simple_sim <- lapply(seq_len(nrow(sim_combs)), function(i) {
@@ -128,6 +142,7 @@ flexible_prop_alt_sim <- function(m, r, dimensions,
     dimension_i <- sim_combs$dimensions[[i]]
     seed_i <- sim_combs$seed[[i]]
     prop_alt_function_i <- sim_combs$prop_alt_function[[i]]
+    kappa_i <- sim_combs$kappa[[i]]
     
     # Generate covariates for current simulation
     covariate_i <- matrix(runif(m_i * dimension_i, -0.5, 0.5), nrow = m_i)
@@ -138,15 +153,16 @@ flexible_prop_alt_sim <- function(m, r, dimensions,
     # Generate hypothesis tests
     Hs_i <- rbinom(m_i, size = 1, prob = prop_alt_i)
     
+    #$P_i \mid\left(H_i=0\right) \sim(1-\kappa) U[0,1]+\kappa \operatorname{Beta}(1,0.5)$
     # Generate p-values
     pvalue_i <- ifelse(Hs_i,
                        rbeta(m_i, 0.25, 1),  # for Hs_i == TRUE
-                       runif(m_i)             # for Hs_i == FALSE
-    )
+                       (1-kappa)*runif(m_i) + kappa_i * rbeta(m_i, 1, 0.5)  # for Hs_i == FALSE 
+    ) 
     
     # Return results of the simulation as a list
     res <- list(covariate = covariate_i, prop_alt = prop_alt_i, Hs = Hs_i, pvalue = pvalue_i, 
-                dimension = dimension_i, seed = seed_i, m_i = m_i, prop_alt_function_name = prop_alt_function_name)
+                dimension = dimension_i, seed = seed_i, m = m_i, kappa = kappa_i, prop_alt_function_name = prop_alt_function_name)
     
     # Add the values of the additional arguments to the results if they exist
     if(!is.null(additional_arguments_prop_alt_function_creator)){

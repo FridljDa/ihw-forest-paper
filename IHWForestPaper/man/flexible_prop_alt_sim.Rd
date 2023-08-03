@@ -10,7 +10,8 @@ flexible_prop_alt_sim(
   dimensions,
   prop_alt_function_creator = discrete_prop_alt_creator,
   prop_alt_function_name = "discrete_prop_alt_creator",
-  additional_arguments_prop_alt_function_creator = NULL
+  additional_arguments_prop_alt_function_creator = NULL,
+  kappa = 0
 )
 }
 \arguments{
@@ -32,6 +33,16 @@ A list containing the simulation results for each combination of m, dimension, a
 \description{
 This function is designed to perform multiple simulations 
 to calculate the proportion of alternative cases given various conditions.
+
+The function assumes the following model:
+\deqn{
+  \begin{aligned}
+  &X_i \stackrel{\text{iid.}}{\sim} \operatorname{U}[-0.5,0.5]^d, \\
+  &H_i \mid X_i \sim  \operatorname{Bernoulli}(1-\pi_0(\textcolor{red}{X_i}))\\
+  &P_i \mid H_i = 0, X_i \stackrel{\text{iid.}}{\sim} (1-\kappa) \operatorname{U}[0,1]+\kappa \operatorname{Beta}(1,0.5),\\
+  &P_i \mid H_i = 1, X_i  \sim \operatorname{Beta}(0.25,1).
+  \end{aligned}
+}
 }
 \examples{
 flexible_prop_alt_sim(m = c(100,200), r = 2, dimensions = c(2,3))
