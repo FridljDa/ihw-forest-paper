@@ -135,7 +135,7 @@ $$
 & X \sim U[0,1]^{d} \\
 & \pi_1(X) = \left(\frac{1}{{1 + e^{-(X \times \beta_{\pi} + \beta_{0_{\pi}})}}}\right) \\
 & \mu(X) = \max(1, X \times \beta_{\mu} + \beta_{0_{\mu}}) \\
-& H \mid X \sim \text{{Bernoulli}}(\pi(X))\\
+& H \mid X \sim \text{Bernoulli}(\pi(X))\\
 & Y \mid H = 1 \sim \text{{Exponential}}(1/\mu(X)) \\
 & Y \mid H = 0 \sim \text{{Exponential}}(1) \\
 & P = e^{-Y} 

@@ -11,8 +11,7 @@ eval_sim_parallel(
     "Boca-Leek", "Clfdr-EM"),
   forest_par = NULL,
   null_proportion = TRUE,
-  folds = NULL,
-  context_information = NULL
+  folds = NULL
 )
 }
 \arguments{
@@ -27,8 +26,6 @@ eval_sim_parallel(
 \item{null_proportion}{Logical, if TRUE the proportion of null hypotheses is estimated.}
 
 \item{folds}{The number of folds for cross-validation.}
-
-\item{context_information}{Vector of strings, corresponding to elements in sim_i.}
 }
 \value{
 A list of results from running the simulations.

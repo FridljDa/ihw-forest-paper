@@ -8,7 +8,7 @@ discrete_prop_alt_creator(
   seed,
   dimensions,
   ndim = 1,
-  c = 0.9,
+  signal_strength = 0.9,
   lp_norm = 1,
   target_average_alt_prob = 0.1
 )
@@ -20,14 +20,14 @@ discrete_prop_alt_creator(
 
 \item{ndim}{The number of dimensions to consider when calculating the alternative probability (default is 1).}
 
-\item{c}{A scaling factor to adjust the alternative probability (default is 0.9).}
+\item{signal_strength}{signal_strength, between 0 and 1}
 
-\item{covariate_row}{A vector of covariate values with dimensions matching the input matrix.}
+\item{lp_norm}{The norm to consider for the calculation (default is 1).}
+
+\item{target_average_alt_prob}{The target average for the alternative probability.}
 }
 \value{
 A function that generates discrete alternative probabilities based on input covariate values.
-
-A numeric value representing the discrete alternative probability.
 }
 \description{
 This function creates a function that generates discrete alternative probabilities based on random covariate values.
@@ -38,9 +38,5 @@ This function creates a function that generates discrete alternative probabiliti
 alt_prob_generator <- discrete_prop_alt_creator(seed = 42, dimensions = 5, ndim = 2, c = 0.9)
 # Generate alternative probability for a covariate vector
 alt_prob <- alt_prob_generator(c(0.2, 0.5, 0.1, 0.8, 0.4))
-
-Generate discrete alternative probabilities based on input covariate values.
-
-This function calculates the discrete alternative probability based on randomly selected covariates.
 
 }
