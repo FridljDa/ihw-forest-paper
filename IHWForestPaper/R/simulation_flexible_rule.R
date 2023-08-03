@@ -167,7 +167,7 @@ flexible_prop_alt_sim <- function(sim_parameters,
 
     # Create a list to store the results of the current simulation
     res <- as.list(row_i)
-    res$prop_alt_function_i <- NULL
+    res$prop_alt_function <- NULL
 
     # Return results of the simulation as a list
     additional_elements <- list(

@@ -1,0 +1,28 @@
+---
+title: "20230803_simulation_flexible"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+library(magrittr)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(cowplot)
+library(RColorBrewer)
+library(here)
+library(purrr)
+library(IHWForestPaper)
+knitr::opts_chunk$set(echo = TRUE)
+
+set.seed(123)
+theme_set(theme_cowplot())
+options(bitmapType = "cairo")
+```
+
+```{r}
+simulation_evaluated <- latest_files(here("simulation_flexible/data"), "discrete_prop_alt_eval")
+```

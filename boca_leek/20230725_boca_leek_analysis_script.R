@@ -69,7 +69,7 @@ parameters_run <- data.frame(
 )
 
 parameters_run <- parameters_run %>%
-  merge(data.frame(alphas = seq(0.01, 0.1, length.out = 8)))
+  merge(data.frame(alphas = c(0.01,0.02,0.05,0.1)))
 
 cat("parameters_run\n")
 head(parameters_run)
@@ -87,7 +87,7 @@ if(dry_run){
   #ungroup()
   
   parameters_run <- parameters_run %>%
-    filter(alphas == 0.01 #& number_covariates %in% c(4) #,2,3,4
+    filter(alphas == 0.01 & number_covariates %in% c(1,2) #,2,3,4
            #& 
            # stratification_method == "quantiles" &
            #number_covariates %in% c(1) & 

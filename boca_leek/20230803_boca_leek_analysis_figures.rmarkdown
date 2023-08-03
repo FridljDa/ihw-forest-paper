@@ -10,7 +10,6 @@ library(ggplot2)
 library(here)
 library(dplyr)
 library(magrittr)
-library(R.utils)
 
 set.seed(4)
 options(bitmapType ="cairo")
@@ -25,10 +24,10 @@ ihw_bh_rej <- readRDS(here::here("boca_leek/data/2023-08-03_boca_leek_analysis.R
 ```{r}
 ihw_bh_rej %>%
   #filter(number_covariates == 4) %>%
-  ggplot(aes(x = alphas, y = rejections, col = stratification_method)) +
+  ggplot(aes(x = alpha, y = rjs, col = method)) +
   geom_line() +
   geom_point(size = 2) +
-  ylab("Number of rejections") +
+  ylab("Number of rjs") +
   xlab("Target FDR") +
   theme(legend.position="bottom")+
  guides(
@@ -83,30 +82,20 @@ ihw_bh_rej %>%
 ## detail analysis
 
 ```{r, eval = TRUE}
-ihw_bh_rej %>% #ihw_bh_rej
-  group_by(number_covariates, stratification_method) %>%
-  summarise(effective_nbins_covariates = mean(effective_nbins_covariates)) %>%
-  filter(stratification_method != "BH") %>%
-  ggplot(aes(x = number_covariates, y = effective_nbins_covariates, col = stratification_method)) +
-  geom_line()
-```
-
-```{r, eval = TRUE}
 ihw_bh_rej %>%
   #filter( == 4) %>%
-  ggplot(aes(x = number_covariates, y = rejections, col = stratification_method)) +
+  ggplot(aes(x = number_covariates, y = rjs, col = method)) +
   geom_line() +
   geom_point(size = 2) +
-  ylab("Number of rejections") +
+  ylab("Number of rjs") +
   xlab("number covariates") +
   theme(legend.position="bottom")+
  guides(
   color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
   shape = "none"
  ) +
-  facet_wrap(~alphas ) +
-  #scale_x_continuous(breaks = unique(ihw_rej$alpha)) +
-  scale_x_continuous(breaks = unique(ihw_bh_rej$alpha)) +
+  facet_wrap(~alpha ) +
+  scale_x_continuous(breaks = unique(ihw_bh_rej$number_covariates)) +
   #scale_y_log10(limits= c(0,5000)) #+
   ylim(0,NA)
 ```
