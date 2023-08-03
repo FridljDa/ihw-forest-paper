@@ -9,10 +9,10 @@
 #SBATCH --mail-user=daniel.fridljand@embl.de # send-to address
 
 # Number of times to submit the job
-num_jobs=20
+num_splits=5
 
 # Loop to submit the job multiple times
-for ((i=1; i<=$num_jobs; i++))
+for ((i=1; i<=num_splits; i++))
 do
-    sbatch simulation_flexible/job_slurm_simulation.sh $i
+    sbatch simulation_flexible/job_slurm_simulation.sh $i $num_splits
 done
