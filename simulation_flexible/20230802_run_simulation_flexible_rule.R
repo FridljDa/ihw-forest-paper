@@ -60,8 +60,7 @@ simulation_list <- flexible_prop_alt_sim(
   r = r,
   dimensions = dimensions,
   prop_alt_function_creator = prop_alt_function_creator,
-  prop_alt_function_name = prop_alt_function_name,
-  additional_arguments_prop_alt_function_creator = additional_arguments_prop_alt_function_creator
+  prop_alt_function_name = prop_alt_function_name
 )
 
 ##---evaluate mehtods on simulation---
