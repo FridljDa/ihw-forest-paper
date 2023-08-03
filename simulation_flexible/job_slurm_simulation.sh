@@ -20,4 +20,4 @@ num_splits=$1
 split_index=$2
 
 # Run R script
-Rscript simulation_flexible/20230802_run_simulation_flexible_rule.R $num_splits $split_index
+Rscript simulation_flexible/20230803_run_simulation_flexible_rule.R $num_splits $split_index
