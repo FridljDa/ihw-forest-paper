@@ -37,7 +37,7 @@ if (dry_run) {
 } else {
   dimensions <- seq(from = 2, to = 6, by = 1)
   m <- 10000
-  r <- 5
+  r <- 20
   seed = seq_len(r)
   ndim = dimensions
   signal_strength = seq(0.1, 0.8, length.out = 2)
@@ -51,7 +51,6 @@ print("\n")
 
 ##---parameters ---
 list_of_parameters <- list(
-  seed = seq_len(r),
   dimensions = dimensions,
   m = m, 
   kappa = kappa,
@@ -62,7 +61,7 @@ list_of_parameters <- list(
 )
 
 sim_parameters <- create_dataframe(list_of_parameters)
-
+sim_parameters <- sim_parameters %>% merge(data.frame(seed = seed))
 cat(timestamp(),"\n")
 
 print("\n")
