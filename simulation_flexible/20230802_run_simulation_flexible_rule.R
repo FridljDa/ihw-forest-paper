@@ -34,20 +34,17 @@ if (dry_run) {
   dimensions <- seq(from = 2, to = 2, by = 1)
   m <- 1000
   r <- 1
-  additional_arguments_prop_alt_function_creator <- data.frame(ndim = 1, 
-                                                               signal_strength = 0.9, 
-                                                               lp_norm = 1, 
-                                                               target_average_alt_prob = 0.1)
+  
+  
+  dimensions <- seq(from = 2, to = 2, by = 1)
+  m <- 1000
+  r <- 1
+  
 } else {
   dimensions <- seq(from = 2, to = 6, by = 1)
-  m <- 10000
+  m <- 1000
   r <- 5
-  additional_arguments_prop_alt_function_creator <- expand.grid(
-    ndim = c(2,3), #dimensions
-    signal_strength = seq(0.1, 0.8, length.out = 2),
-    lp_norm = c(1, 2),#c(0.5, 1, 2, 3, 4),
-    target_average_alt_prob = seq(0.01, 0.1, length.out = 2) #5
-  )
+  
 }
 
 
