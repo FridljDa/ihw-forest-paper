@@ -1,0 +1,250 @@
+ℹ Loading IHWForestPaper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+For 10000 non-na pvalues, we recommend 6  stratification bins for granular hypothesis weighting. Consider to increase nodedepth or decrease nodesize.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning messages:
+1: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+2: step size truncated due to divergence 
+3: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+4: step size truncated due to divergence 
+5: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+6: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+7: step size truncated due to divergence 
+8: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+9: In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Error : no valid set of coefficients has been found: please supply starting values
+In addition: Warning message:
+In log(ifelse(y == 0, 1, y/mu)) : NaNs produced
+Warning message:
+In mclapply(argsList, FUN, mc.preschedule = preschedule, mc.set.seed = set.seed,  :
+  scheduled cores 1, 3, 5, 7, 8, 9, 10, 12, 14, 19, 20, 27, 29, 32, 34, 35, 36, 37, 40, 42, 43, 44, 47, 49, 50, 55, 56, 58, 63, 64, 69 did not deliver results, all values of the jobs will be affected
+slurmstepd: error: Detected 31 oom-kill event(s) in StepId=37194948.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
