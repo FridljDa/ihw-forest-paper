@@ -1,4 +1,32 @@
 #general data handling
+library(magrittr)
+library(dplyr)
+#' Filter a data frame based on a vector of values
+#'
+#' This function filters rows of a data frame such that for each column, the value in that column is equal to
+#' the corresponding value in a provided vector. The vector should be named with names corresponding to 
+#' column names in the data frame.
+#'
+#' @param df A data frame to be filtered.
+#' @param vector A named vector where names correspond to columns in df. Each value in the vector represents
+#'        the value to filter on for the corresponding column in df.
+#'
+#' @return A data frame containing only the rows where for each column, the value in that column is equal to
+#'         the corresponding value in the input vector.
+#' @export
+#'
+#' @examples
+#' df <- data.frame(a = 1:5, b = 6:10, c = 11:15)
+#' vector <- c(a = 2, b = 7)
+#' filter_df(df, vector)
+filter_df <- function(df, vec) {
+  for (col in names(vec)) {
+    if(col %in% colnames(df)) {
+      df <- df[df[[col]] == vec[col], ]
+    }
+  }
+  return(df)
+}
 
 #' This function iteratively creates a data.frame from a list of vectors.
 #'

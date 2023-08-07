@@ -25,7 +25,7 @@
 #' plot_fdr_power(sim_res, group_by_dimension = "length")
 #'
 #' @export
-plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1) {
+plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, log_trans = TRUE) {
   sim_res$group_by_dimension <- sim_res[, group_by_dimension]
   
   sim_res <- sim_res %>%
@@ -50,8 +50,7 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1) 
       nrow=2
     ) +
     xlab(group_by_dimension) +
-    scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
-    scale_y_log10()
+    scale_x_continuous(breaks = unique(sim_res$group_by_dimension)) 
   
   # power
   sim_res_power <- ggplot(sim_res, aes(x = group_by_dimension, y = Power, shape = method, col = method)) +
@@ -63,9 +62,12 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1) 
       color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
       shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
     ) +
-    scale_x_continuous(breaks = seq(0, 1000, by = 250)) +
-    scale_y_log10()
+    scale_x_continuous(breaks = unique(sim_res$group_by_dimension)) 
   
+  if(log_trans){
+    sim_res_FDR <- sim_res_FDR + scale_y_log10()
+    sim_res_power <- sim_res_power + scale_y_log10()
+  }
   g_combined <- ggarrange(sim_res_FDR, sim_res_power,
                           nrow = 1, widths = c(1, 1),
                           common.legend = TRUE, legend = "bottom"
