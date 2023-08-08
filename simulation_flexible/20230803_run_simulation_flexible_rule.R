@@ -13,8 +13,8 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   num_splits <- as.numeric(num_splits)
   dry_run <- FALSE
 } else {
-  num_splits <- 3
-  split_index <- 2
+  num_splits <- 1
+  split_index <- 1
   dry_run <- TRUE
 }
 ### ---
@@ -28,25 +28,29 @@ if (dry_run) {
   m <- 1000
   r <- 1
   seed = seq_len(r)
-  ndim = c(1,2,3)
+  ndim = c(1)
   signal_strength = 0.9
   lp_norm = 1
   target_average_alt_prob = 0.1
   kappa = 0
+  beta_shape1 <- 0.25
+  methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 } else {
-  dimensions <- seq(from = 1, to = 6, by = 1)
-  m <- c(1000, 10000, 100000)
-  r <- 100
+  dimensions <- seq(from = 1, to = 5, length.out = 5)
+  m <- c(1000)#c(1000, 10000)
+  r <- 50
   seed = seq_len(r)
   ndim = dimensions
-  signal_strength = seq(0.1, 0.8, length.out = 2)
-  lp_norm = c(1, 2,0.5)
-  target_average_alt_prob = seq(0.1, 0.2, by = 0.01)
-  kappa = seq(0, 0.1, length.out = 5)
+  signal_strength = seq(0.1, 0.8, length.out = 5) #0.8 #
+  lp_norm = c(1, 2, 0.5) #
+  target_average_alt_prob = seq(0.1, 0.2, length.out = 5)
+  kappa = seq(0, 0.1, length.out = 5) #5
+  beta_shape1 <- seq(0.25, 0.1, length.out = 5)#0.25
+  methods <- c("IHW-forest", "BH", "AdaPT")
 }
 
 
-print("\n")
+cat("\n")
 
 ##---parameters ---
 list_of_parameters <- list(
@@ -56,15 +60,15 @@ list_of_parameters <- list(
   ndim = ndim,
   signal_strength = signal_strength,
   lp_norm = lp_norm,
-  target_average_alt_prob = target_average_alt_prob
+  target_average_alt_prob = target_average_alt_prob,
+  beta_shape1 = beta_shape1
 )
 
 sim_parameters <- create_dataframe(list_of_parameters)
 sim_parameters <- sim_parameters %>% merge(data.frame(seed = seed))
 cat(timestamp(),"\n")
 
-print("\n")
-
+cat("\n")
 ##----extract ---
 sim_parameters_sub <- get_split(sim_parameters, num_splits, split_index)
 
@@ -78,7 +82,7 @@ simulation_list <- flexible_prop_alt_sim(
 ##---evaluate mehtods on simulation---
 evaluated_simulation <- eval_sim_parallel(simulation_list,
                                           alpha = 0.1,
-                                          methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
+                                          methods = methods
 )
 
 print("\n")
@@ -86,5 +90,5 @@ print("\n")
 ##---save result----
 saveRDS(evaluated_simulation, paste0(
   "simulation_flexible/data/",
-  Sys.Date(), "_", split_index, "_", prop_alt_function_name, "_eval_.Rds"
+  Sys.Date(), "_", split_index, "_", prop_alt_function_name, "_eval.Rds"
 ))

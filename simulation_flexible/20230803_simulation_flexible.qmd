@@ -55,6 +55,10 @@ unique_levels
 ## Diagnostic Simulation
 
 ```{r}
+hist(simulation_evaluated$pi0s)
+```
+
+```{r}
 simulation_evaluated %>%
   ggplot(aes(x = target_average_alt_prob, y =1- pi0s)) +
   geom_point() +
@@ -78,6 +82,13 @@ simulation_evaluated %>%
   filter(kappa == 0, ndim == 2, signal_strength == 0.1, lp_norm == 1, target_average_alt_prob == 0.1, dimensions == 2,
          method %in% c("AdaPT", "BH")) %>%
   plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0, dimensions == 2,
+         method %in% c("AdaPT", "BH")) %>%
+  plot_fdr_power(group_by_dimension = "pi0s", log_trans = FALSE)
 ```
 
 ```{r}

@@ -116,7 +116,7 @@ discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strengt
 flexible_prop_alt_sim <- function(sim_parameters,
                                   prop_alt_function_creator = discrete_prop_alt_creator,
                                   prop_alt_function_name = "discrete_prop_alt_creator") {
-  missing_cols <- setdiff(c("seed", "dimensions", "m", "kappa"), colnames(sim_parameters))
+  missing_cols <- setdiff(c("seed", "dimensions", "m", "kappa", "beta_shape1"), colnames(sim_parameters))
   if (length(missing_cols) > 0) {
     stop("The sim_parameters data frame is missing the following required columns: ", 
          paste(missing_cols, collapse = ", "), ".")
@@ -150,6 +150,8 @@ flexible_prop_alt_sim <- function(sim_parameters,
     seed_i <- sim_parameters$seed[[i]]
     prop_alt_function_i <- sim_parameters$prop_alt_function[[i]]
     kappa_i <- sim_parameters$kappa[[i]]
+    beta_shape1_i <- sim_parameters$beta_shape1[[i]]
+    #beta_shape1_i <- 0.25
 
     set.seed(seed_i)
     # Generate covariates for the current simulation
@@ -163,7 +165,7 @@ flexible_prop_alt_sim <- function(sim_parameters,
 
     # Generate p-values
     pvalue_i <- ifelse(Hs_i,
-      rbeta(m_i, 0.25, 1), # for Hs_i == TRUE
+      rbeta(m_i, beta_shape1_i, 1), # for Hs_i == TRUE
       (1 - kappa_i) * runif(m_i) + kappa_i * rbeta(m_i, 1, 0.5) # for Hs_i == FALSE
     )
 
