@@ -1,0 +1,269 @@
+---
+title: "maf_simulation"
+format: html
+editor: visual
+bibliography: references.bib
+---
+
+```{r echo=FALSE}
+library("dplyr")
+library("GGally")
+library("here")
+library("purrr")
+options(bitmapType ="cairo")
+```
+
+## Estimate simulation hyper parameters based on real data
+
+```{r}
+chr <- 21
+load(here("data/hqtl_chrom1_chrom2/snps21.filtered.allGT.txt.rda"))
+snps
+```
+
+Data driven parameter for $s_i$
+
+Same number of patients
+
+```{r, eval = FALSE}
+nsample <- ncol(chr_full_data_grubert)
+nsample
+```
+
+Read fitted modell
+
+```{r, eval = FALSE}
+chr_pvalues_grubert <- data.table::fread(here(paste0("data/hqtl_chrom1_chrom2/results/cisQTLs_H3K27AC_chr",chr,".txt")))
+head(chr_pvalues_grubert)
+```
+
+```{r, eval = FALSE}
+betha <- mean(chr_pvalues_grubert$beta)
+```
+
+sanity check
+
+```{r, eval = FALSE}
+#TODO estimate sigma for noise
+fileAnnoDF  <- load(here("data/hqtl_chrom1_chrom2/fileAnnoDF.rda"))
+## load the hpeaks signals for the respective mark
+hpeaksfileName = fileAnnoDF$FileLocation[fileAnnoDF$Filename=='hpeaksfileName'&fileAnnoDF$Mark==21]
+
+hpeaksMat <- load(here("data/hqtl_chrom1_chrom2/hMat.norm.ALL.H3K27AC.peer_lS_5.txt.rda")) %>%
+  as.matrix()
+```
+
+## Simulation
+
+We are following the notation in [@shabalin2012]. For a fixed SNP and a fixed histone modification peak, let $s_i\in \{0,1,2\}$ be the frequency of the minor allele and $g_i \in \mathbb{R}_{\geq 0}$ be the level of histone modification measured in individual $i \in \{1,\ldots, n\}$. Let $H \sim \mathop{Bernouilli}(1-\pi_0)$ indicate, if there actually is an association between $s_i$ and $g_i$. We model the relationship as follows:
+
+$$
+\begin{aligned} &g_i =\alpha+(H\beta)  s_{i}+\epsilon_{i}.\end{aligned}
+$$
+
+with $s \sim \operatorname{Bin}(2,p)$ and $\epsilon \sim \mathcal{N}\left(0, \sigma^2\right)$. We will be testing
+
+$$
+H_0: (H\beta) =0 \quad \text { against } \quad H_1: (H\beta) \neq 0.  
+$$
+
+Hyperparameters for simulation
+
+```{r}
+ntrials = 10000
+nsample = 76
+pi0 = 0.9
+```
+
+```{r}
+#alpha should not play any role
+simulate_data <- function(H, s, nsample = 76, alpha = 50, betha = 50, sigma = 120){
+  data_sim <- data.frame(
+    #save parameters (unobserved)
+    #s_prob = s_prob,
+    alpha = alpha,
+    betha = betha, #true
+    sigma = sigma,
+    nsample_i = seq_len(nsample),
+    
+    #simulate s and noise
+    #s = rbinom(n = nsample, size = 2, s_prob),
+    s = s,
+    noise = rnorm(n = nsample, sd = sigma)
+  )
+
+  data_sim <- data_sim %>% 
+    mutate(histone_modification = alpha + betha * s*H  + noise)
+  
+  #only histone_modification and s observable
+  return(data_sim)
+}
+```
+
+```{r}
+sampled_rows <- sample(seq_len(2000), ntrials, replace = TRUE)
+sampled_s <- snps[[1]][sampled_rows,]
+sampled_s <- as.list(data.frame(t(sampled_s)))
+```
+
+```{r}
+H <- rbinom(ntrials, size = 1, 1-pi0)
+
+data_sim <- map2(H, sampled_s, simulate_data)
+head(data_sim[[1]])
+```
+
+## Minor allele frequency
+
+Let $\bar{s} := \frac{1}{n}\sum_{i=1}^n s_{i}$. Then the minor allele frequency can be defined as
+
+$$
+f:=\frac{1}{2 n} \min \left(\sum_{i=1}^n s_i, 2 n-\sum_{i=1}^n s_i\right)=\frac{1}{2} \min (\bar{s}, 2-\bar{s}) \in[0,0.5]
+$$
+
+    That is, of the $2n$ alleles present in $n$ individuals, what the proportion of the minor allele at the pre-specified SNP is.
+
+```{r}
+minor_allele_frequencies_sim <- sapply(data_sim, function(data_sim_i){
+  0.5* min(mean(data_sim_i$s), 2- mean(data_sim_i$s))
+})
+```
+
+## t-test
+
+We test
+
+$$
+H_0: (H\beta) =0 \quad \text { against } \quad H_1: (H\beta) \neq 0.  
+$$
+
+Our test statistic is
+
+$$
+t_{\text {score }}=\frac{\widehat{\beta}}{S E_{\widehat{\beta}}},
+$$
+
+where $\widehat{\beta}$ is the least square estimator for $H\beta$ and $S E_{\widehat{\beta}}$ is the associated standard error. We are following the notation from B7.13 in [@czado2011]. Under the null and assuming $\epsilon_{1},\ldots , \epsilon_{n} \sim \text { i.i.d. } \mathcal{N}\left(0, \sigma^2\right)$ we have $t_{\text {score }} \sim \mathcal{T}_{n-2}$.
+
+```{r}
+sim_res <- purrr::map_dfr(data_sim, function(data_sim_i){
+  t_test_lm = lm(histone_modification ~ 1 + s, data=data_sim_i)
+  s_line_t_test_lm = summary(t_test_lm)$coefficients[2,]
+  
+  s_line_t_test_lm = data.frame(as.list(s_line_t_test_lm))
+  s_line_t_test_lm <- s_line_t_test_lm %>%
+    mutate(residual_sigma = summary(t_test_lm)$sigma,
+           snr = Estimate/residual_sigma,
+           #calculate minor_allele_frequency
+           minor_allele_frequency = 0.5* min(mean(data_sim_i$s), 2- mean(data_sim_i$s)), 
+           s_variance = var(data_sim_i$s))
+  
+  s_line_t_test_lm
+})
+
+sim_res <- sim_res %>% rename(pvalue = `Pr...t..`)
+sim_res <- sim_res %>% rename(betha_estimate_std = `Std..Error`)
+
+sim_res$H <- as.factor(H)
+head(sim_res)
+```
+
+## Rationale for MAF
+
+We don't think that the minor allele frequency $f$ informs about the hypothesis $H$. We think that a higher minor allele frequency implies higher power.
+
+## Diagnostic plots
+
+```{r}
+colnames(sim_res)
+```
+
+```{r}
+GGscatterhex <- function(data, mapping,...) {
+  x <- GGally::eval_data_col(data, mapping$x)
+  y <- GGally::eval_data_col(data, mapping$y)
+  df <- data.frame(x = x, y = y)
+  pp <- ggplot(df, aes(x=x, y=y)) +
+        geom_hex()
+  return(pp)
+  }
+#ggpairs(flea, columns = 2:3,
+#        lower=list(continuous=wrap(GGscatterhex)))
+```
+
+```{r, eval = TRUE}
+ggpairs(sim_res, 
+        mapping=ggplot2::aes(colour = H, alpha = 0.3),
+        #columns= c(5,6,2,3,4), 
+        title="correlogram with ggpairs()",
+        lower=list(combo=wrap("facethist", binwidth=1),
+                   continuous=wrap(GGscatterhex))
+      ) 
+
+```
+
+```{r, eval = TRUE}
+ggpairs(sim_res, 
+        mapping=ggplot2::aes(colour = H, alpha = 0.3),
+        #columns= c(5,6,2,3,4), 
+        title="correlogram with ggpairs()"#,
+        #lower=list(combo=wrap("facethist", binwidth=1),
+        #           continuous=wrap(GGscatterhex))
+      ) 
+
+```
+
+## Pvalue histograms
+
+```{r}
+groups_by_filter <- function(covariate, nbins, ties.method="random", seed=NULL){
+  if (!is.null(seed) && ties.method=="random"){
+    #http://stackoverflow.com/questions/14324096/setting-seed-locally-not-globally-in-r?rq=1
+    tmp <- runif(1)
+    old <- .Random.seed
+    on.exit( { .Random.seed <<- old } )
+    set.seed(as.integer(seed)) 
+  }
+	rfs <- rank(covariate, ties.method=ties.method)/length(covariate)
+	as.factor(ceiling( rfs* nbins))
+}
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) 
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$minor_allele_frequency, 8), nrow = 2)
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$residual_sigma, 8), nrow = 2)
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$s_variance, 8), nrow = 2)
+```
+
+```{r}
+ggplot(sim_res, 
+       aes(x = pvalue,
+           fill = H)) +
+  geom_histogram(boundary = 0) +
+  facet_wrap(groups_by_filter(sim_res$betha_estimate_std, 8), nrow = 2)
+```

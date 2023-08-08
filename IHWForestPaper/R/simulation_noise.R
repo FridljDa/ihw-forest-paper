@@ -1,7 +1,3 @@
-library(doRNG)
-library(doParallel)
-library(parallel)
-
 ## ------Simulation------
 prop_alt <- function(cov_row) {
   #r <- sum(cov_row^2)

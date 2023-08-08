@@ -1,0 +1,140 @@
+---
+title: "analyse relationship between p-values and maf"
+author: "Danie Fridljand"
+output: bookdown::html_document2
+fig_width: 6 #TODO
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(here)
+library(dplyr)
+library(IHW)
+library("ggpubr")
+
+knitr::opts_chunk$set(echo = TRUE, dpi = 40)
+#knitr::include_graphics()
+options(bitmapType ="cairo")
+```
+
+
+## data set 1
+```{r}
+chr <- 21
+```
+
+```{r}
+chr_pvalues_grubert <- fst::read.fst("chr_pvalues_grubert_chr21.fst")
+head(chr_pvalues_grubert)
+write.table(chr_pvalues_grubert, "chr_pvalues_grubert.txt")
+#write.csv(chr_pvalues_grubert, "chr_pvalues_grubert.csv")
+```
+
+#histogram
+
+```{r}
+quick_hist = function(values_vec, breaks=50, title = NULL, threshold_proportion = 10^(-4), rescaling_factor = 1, ylim_max = NA) {
+    res = hist(values_vec, plot=FALSE, breaks=breaks)
+    
+    proportion <- mean(values_vec <= threshold_proportion)
+    proportion <- formatC(proportion, format = "e", digits = 2)
+    
+    dat = data.frame(xmin=head(res$breaks, -1L),
+                     xmax=tail(res$breaks, -1L),
+                     ymin=0.0,
+                     ymax=res$counts*rescaling_factor)
+
+    ggplot(dat, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)) +
+      geom_rect(size=0.5, colour="grey30", fill="grey80") + 
+      ggtitle(paste(title, "proportion", proportion)) +
+      ylab("pvalue count") +
+      ylim(0, ylim_max)
+}
+```
+
+# analysis
+```{r, fig.cap="not stratified histogram"}
+quick_hist(chr_pvalues_grubert$pvalue, breaks = 400)
+```
+
+```{r}
+chr_pvalues_grubert_split_maf_sample_bin <- chr_pvalues_grubert %>%
+  select(pvalue, maf_sample_bin, maf_sample) %>%
+  split(chr_pvalues_grubert$maf_sample_bin) 
+```
+
+```{r, fig.cap="stratified histogram"}
+maf_sample_bin_hist <- lapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  title <- unique(maf_sample_bin_i$maf_sample_bin)
+  title <- paste0(title, ", ")
+  quick_hist(maf_sample_bin_i$pvalue, breaks = 400, title = title)
+})
+
+for(maf_sample_bin_i in maf_sample_bin_hist){
+  print(maf_sample_bin_i)
+}
+```
+
+```{r, fig.cap="stratified histogram censored"}
+threshold <- 10^{-6}
+
+maf_sample_bin_hist_consored <- lapply(chr_pvalues_grubert_split_maf_sample_bin, function(maf_sample_bin_i){
+  observations_before_censoring <- nrow(maf_sample_bin_i)
+  maf_sample_bin_i <- maf_sample_bin_i %>%
+    filter(pvalue <= threshold)
+  
+  observations_after_censoring <- nrow(maf_sample_bin_i)
+  #rescale to adjust for filtering
+  rescaling_factor <- observations_before_censoring/observations_after_censoring
+  
+  title <- unique(maf_sample_bin_i$maf_sample_bin)
+  title <- paste0(title, ", ")
+  quick_hist(maf_sample_bin_i$pvalue, breaks = 400, title = title, rescaling_factor=rescaling_factor, ylim_max = 12474390)
+})
+
+for(maf_sample_bin_hist_consored_i in maf_sample_bin_hist_consored){
+  print(maf_sample_bin_hist_consored_i)
+}
+```
+We see the trends we would expect to around `10^{-6}`
+
+```{r, eval = FALSE}
+sapply(maf_sample_bin_hist_consored, function(t) max(t$data$ymax)) %>% max
+```
+
+
+```{r, fig.cap= "proportions by threshold"}
+par <- expand.grid(maf_bin = names(chr_pvalues_grubert_split_maf_sample_bin), 
+                   threshold = 10^(-seq_len(10)))
+
+proportions<-purrr::pmap_dfr(par, function(maf_bin, threshold){
+  maf_sample_bin_i <- chr_pvalues_grubert_split_maf_sample_bin[[maf_bin]]
+  proportion <- mean(maf_sample_bin_i$pvalue <= threshold)
+  data.frame(maf_bin, threshold, proportion)
+})
+
+proportions %>%
+  ggplot(aes(x = maf_bin, proportion)) +
+  geom_point()+
+  facet_wrap(vars(threshold), scales = "free_y")
+```
+
+For very small thresholds we see what we would expect!
+
+#IHW
+```{r}
+chr_pvalues_grubert_filtered <- chr_pvalues_grubert %>% filter(pvalue <= 10^(-5))
+```
+
+```{r}
+chr_pvalues_grubert_p_adjust <- p.adjust(chr_pvalues_grubert_filtered$pvalue, method = "BH")
+
+sum(chr_pvalues_grubert_p_adjust <= 0.05)
+```
+
+
+```{r, eval = FALSE}
+ihw_maf_equal <- ihw(chr_pvalues_grubert_filtered$pvalue, chr_pvalues_grubert_filtered$maf_sample_bin, alpha = 0.05, lambdas = Inf, nfolds = 3)
+rejections(ihw_maf_equal)
+```
+Gives "Error: cannot allocate vector of size 687.9 Mb"

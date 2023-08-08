@@ -37,6 +37,7 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, 
       n_monte_carlo = sum(!is.na(FDP)),
       pow_se = sd(pow, na.rm = TRUE) / sqrt(n_monte_carlo)
     ) %>%
+    filter(!is.na(FDR)) %>%
     ungroup()
   
   # FDR

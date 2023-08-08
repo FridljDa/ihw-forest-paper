@@ -4,7 +4,12 @@
 \alias{plot_fdr_power}
 \title{Plot FDR and Power}
 \usage{
-plot_fdr_power(sim_res, group_by_dimension = "length", alpha = 0.1)
+plot_fdr_power(
+  sim_res,
+  group_by_dimension = "length",
+  alpha = 0.1,
+  log_trans = TRUE
+)
 }
 \arguments{
 \item{sim_res}{A data frame containing simulation results.}

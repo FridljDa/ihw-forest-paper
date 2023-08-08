@@ -1,0 +1,9 @@
+---
+title: "check_adapt"
+format: html
+editor: visual
+---
+
+```{r}
+1 + 1
+```
