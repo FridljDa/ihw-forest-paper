@@ -23,7 +23,6 @@ prop_alt_function_creator <- discrete_prop_alt_creator
 prop_alt_function_name <- "discrete_prop_alt"
 
 ## -----flexible alternative sim------
-## -----flexible alternative sim------
 if (dry_run) {
   dimensions <- seq(from = 2, to = 2, by = 1)
   m <- 1000
@@ -35,14 +34,14 @@ if (dry_run) {
   target_average_alt_prob = 0.1
   kappa = 0
 } else {
-  dimensions <- seq(from = 2, to = 6, by = 1)
-  m <- 10000
+  dimensions <- seq(from = 1, to = 6, by = 1)
+  m <- c(1000, 10000, 100000)
   r <- 100
   seed = seq_len(r)
   ndim = dimensions
   signal_strength = seq(0.1, 0.8, length.out = 2)
   lp_norm = c(1, 2,0.5)
-  target_average_alt_prob = c(0.1,0.01,0.05)
+  target_average_alt_prob = seq(0.1, 0.2, by = 0.01)
   kappa = seq(0, 0.1, length.out = 5)
 }
 
@@ -67,17 +66,7 @@ cat(timestamp(),"\n")
 print("\n")
 
 ##----extract ---
-# Calculating the size of each smaller data.frame
-split_size <- ceiling(nrow(sim_parameters) / num_splits)
-
-# Adding a new column for split indices
-sim_parameters_sub <- sim_parameters %>%
-  mutate(split_index_del = rep(1:num_splits, each = split_size, length.out = n()))
-
-# Extracting the 3rd smaller data.frame
-sim_parameters_sub <- sim_parameters_sub %>%
-  filter(split_index_del == split_index) %>%
-  select(-split_index_del)
+sim_parameters_sub <- get_split(sim_parameters, num_splits, split_index)
 
 ##--create simulation---
 simulation_list <- flexible_prop_alt_sim(

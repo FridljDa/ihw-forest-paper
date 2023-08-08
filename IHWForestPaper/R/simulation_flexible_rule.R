@@ -116,8 +116,10 @@ discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strengt
 flexible_prop_alt_sim <- function(sim_parameters,
                                   prop_alt_function_creator = discrete_prop_alt_creator,
                                   prop_alt_function_name = "discrete_prop_alt_creator") {
-  if (!all(c("seed", "dimensions", "m", "kappa") %in% colnames(sim_parameters))) {
-    stop("The sim_parameters data frame must contain columns 'seed', 'dimensions', 'm', and 'kappa'.")
+  missing_cols <- setdiff(c("seed", "dimensions", "m", "kappa"), colnames(sim_parameters))
+  if (length(missing_cols) > 0) {
+    stop("The sim_parameters data frame is missing the following required columns: ", 
+         paste(missing_cols, collapse = ", "), ".")
   }
 
   # If additional arguments are provided, merge them with the simulation combinations dataframe

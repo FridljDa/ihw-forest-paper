@@ -105,3 +105,40 @@ latest_files <- function(directory, file_ending) {
   
   return(high_dim_res)
 }
+
+
+
+#' Split a dataframe into smaller parts and retrieve a specific split by index.
+#'
+#' This function divides a dataframe (`df`) into a specified number of smaller splits 
+#' and returns one of the splits based on the provided index.
+#'
+#' @param df A dataframe that needs to be split.
+#' @param num_splits The number of splits you want to divide the dataframe into.
+#' @param split_index The index of the split you want to retrieve.
+#'
+#' @return A dataframe corresponding to the specified split index.
+#' 
+#' @examples
+#' \dontrun{
+#' data <- data.frame(a = rnorm(100), b = rnorm(100))
+#' result_df <- get_split(data, num_splits = 10, split_index = 3)
+#' }
+#' 
+#' @export
+get_split <- function(df, num_splits, split_index) {
+  # Calculating the size of each smaller data.frame
+  split_size <- ceiling(nrow(df) / num_splits)
+  
+  # Adding a new column for split indices
+  df_sub <- df %>% 
+    mutate(split_index_del = rep(seq_len(num_splits), each = split_size, length.out = n()))
+  
+  # Extracting the desired smaller data.frame based on split_index
+  df_sub <- df_sub %>%
+    filter(split_index_del == split_index) %>%
+    select(-split_index_del)
+  
+  return(df_sub)
+}
+

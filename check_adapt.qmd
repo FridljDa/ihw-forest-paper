@@ -5,5 +5,76 @@ editor: visual
 ---
 
 ```{r}
-1 + 1
+devtools::load_all(here::here("IHWForestPaper"))
+```
+
+## Noise
+
+```{r}
+noise_sim_list <- noise_sim(m = 1000, r = 10, dimensions = 1:4)
+
+
+```
+
+```{r, eval = TRUE}
+evaluated_simulation <- eval_sim_parallel(noise_sim_list,
+                                          alpha = 0.1,
+                                          methods = c("BH", "AdaPT")
+)
+```
+
+```{r, eval = TRUE}
+evaluated_simulation %>%
+plot_fdr_power(group_by_dimension = "dimension")
+```
+
+## flexible
+
+```{r}
+dimensions <- seq(from = 1, to = 1, by = 1)
+  m <- c(1000)
+  r <- 5
+  seed = seq_len(r)
+  #ndim = dimensions
+  signal_strength = 0.8
+  lp_norm = 1
+  target_average_alt_prob = 0.2#seq(0.1, 0.2, by = 0.01)
+  
+sim_parameters <- expand.grid(
+  dimensions = dimensions,
+  m = m, 
+  kappa = 0,
+  seed = seed,
+  signal_strength = signal_strength,
+  lp_norm = lp_norm,
+  target_average_alt_prob = target_average_alt_prob
+)  
+
+sim_parameters$ndim <- 1#sim_parameters$dimensions
+head(sim_parameters)
+```
+
+```{r}
+prop_alt_function_creator <- discrete_prop_alt_creator
+prop_alt_function_name <- "discrete_prop_alt"
+```
+
+```{r}
+simulation_list <- flexible_prop_alt_sim(
+  sim_parameters = sim_parameters,
+  prop_alt_function_creator = prop_alt_function_creator,
+  prop_alt_function_name = prop_alt_function_name
+)
+```
+
+```{r}
+evaluated_simulation <- eval_sim_parallel(simulation_list,
+                                          alpha = 0.1,
+                                          methods = c("BH", "AdaPT")
+)
+```
+
+```{r}
+evaluated_simulation %>%
+  plot_fdr_power(group_by_dimension = "pi0s", log_trans = FALSE) 
 ```

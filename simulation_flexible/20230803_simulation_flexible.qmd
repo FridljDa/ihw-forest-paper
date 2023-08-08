@@ -18,7 +18,7 @@ devtools::load_all(here("IHWForestPaper"))
 knitr::opts_chunk$set(echo = TRUE)
 
 set.seed(123)
-theme_set(theme_cowplot())
+theme_set(cowplot::theme_cowplot())
 options(bitmapType = "cairo")
 ```
 
@@ -75,7 +75,8 @@ first_elements
 
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0, method %in% c("AdaPT", "BH")) %>%
+  filter(kappa == 0, ndim == 2, signal_strength == 0.1, lp_norm == 1, target_average_alt_prob == 0.1, dimensions == 2,
+         method %in% c("AdaPT", "BH")) %>%
   plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
 ```
 
