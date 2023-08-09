@@ -3,7 +3,7 @@
 #' Hypotheses are stratified into bins based on random forest construction, alternative to \code{prior_prob_by_filter_multivariate}
 #'   prior_prob are homogenous wrt to Storeys null proportion estimator
 #'
-#'  see httpvalues://doi.org/10.7717/peerj.6035 for details on BocaLeek construction
+#'  see \url{https://doi.org/10.7717/peerj.6035} for details on BocaLeek construction
 #' @param pvalues Numeric vector of unadjusted p-values.
 #' @param covariates Matrix which contains the covariates (independent under the H0 of the p-value) for each test.
 #' @param folds Integer vector, Pre-specify assignment of hypotheses into folds.
@@ -75,12 +75,38 @@ estimate_prior_prob <- function(pvalues, covariates, folds, ntrees = 10, tau = 0
   return(prior_prob)
 }
 
-boca_leek_wrapper <- function(pvalues, covariates, alpha, nfolds = 5, ntrees = 10, tau = 0.5, nodedepth = NULL, nodesize = 300, mtry = "auto", seed = NULL){
+#' Boca-Leek Wrapper Function for Prior Probability Estimation
+#'
+#' This function serves as a wrapper for the `estimate_prior_prob` function,
+#' applying a random forest approach to estimate prior probabilities and adjust p-values
+#' based on the Benjamini-Hochberg method. It then checks if the adjusted p-values are
+#' below the given significance level alpha.
+#'
+#' @param pvalues Numeric vector of unadjusted p-values.
+#' @param covariates Matrix which contains the covariates (independent under the H0 of the p-value) for each test.
+#' @param alpha Double, significance level for the adjusted p-values.
+#' @param nfolds Integer, number of folds to use for cross-validation (default is 5).
+#' @param ntrees Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}} (default is 10).
+#' @param tau Double, censoring threshold tau of the p-values in the stratification method "forest" (default is 0.5).
+#' @param nodedepth Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}}.
+#' @param nodesize Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}} (default is 300).
+#' @param mtry Integer, see same parameter in \code{\link[randomForestSRC]{rfsrc}}. Use "auto" for automatic selection (default is "auto").
+#' @param seed Integer, specifies the random seed to be used.
+#' @return Logical vector indicating if the adjusted p-values are below the significance level alpha.
+#' @importFrom randomForestSRC rfsrc
+#' @importFrom stats p.adjust
+#' @export
+boca_leek_wrapper <- function(pvalues, covariates, alpha, nfolds = 5, ntrees = 10, tau = 0.5, nodedepth = NULL, nodesize = 300, mtry = "auto", seed = NULL) {
   
+  # Sample the fold assignments for cross-validation
   folds <- sample(seq_len(nfolds), length(pvalues), replace = TRUE)
   
+  # Estimate the prior probabilities using a random forest approach
   prior_prob <- estimate_prior_prob(pvalues, as.matrix(covariates), folds, ntrees = ntrees, tau = tau, nodedepth = nodedepth, nodesize = nodesize, mtry = mtry, seed = seed)
   
+  # Adjust the p-values using the Benjamini-Hochberg method
   pvalue_adj <- p.adjust(pvalues, "BH")
-  prior_prob*pvalue_adj <= alpha
+  
+  # Check if the adjusted p-values are below the significance level alpha
+  prior_prob * pvalue_adj <= alpha
 }

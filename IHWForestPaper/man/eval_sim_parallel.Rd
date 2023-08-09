@@ -11,7 +11,8 @@ eval_sim_parallel(
     "Boca-Leek", "Clfdr-EM"),
   forest_par = NULL,
   null_proportion = TRUE,
-  folds = NULL
+  folds = NULL,
+  parallel = TRUE
 )
 }
 \arguments{

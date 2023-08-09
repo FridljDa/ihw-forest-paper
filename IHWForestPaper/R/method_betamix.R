@@ -68,12 +68,14 @@ betamix_oracle_lfdr <- function(Ps, pi1s, mu_alphas, alpha){
 #' @param Ps     Numeric vector of unadjusted p-values.
 #' @param Xs     Data frame with features
 #' @param alpha  Significance level at which to apply method
-#' @param formula_rhs Formula defining the RHS in the fitted GLMs, defaults to ~X1+X2 (used in simulations herein).
 #' @param maxiter  Total number of iterations to run the EM algorithm
 #'
 #' @return Binary vector of rejected/non-rejected hypotheses.
 #' @export
-betamix_datadriven_lfdr <- function(Ps, Xs, alpha, formula_rhs="~.", maxiter=200,...){
+betamix_datadriven_lfdr <- function(Ps, Xs, alpha, maxiter=200,...){
+  Xs <- as.data.frame(Xs)
+  formula_rhs <- create_formula(Xs)
+  
   gamma_glm_fit  <- gamma_glm_basic_em(Ps, Xs, formula_rhs=formula_rhs, maxiter = maxiter, tau_pi0=0.5,...)
   betamix_oracle_lfdr(Ps, gamma_glm_fit$pi1s, gamma_glm_fit$alphas, alpha)
 }

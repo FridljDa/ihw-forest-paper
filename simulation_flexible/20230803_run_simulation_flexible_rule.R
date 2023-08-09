@@ -15,7 +15,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
 } else {
   num_splits <- 1
   split_index <- 1
-  dry_run <- TRUE
+  dry_run <- FALSE
 }
 ### ---
 
@@ -37,7 +37,7 @@ if (dry_run) {
   methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 } else {
   dimensions <- seq(from = 1, to = 5, length.out = 5)
-  m <- c(1000)#c(1000, 10000)
+  m <- c(1000, 10000)#c(1000, 10000)
   r <- 50
   seed = seq_len(r)
   ndim = dimensions
@@ -57,7 +57,7 @@ list_of_parameters <- list(
   dimensions = dimensions,
   m = m, 
   kappa = kappa,
-  ndim = ndim,
+  #ndim = ndim,
   signal_strength = signal_strength,
   lp_norm = lp_norm,
   target_average_alt_prob = target_average_alt_prob,
@@ -65,7 +65,11 @@ list_of_parameters <- list(
 )
 
 sim_parameters <- create_dataframe(list_of_parameters)
-sim_parameters <- sim_parameters %>% merge(data.frame(seed = seed))
+sim_parameters <- sim_parameters %>% 
+  merge(data.frame(seed = seed)) %>% 
+  merge(data.frame(ndim = ndim)) %>%
+  filter(ndim <= dimensions)
+
 cat(timestamp(),"\n")
 
 cat("\n")

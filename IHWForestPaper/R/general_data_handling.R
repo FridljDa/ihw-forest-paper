@@ -142,3 +142,19 @@ get_split <- function(df, num_splits, split_index) {
   return(df_sub)
 }
 
+#' Create a formula from a data frame
+#'
+#' This function takes a data frame and constructs a formula
+#' based on its column names.
+#'
+#' @param Xs A data frame whose column names will be used to create the formula.
+#'
+#' @return A formula object, with the right-hand side containing all the column names.
+#' @export
+create_formula <- function(Xs) {
+  formula_rhs <- paste(colnames(Xs), collapse = "+")
+  formula_rhs <- paste0("~", formula_rhs)
+  formula_rhs
+  #as.formula(formula_rhs)
+}
+

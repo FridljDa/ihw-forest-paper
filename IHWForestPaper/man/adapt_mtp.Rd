@@ -4,7 +4,7 @@
 \alias{adapt_mtp}
 \title{Wrapper of AdaPT multiple testing procedure}
 \usage{
-adapt_mtp(Ps, Xs, alpha, formula_rhs = "~.", return_fit = FALSE)
+adapt_mtp(Ps, Xs, alpha, return_fit = FALSE)
 }
 \arguments{
 \item{Ps}{Numeric vector of p-values}
@@ -12,8 +12,6 @@ adapt_mtp(Ps, Xs, alpha, formula_rhs = "~.", return_fit = FALSE)
 \item{Xs}{Data frame with features}
 
 \item{alpha}{Nominal testing level}
-
-\item{formula_rhs}{Formula defining the RHS in the fitted GLMs, defaults to ~X1+X2 (used in simulations herein).}
 
 \item{return_fit}{Boolean, whether to return the fitted adapt object (or only the indicator of rejections), defaults to false}
 }
@@ -25,4 +23,7 @@ Wrapper of AdaPT multiple testing procedure
 }
 \references{
 AdaptMT CRAN package
+}
+\seealso{
+\url{https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/adapt_wrapper.R}
 }

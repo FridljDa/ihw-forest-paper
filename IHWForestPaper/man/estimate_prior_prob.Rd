@@ -44,7 +44,7 @@ Hypotheses are stratified into bins based on random forest construction, alterna
   prior_prob are homogenous wrt to Storeys null proportion estimator
 }
 \details{
-see httpvalues://doi.org/10.7717/peerj.6035 for details on BocaLeek construction
+see \url{https://doi.org/10.7717/peerj.6035} for details on BocaLeek construction
 }
 \examples{
 
