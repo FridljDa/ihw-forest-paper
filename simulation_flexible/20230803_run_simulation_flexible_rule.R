@@ -34,19 +34,21 @@ if (dry_run) {
   target_average_alt_prob = 0.1
   kappa = 0
   beta_shape1 <- 0.25
+  alpha = 0.1
   methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 } else {
   dimensions <- seq(from = 1, to = 5, length.out = 5)
-  m <- c(1000, 10000)#c(1000, 10000)
+  m <- c(1000)#c(1000, 10000)
   r <- 50
   seed = seq_len(r)
-  ndim = dimensions
-  signal_strength = seq(0.1, 0.8, length.out = 5) #0.8 #
-  lp_norm = c(1, 2, 0.5) #
-  target_average_alt_prob = seq(0.1, 0.2, length.out = 5)
+  ndim = c(1,2,3)
+  signal_strength =  0.8 #seq(0.1, 0.8, length.out = 5)
+  lp_norm = 1 # c(1, 2, 0.5)
+  target_average_alt_prob = 0.1 #seq(0.1, 0.2, length.out = 5)
   kappa = seq(0, 0.1, length.out = 5) #5
-  beta_shape1 <- seq(0.25, 0.1, length.out = 5)#0.25
-  methods <- c("IHW-forest", "BH", "AdaPT")
+  beta_shape1 <- 0.25 #seq(0.25, 0.1, length.out = 5)#
+  alpha = 0.1
+  methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 }
 
 
@@ -61,7 +63,8 @@ list_of_parameters <- list(
   signal_strength = signal_strength,
   lp_norm = lp_norm,
   target_average_alt_prob = target_average_alt_prob,
-  beta_shape1 = beta_shape1
+  beta_shape1 = beta_shape1,
+  alpha = alpha
 )
 
 sim_parameters <- create_dataframe(list_of_parameters)
@@ -85,7 +88,6 @@ simulation_list <- flexible_prop_alt_sim(
 
 ##---evaluate mehtods on simulation---
 evaluated_simulation <- eval_sim_parallel(simulation_list,
-                                          alpha = 0.1,
                                           methods = methods
 )
 
