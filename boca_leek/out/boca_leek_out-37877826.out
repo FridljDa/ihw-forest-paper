@@ -1,0 +1,28 @@
+[1] "N"                                                                                                       
+[2] "Freq_MAF_Hapmap + N"                                                                                     
+[3] "Freq_MAF_Hapmap + N + minor_allele_freq"                                                                 
+[4] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1"                                                    
+[5] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2"                                       
+[6] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3"                          
+[7] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4"             
+[8] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4 + covariate5"
+parameters_run
+      summands number_covariates alphas
+1            N                 1   0.01
+2 Freq_MAF....                 2   0.01
+3 Freq_MAF....                 3   0.01
+4 Freq_MAF....                 4   0.01
+5 Freq_MAF....                 5   0.01
+6 Freq_MAF....                 6   0.01
+
+32Starting  1 th job of 32 .
+Starting  2 th job of 32 .
+Starting  3 th job of 32 .
+alpha = 0.01: FDPhat 0.0091, Number of Rej. 328
+Task completed!
+Starting  4 th job of 32 .
+Starting  5 th job of 32 .
+Starting  6 th job of 32 .
+Starting  7 th job of 32 .
+Starting  8 th job of 32 .
+Starting  9 th job of 32 .

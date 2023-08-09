@@ -1,0 +1,22 @@
+# try simulation flexible rule
+#devtools::install(here::here("IHWForestPaper"))
+#library(IHWForestPaper)
+devtools::load_all(here::here("IHWForestPaper"))
+
+### ---get input param---
+# Check if a command-line argument is provided
+if (length(commandArgs(trailingOnly = TRUE)) > 0) {
+  # Retrieve the command-line argument
+  seed <- commandArgs(trailingOnly = TRUE)[1]
+  seed <- as.numeric(seed)
+  #prop_alt_index <- commandArgs(trailingOnly = TRUE)[2]
+  #prop_alt_index <- as.numeric(prop_alt_index)
+  prop_alt_index <- 1
+  dry_run <- FALSE
+} else {
+  seed <- 2
+  prop_alt_index <- 1
+  dry_run <- TRUE
+}
+
+cat("seed", seed, "\n")

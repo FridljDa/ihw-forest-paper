@@ -1,0 +1,154 @@
+
+##------ Wed Aug  9 02:16:31 2023 ------##
+##------ Wed Aug  9 02:16:31 2023 ------## 
+
+simulation run:1/85
+simulation run:2/85
+simulation run:3/85
+simulation run:4/85
+simulation run:5/85
+simulation run:6/85
+simulation run:7/85
+simulation run:8/85
+simulation run:9/85
+simulation run:11/85
+simulation run:10/85
+simulation run:12/85
+simulation run:13/85
+simulation run:16/85
+simulation run:15/85
+simulation run:14/85
+simulation run:17/85
+simulation run:18/85
+simulation run:19/85
+simulation run:20/85
+simulation run:21/85
+simulation run:22/85
+simulation run:23/85
+simulation run:24/85
+simulation run:25/85
+simulation run:26/85
+simulation run:27/85
+simulation run:28/85
+simulation run:29/85
+simulation run:30/85
+simulation run:31/85
+simulation run:32/85
+simulation run:33/85
+simulation run:34/85
+simulation run:35/85
+simulation run:36/85
+simulation run:37/85
+simulation run:38/85
+simulation run:39/85
+simulation run:40/85
+simulation run:41/85
+simulation run:42/85
+simulation run:43/85
+simulation run:44/85
+simulation run:45/85
+simulation run:46/85
+simulation run:47/85
+simulation run:48/85
+simulation run:49/85
+simulation run:50/85
+simulation run:51/85
+simulation run:52/85
+simulation run:53/85
+simulation run:54/85
+simulation run:55/85
+simulation run:56/85
+simulation run:57/85
+simulation run:58/85
+simulation run:59/85
+simulation run:60/85
+simulation run:61/85
+simulation run:62/85
+simulation run:63/85
+simulation run:64/85
+simulation run:65/85
+simulation run:66/85
+simulation run:67/85
+simulation run:68/85
+simulation run:69/85
+simulation run:70/85
+simulation run:71/85
+simulation run:72/85
+simulation run:73/85
+simulation run:74/85
+simulation run:75/85
+simulation run:76/85
+simulation run:77/85
+simulation run:78/85
+simulation run:79/85
+simulation run:80/85
+simulation run:81/85
+simulation run:82/85
+simulation run:83/85
+simulation run:84/85
+simulation run:85/85
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 33
+Task completed!
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 21
+Task completed!
+alpha = 0.1: FDPhat 0.0769, Number of Rej. 13
+Task completed!
+alpha = 0.1: FDPhat 0.0667, Number of Rej. 15
+Task completed!
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+alpha = 0.1: FDPhat 0.0923, Number of Rej. 65
+Task completed!
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+alpha = 0.1: FDPhat 0.0857, Number of Rej. 35
+Task completed!
+alpha = 0.1: FDPhat 0.0882, Number of Rej. 34
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+alpha = 0.1: FDPhat 0.0769, Number of Rej. 13
+Task completed!
+alpha = 0.1: FDPhat 0.0769, Number of Rej. 13
+Task completed!
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 11
+Task completed!
+alpha = 0.1: FDPhat 0.0857, Number of Rej. 35
+Task completed!
+alpha = 0.1: FDPhat 0.0667, Number of Rej. 15
+Task completed!
+alpha = 0.1: FDPhat 0.0833, Number of Rej. 12
+Task completed!
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 40
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 10
+Task completed!
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 22
+Task completed!
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 22
+Task completed!
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 21
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 55
+Task completed!
+alpha = 0.1: FDPhat 0.0769, Number of Rej. 13
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+alpha = 0.1: FDPhat 0.0948, Number of Rej. 116
+Task completed!
+alpha = 0.1: FDPhat 0.1, Number of Rej. 300
+Task completed!
+[1] "\n"
