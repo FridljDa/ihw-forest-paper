@@ -11,20 +11,24 @@ devtools::load_all(here::here("IHWForestPaper"))
 ## Noise
 
 ```{r}
-noise_sim_list <- noise_sim(m = 1000, r = 5, dimensions = 1:3)
+noise_sim_list <- noise_sim(m = 1000, r = 1, dimensions = 1)
+noise_sim_list <- lapply(noise_sim_list, function(noise_sim_list_i){
+  noise_sim_list_i$alpha <- 0.1
+  #noise_sim_list_i$pvalue <- runif(1000)#rep(1, 1000)
+  noise_sim_list_i
+})
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 evaluated_simulation <- eval_sim_parallel(noise_sim_list,
-                                          alpha = 0.1,
-                                          methods = c("BH", "Clfdr-EM", "AdaPT"),
+                                          methods = c("BH", "AdaPT"),
                                           #methods = c("AdaPT"),
                                           
-                                          parallel = TRUE
+                                          parallel = FALSE
 )
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 evaluated_simulation %>%
 plot_fdr_power(group_by_dimension = "dimension")
 ```
@@ -34,22 +38,26 @@ plot_fdr_power(group_by_dimension = "dimension")
 ```{r}
 dimensions <- seq(from = 1, to = 1, by = 1)
   m <- c(1000)
-  r <- 5
+  r <- 20
   seed = seq_len(r)
   #ndim = dimensions
   signal_strength = 0.8
   lp_norm = 1
-  target_average_alt_prob = seq(0.1, 0.2, by = 0.01)#0.2 # ##
+  target_average_alt_prob = 0.2#seq(0.1, 0.2, by = 0.01)# # ##
+  beta_shape1 = 0.25 
+  kappa = 0
+  alpha = 0.1
   
 sim_parameters <- expand.grid(
   dimensions = dimensions,
   m = m, 
-  kappa = 0,
+  kappa = kappa,
+  alpha = alpha,
   seed = seed,
   signal_strength = signal_strength,
   lp_norm = lp_norm,
   target_average_alt_prob = target_average_alt_prob,
-  beta_shape1 = 0.25
+  beta_shape1 = beta_shape1
 )  
 
 sim_parameters$ndim <- 1#sim_parameters$dimensions
@@ -71,7 +79,7 @@ simulation_list <- flexible_prop_alt_sim(
 
 ```{r}
 evaluated_simulation <- eval_sim_parallel(simulation_list,
-                                          alpha = 0.1,
+                                          
                                           methods = c("BH", "AdaPT")
 )
 ```

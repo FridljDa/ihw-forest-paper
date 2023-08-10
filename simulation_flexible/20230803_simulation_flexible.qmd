@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Loading Stuff
 
 ```{r}
 library(magrittr)
@@ -22,26 +22,39 @@ theme_set(cowplot::theme_cowplot())
 options(bitmapType = "cairo")
 ```
 
+## Generative model
+
 ```{r}
 simulation_evaluated <- latest_files(here("simulation_flexible/data"), "discrete_prop_alt_eval")
+#simulation_evaluated <- readRDS(here::here("simulation_flexible/data/2023-08-09_1_discrete_prop_alt_eval.Rds"))
 head(simulation_evaluated)
 ```
 
-Let $d_1,d_2 \in \mathbb{N}$. Let $p\in (0,\infty)$. Let $\|x\|_p = \left(\sum{i=1}^{n} \|x_i\|_p\right)^{1/p}$ and $B_p(r) = \{x \in \mathbb{R}^d : \|x\|_p \leq r\}$. Let $s\in (0,1]$. Let $$
+Let $d_1,d_2 \in \mathbb{N}$. Let $p\in (0,\infty)$. Let $\|x\|_p = \left(\sum_{i=1}^{n} \|x_i\|_p\right)^{1/p}$ and $B_p(r) = \{x \in \mathbb{R}^d : \|x\|_p \leq r\}$. Let $s\in (0,1]$. Let $$
 \begin{aligned}
    \pi_1: &[-0.5,0.5]^{(d_1+d_2)} &\rightarrow &[0,1], 
    \\& x &\mapsto &s\cdot 1\left(x\in \left(B_p^{d_1}(r)\times [-0.5,0.5]^{(d_2)}\right)\right).
 \end{aligned}
 $$
 
-Fix $\bar{\pi}_1 \in (0,1)$. We choose $r$ s.t. $\int_{[-0.5,0.5]^d}\pi_1(x)dx=s\lambda^{d_1}(B_p^{d_1}(r))=\bar{\pi}_1$, where $\lambda$ denotes the Lebesgue measure.
+Fix $\bar{\pi}_1 \in (0,1)$. We choose $r$ s.t. $\int_{[-0.5,0.5]^d}\pi_1(x)dx=\bar{\pi}_1$, where $\lambda$ denotes the Lebesgue measure. Solving for $r$, we get
 
-Let $\kappa\in (0,0.1)$. We generate our data from the following model: $$
+$$
+\begin{aligned}
+   \int_{[-0.5,0.5]^d}\pi_1(x)dx&=s\lambda^{d_1+d_2}\left(B_p^{d_1}(r)\times [-0.5,0.5]^{(d_2)}\right)
+   \\&=s\lambda^{d_1}(B_p^{d_1}(r))\times \lambda^{d_2}\left([-0.5,0.5]^{(d_2)}\right)
+   \\&=s\lambda^{d_1}(B_p^{d_1}(r))
+   \\&=s\lambda^{d_1}f(p,d_1, r)
+   \\&=s\cdot \lambda^{d_1} \frac{2^{d_1} \cdot \Gamma\left(\frac{1}{p} + 1\right)^{d_1} \cdot r^{d_1}}{\Gamma\left(\frac{d_1}{p} + 1\right)}.
+\end{aligned}
+$$
+
+Let $\kappa\in (0,0.1)$ and $\beta \in (0.1,0.25)$. We generate our data from the following model: $$
 \begin{aligned}
    &X_i \stackrel{\text{iid.}}{\sim} \operatorname{U}[-0.5,0.5]^d, \\
    &H_i \mid X_i \sim  \operatorname{Bernoulli}(\pi_1(X_i)),\\
    &P_i \mid H_i = 0, X_i \stackrel{\text{iid.}}{\sim} (1-\kappa) \operatorname{U}[0,1]+\kappa \operatorname{Beta}(1,0.5),\\
-   &P_i \mid H_i = 1, X_i  \sim \operatorname{Beta}(0.25,1).
+   &P_i \mid H_i = 1, X_i  \sim \operatorname{Beta}(\beta,1).
 \end{aligned}
 $$
 
@@ -52,7 +65,7 @@ unique_levels <- unique_levels[c("dimensions","kappa","ndim","signal_strength","
 unique_levels
 ```
 
-## Diagnostic Simulation
+## Diagnostic for generative model
 
 ```{r}
 hist(simulation_evaluated$pi0s)
@@ -60,7 +73,7 @@ hist(simulation_evaluated$pi0s)
 
 ```{r}
 simulation_evaluated %>%
-  ggplot(aes(x = target_average_alt_prob, y =1- pi0s)) +
+  ggplot(aes(x = target_average_alt_prob, y = 1 - pi0s)) +
   geom_point() +
   xlim(0,0.25) +
   ylim(0,0.25) +
@@ -78,6 +91,26 @@ first_elements
 ## Plotting different stuff
 
 ```{r}
+simulation_evaluated
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0 & dimensions == 1#,
+         #method %in% c("AdaPT", "BH")
+         ) %>%
+  plot_fdr_power(group_by_dimension = "kappa", log_trans = FALSE)
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0 #dimensions == 1#,&
+         #method %in% c("AdaPT", "BH")
+         ) #%>%
+  #plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
+```
+
+```{r}
 simulation_evaluated %>%
   filter(kappa == 0, ndim == 2, signal_strength == 0.1, lp_norm == 1, target_average_alt_prob == 0.1, dimensions == 2,
          method %in% c("AdaPT", "BH")) %>%
@@ -86,9 +119,10 @@ simulation_evaluated %>%
 
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0, dimensions == 2,
-         method %in% c("AdaPT", "BH")) %>%
-  plot_fdr_power(group_by_dimension = "pi0s", log_trans = FALSE)
+  filter(#kappa == 0, dimensions == 2,
+         #method %in% c("AdaPT", "BH")
+         ) %>%
+  plot_fdr_power(group_by_dimension = "kappa", log_trans = FALSE)
 ```
 
 ```{r}
@@ -105,6 +139,43 @@ plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
 
 ```{r}
 simulation_evaluated %>%
-  filter_df(first_elements[names(first_elements) != "ndim"]) %>%
+  #filter_df(first_elements[names(first_elements) != "ndim"]) %>%
 plot_fdr_power(group_by_dimension = "ndim", log_trans = FALSE)
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(dimensions != 1 & ndim == 1) %>%
+  #lapply(unique)
+  plot_fdr_power(group_by_dimension = "pi0s", log_trans = FALSE)
+```
+
+```{r, eval = FALSE}
+dimensions <- seq(from = 1, to = 1, by = 1)
+  m <- c(1000)
+  r <- 5
+  seed = seq_len(r)
+  #ndim = dimensions
+  signal_strength = 0.8
+  lp_norm = 1
+  target_average_alt_prob = seq(0.1, 0.2, by = 0.01)#0.2 # ##
+  
+sim_parameters <- expand.grid(
+  dimensions = dimensions,
+  m = m, 
+  kappa = 0,
+  alpha = 0.1,
+  seed = seed,
+  signal_strength = signal_strength,
+  lp_norm = lp_norm,
+  target_average_alt_prob = target_average_alt_prob,
+  beta_shape1 = 0.25
+)  
+```
+
+```{r}
+test <-simulation_evaluated %>%
+  filter(kappa == 0, alpha == 0.1, m == 1000, signal_strength == 0.8, lp_norm == 1, dimensions == 1, ndim == 1, beta_shape1 == 0.25) %>%
+  filter(method %in% c("BH", "AdaPT")) %>%
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE) 
 ```

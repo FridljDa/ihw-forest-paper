@@ -70,7 +70,7 @@ parameters_run <- data.frame(
 )
 
 parameters_run <- parameters_run %>%
-  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1)))
+  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2)))
 
 cat("parameters_run\n")
 head(parameters_run)
@@ -84,12 +84,12 @@ if (dry_run) {
   # parameters_run_copy <- parameters_run
   BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
     # group_by(chr_name) %>%
-    sample_n(2000) # %>%
+    sample_n(20000) # %>%
   # ungroup()
 
   parameters_run <- parameters_run %>%
     filter(
-      alphas == 0.1 & number_covariates %in% c(1) # ,2,3,4
+      alphas == 0.2 & number_covariates %in% c(1) # ,2,3,4
       # &
       # stratification_method == "quantiles" &
       # number_covariates %in% c(1) &
@@ -107,8 +107,9 @@ folds <- BMI_GIANT_GWAS$chr_name %>%
 simulation_list <- lapply(
   seq_len(nrow(parameters_run)),
   function(i) {
-    formula <- parameters_run$formula[[i]]
+    formula_i <- parameters_run$formula[[i]]
     alpha_i <- parameters_run$alphas[[i]]
+    number_covariates_i <- parameters_run$number_covariates[[i]]
     summands_i <- parameters_run$summands[[i]]
 
     covariate_i <- BMI_GIANT_GWAS[, summands_i]
@@ -118,15 +119,18 @@ simulation_list <- lapply(
       pvalue = BMI_GIANT_GWAS$p,
       covariate = covariate_i,
       Hs = NULL,
-      alpha = alpha_i
+      alpha = alpha_i,
+      number_covariates = number_covariates_i,
+      formula = formula_i
     )
   }
 )
 
 #run stuff
+
 result <- eval_sim_parallel(simulation_list,
-                              methods = c("IHW-quantile", "IHW-forest","BH", "AdaPT", "Boca-Leek"),
-                            #, "Clfdr-EM"
+                              methods = c("BH", "AdaPT"),
+                            #, "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek"
                               null_proportion = TRUE,
                               folds = folds,
                               parallel = FALSE)

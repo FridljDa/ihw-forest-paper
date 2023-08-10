@@ -40,6 +40,13 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, 
     filter(!is.na(FDR)) %>%
     ungroup()
   
+  breaks <- unique(sim_res$group_by_dimension)
+  if(length(breaks) < 5) {
+    breaks <- breaks
+  } else {
+    breaks <- pretty(breaks, n = 5) # You can adjust 'n' as needed
+  }
+  
   # FDR
   sim_res_FDR <- ggplot(sim_res, aes(x = group_by_dimension, y = FDR, shape = method, col = method)) +
     geom_line() +
@@ -51,7 +58,8 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, 
       nrow=2
     ) +
     xlab(group_by_dimension) +
-    scale_x_continuous(breaks = unique(sim_res$group_by_dimension)) 
+    scale_x_continuous(breaks = breaks) +
+    ylim(0, NA)
   
   # power
   sim_res_power <- ggplot(sim_res, aes(x = group_by_dimension, y = Power, shape = method, col = method)) +
@@ -63,7 +71,8 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, 
       color = guide_legend(title = "Method", legend.text = element_text(size = 4)),
       shape = guide_legend(title = "Method", legend.text = element_text(size = 4))
     ) +
-    scale_x_continuous(breaks = unique(sim_res$group_by_dimension)) 
+    scale_x_continuous(breaks = breaks) +
+    ylim(0, NA)
   
   if(log_trans){
     sim_res_FDR <- sim_res_FDR + scale_y_log10()
