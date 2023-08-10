@@ -151,7 +151,6 @@ flexible_prop_alt_sim <- function(sim_parameters,
     prop_alt_function_i <- sim_parameters$prop_alt_function[[i]]
     kappa_i <- sim_parameters$kappa[[i]]
     beta_shape1_i <- sim_parameters$beta_shape1[[i]]
-    #beta_shape1_i <- 0.25
 
     set.seed(seed_i)
     # Generate covariates for the current simulation
@@ -163,6 +162,7 @@ flexible_prop_alt_sim <- function(sim_parameters,
     # Generate hypothesis tests
     Hs_i <- rbinom(m_i, size = 1, prob = prop_alt_i)
 
+    #https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/betamix_simulations_functions.R#L27
     # Generate p-values
     pvalue_i <- ifelse(Hs_i,
       rbeta(m_i, beta_shape1_i, 1), # for Hs_i == TRUE

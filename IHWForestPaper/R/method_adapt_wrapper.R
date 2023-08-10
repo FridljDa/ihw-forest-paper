@@ -13,7 +13,7 @@
 adapt_mtp <- function(Ps, Xs, alpha, return_fit=FALSE){
   Xs <- as.data.frame(Xs)
   formula_rhs <- create_formula(Xs)
-  
+
   adapt_glm_fit <- adaptMT::adapt_glm(Xs, Ps, formula_rhs, formula_rhs, alphas=alpha)
   adapt_glm_rjs <- adapt_glm_fit$qvals <= alpha
   if (return_fit){

@@ -85,7 +85,6 @@ create_dataframe <- function(vec_list) {
 #' @export
 
 latest_files <- function(directory, file_ending) {
-  
   # List all the files in the directory
   files <- list.files(directory, full.names = TRUE)
   
