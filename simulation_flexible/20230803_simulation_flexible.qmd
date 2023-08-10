@@ -94,88 +94,30 @@ first_elements
 simulation_evaluated
 ```
 
+Base line parameters
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0 & dimensions == 1#,
-         #method %in% c("AdaPT", "BH")
+  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.2 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
          ) %>%
   plot_fdr_power(group_by_dimension = "kappa", log_trans = FALSE)
 ```
 
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0 #dimensions == 1#,&
-         #method %in% c("AdaPT", "BH")
-         ) #%>%
-  #plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
-```
-
-```{r}
-simulation_evaluated %>%
-  filter(kappa == 0, ndim == 2, signal_strength == 0.1, lp_norm == 1, target_average_alt_prob == 0.1, dimensions == 2,
-         method %in% c("AdaPT", "BH")) %>%
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.1 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 #&
+         ) %>% #& dimensions == 1
   plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
 ```
-
 ```{r}
 simulation_evaluated %>%
-  filter(#kappa == 0, dimensions == 2,
-         #method %in% c("AdaPT", "BH")
-         ) %>%
-  plot_fdr_power(group_by_dimension = "kappa", log_trans = FALSE)
+  filter(kappa == 0  & dimensions == 3 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.1  & beta_shape1 == 0.25 & signal_strength == 0.8 #&
+         ) %>% #& ndim == dimensions
+  plot_fdr_power(group_by_dimension = "ndim", log_trans = FALSE)
 ```
-
 ```{r}
 simulation_evaluated %>%
-  #filter_df(first_elements[names(first_elements) != "kappa"]) %>%
-plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
+  filter(kappa == 0  & dimensions == 1 & alpha == 0.1 & lp_norm == 1  & ndim == 1& beta_shape1 == 0.25 & signal_strength == 0.8 #&
+         ) %>% 
+  plot_fdr_power(group_by_dimension = "target_average_alt_prob", log_trans = FALSE)
 ```
 
-```{r}
-simulation_evaluated %>%
-  filter_df(first_elements[names(first_elements) != "dimensions"]) %>%
-plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
-```
-
-```{r}
-simulation_evaluated %>%
-  #filter_df(first_elements[names(first_elements) != "ndim"]) %>%
-plot_fdr_power(group_by_dimension = "ndim", log_trans = FALSE)
-```
-
-```{r}
-simulation_evaluated %>%
-  filter(dimensions != 1 & ndim == 1) %>%
-  #lapply(unique)
-  plot_fdr_power(group_by_dimension = "pi0s", log_trans = FALSE)
-```
-
-```{r, eval = FALSE}
-dimensions <- seq(from = 1, to = 1, by = 1)
-  m <- c(1000)
-  r <- 5
-  seed = seq_len(r)
-  #ndim = dimensions
-  signal_strength = 0.8
-  lp_norm = 1
-  target_average_alt_prob = seq(0.1, 0.2, by = 0.01)#0.2 # ##
-  
-sim_parameters <- expand.grid(
-  dimensions = dimensions,
-  m = m, 
-  kappa = 0,
-  alpha = 0.1,
-  seed = seed,
-  signal_strength = signal_strength,
-  lp_norm = lp_norm,
-  target_average_alt_prob = target_average_alt_prob,
-  beta_shape1 = 0.25
-)  
-```
-
-```{r}
-test <-simulation_evaluated %>%
-  filter(kappa == 0, alpha == 0.1, m == 1000, signal_strength == 0.8, lp_norm == 1, dimensions == 1, ndim == 1, beta_shape1 == 0.25) %>%
-  filter(method %in% c("BH", "AdaPT")) %>%
-  plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE) 
-```

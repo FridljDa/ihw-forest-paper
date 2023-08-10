@@ -46,7 +46,7 @@ if (dry_run) {
   #ndim = dimensions
   signal_strength = 0.8
   lp_norm = c(1,2,0.5)
-  target_average_alt_prob = seq(0.1, 0.2, by = 0.02)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
+  target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
   beta_shape1 = 0.25 #seq(0.25, 0.1, length.out = 5)
   kappa = 0#seq(0, 0.1, length.out = 5)
   alpha = 0.1
