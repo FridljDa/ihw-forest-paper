@@ -74,7 +74,7 @@ eval_small_region_sim <- function(m, r, lengths, forest_par, alpha = 0.1, method
     Xs_i <- sim_i$covariate
     Hs_i <- sim_i$Hs
     
-    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, m = m, methods = methods, forest_par)
+    sim_res_i <- run_sim(Ps_i, Xs_i, Hs_i, seed_i, alpha, methods = methods, forest_par)
     
     mutate(sim_res_i, length = length_i)
   }#)

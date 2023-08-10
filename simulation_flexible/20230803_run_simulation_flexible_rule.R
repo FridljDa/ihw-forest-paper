@@ -39,18 +39,18 @@ if (dry_run) {
   
   methods <- c("BH", "AdaPT") #"IHW-quantile", "IHW-forest", , "Boca-Leek", "Clfdr-EM"
 } else {
-  dimensions <- seq(from = 1, to = 5, by = 1)
+  dimensions <- seq(from = 1, to = 10, by = 1)
   m <- c(1000)
   r <- 50
   seed = seq_len(r)
   #ndim = dimensions
-  signal_strength = 0.8
+  signal_strength = seq(0.8, 0.2, length.out = 5) #
   lp_norm = c(1,2,0.5)
   target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
   beta_shape1 = 0.25 #seq(0.25, 0.1, length.out = 5)
   kappa = 0#seq(0, 0.1, length.out = 5)
   alpha = 0.1
-  ndim <- c(1,2,3)#1#
+  ndim <- seq(from = 1, to = 5, by = 1)#dimensions#c(1,2,3)#1#
   
   methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM")
 }
