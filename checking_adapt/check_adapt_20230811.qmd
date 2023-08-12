@@ -1,0 +1,91 @@
+---
+title: "check_adapt_2"
+format: html
+editor: visual
+---
+
+```{r}
+library(adaptMT)
+library(IHWForestPaper)
+library("splines")
+library(magrittr)
+library(dplyr)
+```
+
+```{r}
+alpha = 0.1
+load(here::here("boca_leek/BMI_GIANT_GWAS.RData"))
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  select(p, Freq_MAF_Hapmap)
+```
+
+```{r}
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  sample_n(2000)
+```
+
+```{r}
+res <- IHWForestPaper::adapt_mtp(Ps = BMI_GIANT_GWAS$p, 
+                          Xs = data.frame(x = as.numeric(BMI_GIANT_GWAS$Freq_MAF_Hapmap)), 
+                          alpha = alpha)
+sum(res)
+```
+
+```{r}
+pvals = BMI_GIANT_GWAS$p
+x = data.frame(x = as.numeric(BMI_GIANT_GWAS$Freq_MAF_Hapmap))
+formulas <- paste0("ns(x, df = ", 6:10, ")")
+
+dist <- beta_family()
+
+#formulas <- ""
+res <- adapt_glm(x = x, pvals = pvals, pi_formulas = formulas,
+                 mu_formulas = formulas, nfits = 20, alphas = alpha)
+
+sum(res$qvals <= alpha)
+```
+
+```{r, eval = FALSE}
+# Load estrogen data
+data(estrogen)
+pvals <- as.numeric(estrogen$pvals)
+x <- data.frame(x = as.numeric(estrogen$ord_high))
+dist <- beta_family()
+
+# Subsample the data for convenience
+inds <- (x$x <= 5000)
+pvals <- pvals[inds]
+x <- x[inds,,drop = FALSE]
+
+data.frame(x = as.numeric(BMI_GIANT_GWAS$Freq_MAF_Hapmap))
+# Run adapt_glm
+
+formulas <- paste0("ns(x, df = ", 6:7, ")")
+#formulas <- ""
+res <- adapt_glm(x = x, pvals = pvals, pi_formulas = formulas,
+                 mu_formulas = formulas, dist = dist, nfits = 5, alphas = alpha)
+
+sum(res$qvals <= alpha)
+```
+
+```{r}
+IHWForestPaper::adapt_mtp(Ps = pvals, Xs = x, alpha = alpha)
+```
+
+```{r}
+require(stats); require(graphics)
+ns(women$height, df = 5)
+summary(fm1 <- lm(weight ~ ns(height, df = 5), data = women))
+
+## To see what knots were selected
+attr(terms(fm1), "predvars")
+
+## example of safe prediction
+plot(women, xlab = "Height (in)", ylab = "Weight (lb)")
+ht <- seq(57, 73, length.out = 200) ; nD <- data.frame(height = ht)
+lines(ht, p1 <- predict(fm1, nD))
+
+plot(ht, p1 <- predict(fm1, nD))
+stopifnot(all.equal(p1, predict(update(fm1, . ~
+                            splines::ns(height, df=5)), nD)))
+```

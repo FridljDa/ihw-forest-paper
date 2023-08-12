@@ -1,0 +1,112 @@
+---
+title: "check_adapt_2"
+format: html
+editor: visual
+---
+
+```{r}
+require(adaptMT)
+#library(splines)
+library(magrittr)
+library(dplyr)
+library(mgcv)
+library(ggplot2)
+set.seed(1)
+```
+
+# Load two data sets
+
+## Data set 1
+
+```{r}
+load(here::here("boca_leek/BMI_GIANT_GWAS.RData"))
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  select(p, Freq_MAF_Hapmap)
+```
+
+dry run
+
+```{r, eval = TRUE}
+BMI_GIANT_GWAS_dry <- BMI_GIANT_GWAS %>%
+  sample_n(20000)
+  #filter(p <= 0.01)
+```
+
+```{r}
+pvals_bmi = BMI_GIANT_GWAS_dry$p
+x_bmi = data.frame(x = as.numeric(BMI_GIANT_GWAS_dry$Freq_MAF_Hapmap))
+```
+
+## Data set 2
+
+```{r}
+data(estrogen)
+pvals_estrogen <- as.numeric(estrogen$pvals)
+x_estrogen <- data.frame(x = as.numeric(estrogen$ord_high))
+```
+
+# Visualise data sets
+
+## Data set 1
+
+```{r}
+hist(pvals_bmi)
+```
+
+```{r}
+hist(x_bmi$x)
+```
+
+```{r}
+ggplot(BMI_GIANT_GWAS_dry, aes(x = Freq_MAF_Hapmap, y = p)) +
+  geom_hex()
+```
+
+## Data set 2
+
+```{r}
+hist(pvals_estrogen)
+```
+
+```{r}
+hist(x_estrogen$x)
+```
+
+```{r}
+ggplot(estrogen, aes(x = ord_high, y = pvals)) +
+  geom_hex()
+```
+
+# Spline representation
+
+Internally, adapt_glm will represent the covariates in the spline basis \## Data set 1
+
+```{r, eval = FALSE}
+ns(x_bmi$x, df = 4) %>% 
+  head()
+```
+
+## Data set 2
+
+```{r, eval = FALSE}
+ns(x_estrogen$x, df = 4) %>%
+  head()
+```
+
+# Evauluate `adapt_glm`
+
+## Data set 1
+
+```{r}
+res_1_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
+                 mu_formulas = formulas, nfits = nfits, alphas = alpha)
+res_1_glm$nrejs
+```
+
+## Data set 2
+
+```{r}
+res_2_glm <- adapt_glm(x = x_estrogen, pvals = pvals_estrogen, pi_formulas = formulas,
+                 mu_formulas = formulas, nfits = nfits, alphas = alpha)
+res_2_glm$nrejs
+```
