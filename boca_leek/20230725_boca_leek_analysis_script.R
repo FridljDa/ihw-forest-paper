@@ -82,9 +82,9 @@ cat(nrow(parameters_run))
 dry_run <- TRUE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
-  BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
     # group_by(chr_name) %>%
-    sample_n(20000) # %>%
+  #  sample_n(20000) # %>%
   # ungroup()
 
   parameters_run <- parameters_run %>%
@@ -126,7 +126,7 @@ simulation_list <- lapply(
   }
 )
 
-#run stuff
+#-----run multiple testing----
 
 result <- eval_sim_parallel(simulation_list,
                               methods = c("BH", "AdaPT"),
