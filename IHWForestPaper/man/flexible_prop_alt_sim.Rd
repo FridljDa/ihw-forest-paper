@@ -43,7 +43,8 @@ The function assumes the following model:
 }
 }
 \examples{
-flexible_prop_alt_sim(
+# Simulate data
+sim_results <- flexible_prop_alt_sim(
   sim_parameters = data.frame(
     seed = c(123, 456),
     dimensions = c(2, 3),
@@ -51,4 +52,11 @@ flexible_prop_alt_sim(
     kappa = c(0.2, 0.3)
   )
 )
+# Extract the covariates and Hs values from the first simulation
+Xs <- sim_results[[1]]$covariate
+Hs <- sim_results[[1]]$Hs
+# Define a title for the plot
+title_list <- list(main = "My 2D Simulation", subtitle = "An example plot")
+# Plot the 2D simulation using the plot_2d_simulation function
+plot_2d_simulation(Xs, Hs, title_list)
 }

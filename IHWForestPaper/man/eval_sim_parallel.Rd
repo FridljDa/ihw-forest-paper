@@ -6,7 +6,6 @@
 \usage{
 eval_sim_parallel(
   simulation_list,
-  alpha = 0.1,
   methods = c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT",
     "Boca-Leek", "Clfdr-EM"),
   forest_par = NULL,
@@ -16,9 +15,15 @@ eval_sim_parallel(
 )
 }
 \arguments{
-\item{simulation_list}{A list of simulations.}
-
-\item{alpha}{The alpha level used in the analysis.}
+\item{simulation_list}{A list of simulations, where each simulation is a list containing:
+\itemize{
+  \item \code{seed}: The seed value used for random number generation.
+  \item \code{pvalue}: The p-values used in the simulation.
+  \item \code{covariate}: The covariate values used in the simulation.
+  \item \code{Hs}: Hypothesis status or any other relevant information required for the analysis.
+  \item \code{alpha}: The alpha level used in the analysis.
+  \item Other context information with a length of one (optional).
+}}
 
 \item{methods}{Vector of methods to be used for multiple testing procedures.}
 
@@ -36,6 +41,9 @@ This function is designed to evaluate a list of simulations in parallel using a 
 The simulations are run for each method given in the `methods` argument.
 }
 \examples{
-sim_list <- list() # Add simulations to this list
+sim_list <- list(
+  list(seed = 12345, pvalue = c(0.05, 0.10, 0.20), covariate = c(1.2, 3.4, 5.6), Hs = c(TRUE, FALSE, TRUE), alpha = 0.05),
+  list(seed = 67890, pvalue = c(0.01, 0.03, 0.05), covariate = c(2.3, 4.5, 6.7), Hs = c(FALSE, FALSE, TRUE), alpha = 0.1)
+)
 results <- eval_sim_parallel(simulation_list = sim_list, context_information = c("info1", "info2"))
 }
