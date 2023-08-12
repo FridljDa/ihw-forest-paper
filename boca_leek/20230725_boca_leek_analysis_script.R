@@ -3,13 +3,8 @@ library(here)
 library(dplyr)
 library(magrittr)
 library(tictoc)
-
+#library(IHWForestPaper)
 ## ---------------------------------------------------------------------------
-library(doRNG)
-library(doParallel)
-library(parallel)
-
-registerDoParallel(cores = 3)
 
 set.seed(4)
 options(bitmapType = "cairo")
@@ -70,26 +65,22 @@ parameters_run <- data.frame(
 )
 
 parameters_run <- parameters_run %>%
-  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2)))
+  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4)))
 
-cat("parameters_run\n")
-head(parameters_run)
-
-cat("\n")
-cat(nrow(parameters_run))
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
-dry_run <- TRUE
+methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
+dry_run <- FALSE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
-  #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
     # group_by(chr_name) %>%
-  #  sample_n(20000) # %>%
+   sample_n(2000) # %>%
   # ungroup()
 
   parameters_run <- parameters_run %>%
     filter(
-      alphas == 0.2 & number_covariates %in% c(1) # ,2,3,4
+      alphas == 0.4 & number_covariates %in% c(1) # ,2,3,4
       # &
       # stratification_method == "quantiles" &
       # number_covariates %in% c(1) &
@@ -98,6 +89,11 @@ if (dry_run) {
   # parameters_run
 }
 
+cat("parameters_run\n")
+head(parameters_run)
+
+cat("\n")
+cat(nrow(parameters_run))
 
 folds <- BMI_GIANT_GWAS$chr_name %>%
   as.factor() %>%
@@ -129,8 +125,7 @@ simulation_list <- lapply(
 #-----run multiple testing----
 
 result <- eval_sim_parallel(simulation_list,
-                              methods = c("BH", "AdaPT"),
-                            #, "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek"
+                              methods = methods,
                               null_proportion = TRUE,
                               folds = folds,
                               parallel = FALSE)

@@ -23,6 +23,7 @@ https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_da
 
 All_ancestries_SNP_gwas_mc_merge_nogc.tbl.uniq
 
+
 ```{r}
 load(here("boca_leek/BMI_GIANT_GWAS.RData"))
 head(BMI_GIANT_GWAS)

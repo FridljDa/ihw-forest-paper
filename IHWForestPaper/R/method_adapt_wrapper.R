@@ -13,8 +13,19 @@
 adapt_mtp <- function(Ps, Xs, alpha, return_fit=FALSE){
   Xs <- as.data.frame(Xs)
   formula_rhs <- create_formula(Xs)
+  
+  #To avoid all models failing, we increase the starting regime of p-values we can see
+  s0 <- 0.45
+  while(0.3 >= sum(dplyr::between(Ps, s0, 1-s0))/length(Ps)){
+    s0 <- s0 - 0.05
+  }
 
-  adapt_glm_fit <- adaptMT::adapt_glm(Xs, Ps, formula_rhs, formula_rhs, alphas=alpha)
+  adapt_glm_fit <- adaptMT::adapt_glm(Xs, 
+                                      Ps, 
+                                      formula_rhs, 
+                                      formula_rhs, 
+                                      alphas = alpha,
+                                      s0 = rep(s0, length(Ps)))
   adapt_glm_rjs <- adapt_glm_fit$qvals <= alpha
   if (return_fit){
     return(list(rjs=adapt_glm_rjs, fit=adapt_glm_fit))

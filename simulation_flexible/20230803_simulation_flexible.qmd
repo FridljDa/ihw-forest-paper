@@ -71,12 +71,17 @@ unique_levels
 hist(simulation_evaluated$pi0s)
 ```
 
+```{r, eval = FALSE}
+simulation_evaluated <- simulation_evaluated %>%
+  filter( 1 - pi0s >= 0.2)
+```
+
 ```{r}
 simulation_evaluated %>%
   ggplot(aes(x = target_average_alt_prob, y = 1 - pi0s)) +
   geom_point() +
-  xlim(0,0.25) +
-  ylim(0,0.25) +
+  xlim(0,0.5) +
+  ylim(0,0.5) +
   geom_abline(intercept = 0, slope = 1, linetype="dashed", color="red") 
   
 ```
@@ -95,29 +100,50 @@ simulation_evaluated
 ```
 
 Base line parameters
+
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.2 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
+  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
          ) %>%
   plot_fdr_power(group_by_dimension = "kappa", log_trans = FALSE)
 ```
 
+fixed dimension with with signal, varying ambient dimension
+
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.1 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 #&
-         ) %>% #& dimensions == 1
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
+         ) %>% 
   plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
 ```
+
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0  & dimensions == 3 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.1  & beta_shape1 == 0.25 & signal_strength == 0.8 #&
-         ) %>% #& ndim == dimensions
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == dimensions & beta_shape1 == 0.25 & signal_strength == 0.8) %>% 
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
+```
+
+fixed ambient dimension for covariates, variable dimension with signal
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0  & dimensions == 3 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3  & beta_shape1 == 0.25 & signal_strength == 0.8 
+         ) %>% 
   plot_fdr_power(group_by_dimension = "ndim", log_trans = FALSE)
 ```
+
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0  & dimensions == 1 & alpha == 0.1 & lp_norm == 1  & ndim == 1& beta_shape1 == 0.25 & signal_strength == 0.8 #&
+  filter(kappa == 0  & dimensions == 1 & alpha == 0.1 & lp_norm == 1  & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
          ) %>% 
   plot_fdr_power(group_by_dimension = "target_average_alt_prob", log_trans = FALSE)
 ```
 
+shape of ball with signal (konkav, konvex)
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 &  target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
+         ) %>%
+  plot_fdr_power(group_by_dimension = "lp_norm", log_trans = FALSE)
+```
