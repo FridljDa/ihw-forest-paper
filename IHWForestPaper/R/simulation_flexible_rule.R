@@ -99,12 +99,13 @@ discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strengt
 #'     \item{m}{A vector specifying the number of observations per simulation.}
 #'     \item{kappa}{A vector specifying the mixing parameter for generating alternative proportions.}
 #'   }
-#' @param prop_alt_function_creator A function that creates alternative proportion functions, default is 'discrete_prop_alt_creator'.
+#' @param prop_alt_function_creator \pi_0(X_i) A function that creates alternative proportion functions, default is 'discrete_prop_alt_creator'.
 #' @param prop_alt_function_name A string naming the proportion alternative function creator, default is "discrete_prop_alt_creator".
 #' @param additional_arguments_prop_alt_function_creator A data frame that contains additional arguments needed for the prop_alt_function_creator function.
 #' @return A list containing the simulation results for each combination of m, dimension, and seed, including additional arguments if provided.
 #' @examples
-#' flexible_prop_alt_sim(
+#' # Simulate data
+#' sim_results <- flexible_prop_alt_sim(
 #'   sim_parameters = data.frame(
 #'     seed = c(123, 456),
 #'     dimensions = c(2, 3),
@@ -112,6 +113,13 @@ discrete_prop_alt_creator <- function(seed, dimensions, ndim = 1, signal_strengt
 #'     kappa = c(0.2, 0.3)
 #'   )
 #' )
+#' # Extract the covariates and Hs values from the first simulation
+#' Xs <- sim_results[[1]]$covariate
+#' Hs <- sim_results[[1]]$Hs
+#' # Define a title for the plot
+#' title_list <- list(main = "My 2D Simulation", subtitle = "An example plot")
+#' # Plot the 2D simulation using the plot_2d_simulation function
+#' plot_2d_simulation(Xs, Hs, title_list)
 #' @export
 flexible_prop_alt_sim <- function(sim_parameters,
                                   prop_alt_function_creator = discrete_prop_alt_creator,
@@ -122,9 +130,6 @@ flexible_prop_alt_sim <- function(sim_parameters,
          paste(missing_cols, collapse = ", "), ".")
   }
 
-  # If additional arguments are provided, merge them with the simulation combinations dataframe
-  # if (!is.null(additional_arguments_prop_alt_function_creator)) {
-  #  sim_parameters <- merge(sim_parameters, additional_arguments_prop_alt_function_creator)
   # Clean filter to remove invalid combinations
   if ("ndim" %in% colnames(sim_parameters)) {
     sim_parameters <- sim_parameters %>% filter(ndim <= dimensions)
