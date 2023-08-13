@@ -150,10 +150,15 @@ get_split <- function(df, num_splits, split_index) {
 #'
 #' @return A formula object, with the right-hand side containing all the column names.
 #' @export
-create_formula <- function(Xs) {
-  formula_rhs <- paste(colnames(Xs), collapse = "+")
+create_formula <- function(Xs, ns_knots = FALSE) {
+  colnames_xs <- colnames(Xs)
+  formula_rhs <- paste(colnames_xs, collapse = "+")
   formula_rhs <- paste0("~", formula_rhs)
   formula_rhs
+  if(ns_knots){
+    #TODO
+    #paste0("ns(x, df = ", 6:10, ")")
+  }
   #as.formula(formula_rhs)
 }
 

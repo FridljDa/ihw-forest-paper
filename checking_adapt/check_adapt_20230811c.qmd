@@ -5,7 +5,7 @@ editor: visual
 ---
 
 ```{r}
-require(adaptMT)
+library(adaptMT)
 library(splines)
 library(magrittr)
 library(dplyr)
@@ -48,8 +48,8 @@ head(BMI_GIANT_GWAS)
 dry run
 
 ```{r, eval = TRUE}
-BMI_GIANT_GWAS_dry <- BMI_GIANT_GWAS #%>%
-  #sample_n(2000)
+BMI_GIANT_GWAS_dry <- BMI_GIANT_GWAS %>%
+  sample_n(20000) #00
 ```
 
 ```{r}
@@ -101,8 +101,8 @@ ggplot(estrogen, aes(x = ord_high, y = pvals)) +
 
 ```{r}
 formulas <- paste0("ns(x, df = ", c(6:7), ")")#1, 3, 
-nfits = 10
-alpha = 0.1
+nfits = 5
+alpha = c(0.1, 0.2, 0.3)
 ```
 
 ## Data set 1
@@ -119,7 +119,8 @@ table(between(pvals_estrogen,s0, 1-s0))/length(pvals_estrogen)
 
 ```{r}
 res_1_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
-                 mu_formulas = formulas, nfits = nfits, alphas = c(0.1, 0.2, 0.3)
+                 mu_formulas = formulas, nfits = nfits, alphas = alpha
+              
           )
 res_1_glm$nrejs
 ```
@@ -128,27 +129,48 @@ res_1_glm$nrejs
 Warning: Initialization of pi(x) by 'pifun_init' fails. Initialize pi(x) as a constant 0.1 by default. Please check if too few p-values lying in [s0, 1-s0] and decrease s0 or change 'pifun_init' if so. Warning: Model 1 fails.
 ```
 
-```{r}
-res_1_glm <- IHWForestPaper::adapt_mtp(
-  Ps = pvals_bmi,
-  Xs = x_bmi,
-  alpha = c(0.1, 0.2, 0.3)
-)
+```{r, cache=TRUE}
+res_3_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
+                 mu_formulas = formulas, nfits = nfits, alphas =alpha,
+                 s0 = rep(0.3, length(pvals_bmi)))
+res_3_glm$nrejs
 ```
+So at alpha = 0.1, 0 rejections
+at alpha = 0.2, 0 rejections
+at alpha = 0.3, 582 rejections
 
 ```{r}
-res_1_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
-                 mu_formulas = formulas, nfits = nfits, alphas = c(0.1, 0.2, 0.3),
-                 s0 = rep(0.3, length(pvals_bmi)))
-res_1_glm$nrejs
+par(mfrow = c(3, 1))
+adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.3, "P-value Thresholds (alpha = 0.3)",
+               disp_ymax = 0.5)
+adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.2, "P-value Thresholds (alpha = 0.2)",
+               disp_ymax = 0.5)
+adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.1, "P-value Thresholds (alpha = 0.1)",
+               disp_ymax = 0.5)
 ```
+
+
+```{r, cache=TRUE}
+#formulas = "~x"
+res_2_glm <- IHWForestPaper::adapt_mtp(
+  Ps = pvals_bmi,
+  Xs = x_bmi,
+  alpha = alpha
+)
+#sum(res_2_glm)
+```
+
 
 ## Data set 2
 
-```{r}
-res_2_glm <- adapt_glm(x = x_estrogen, pvals = pvals_estrogen, pi_formulas = formulas,
+```{r, cache=TRUE}
+res_4_glm <- adapt_glm(x = x_estrogen, pvals = pvals_estrogen, pi_formulas = formulas,
                  mu_formulas = formulas, nfits = nfits, alphas = alpha)
-res_2_glm$nrejs
+res_4_glm$nrejs
+```
+```{r}
+adaptMT::plot_1d_thresh(res_4_glm, x_estrogen, pvals_estrogen, 0.3, "P-value Thresholds (alpha = 0.3)",
+               disp_ymax = 0.5)
 ```
 
 ```{r, eval = FALSE}
