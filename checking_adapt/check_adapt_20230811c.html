@@ -226,89 +226,28 @@ Attaching package: 'dplyr'</code></pre>
 </div>
 <section id="data-set-1-2" class="level2">
 <h2 class="anchored" data-anchor-id="data-set-1-2">Data set 1</h2>
-<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_1_glm_a9ba62ac61896ffdaa763b060c2dfdc8">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>res_1_glm <span class="ot">&lt;-</span> <span class="fu">adapt_glm</span>(<span class="at">x =</span> x_bmi, <span class="at">pvals =</span> pvals_bmi, <span class="at">pi_formulas =</span> formulas, <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span> alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Model selection starts!
-Shrink the set of candidate models if it is too time-consuming.
-
-  |                                                        
-  |                                                  |   0%
-  |                                                        
-  |=========================                         |  50%
-  |                                                        
-  |==================================================| 100%
-alpha = 0.3: FDPhat 0.2927, Number of Rej. 82
-alpha = 0.2: FDPhat 0.1974, Number of Rej. 76</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>res_1_glm<span class="sc">$</span>nrejs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1]  0 76 82</code></pre>
-</div>
-</div>
-<pre><code>Warning: Initialization of pi(x) by 'pifun_init' fails. Initialize pi(x) as a constant 0.1 by default. Please check if too few p-values lying in [s0, 1-s0] and decrease s0 or change 'pifun_init' if so. Warning: Model 1 fails.</code></pre>
-<p>To adress the warning, we decrease the <code>s0</code>.</p>
+<section id="bh" class="level3">
+<h3 class="anchored" data-anchor-id="bh">BH</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>s0 <span class="ot">&lt;-</span> <span class="fl">0.45</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span>(<span class="fl">0.3</span> <span class="sc">&gt;=</span> <span class="fu">sum</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(pvals_bmi, s0, <span class="dv">1</span><span class="sc">-</span>s0))<span class="sc">/</span><span class="fu">length</span>(pvals_bmi)){</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  s0 <span class="ot">&lt;-</span> s0 <span class="sc">-</span> <span class="fl">0.05</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">between</span>(pvals_bmi, s0, <span class="dv">1</span><span class="sc">-</span>s0))<span class="sc">/</span><span class="fu">length</span>(pvals_bmi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"BH rejects"</span>, <span class="fu">sum</span>(<span class="fu">p.adjust</span>(pvals_bmi, <span class="at">method =</span> <span class="st">"BH"</span>) <span class="sc">&lt;=</span> <span class="fl">0.3</span>), <span class="st">"at level 0.3</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>
-    FALSE      TRUE 
-0.6146462 0.3853538 </code></pre>
+<pre><code>BH rejects 6430 at level 0.3</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">between</span>(pvals_estrogen,s0, <span class="dv">1</span><span class="sc">-</span>s0))<span class="sc">/</span><span class="fu">length</span>(pvals_estrogen)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"BH rejects"</span>, <span class="fu">sum</span>(<span class="fu">p.adjust</span>(pvals_bmi, <span class="at">method =</span> <span class="st">"BH"</span>) <span class="sc">&lt;=</span> <span class="fl">0.2</span>), <span class="st">"at level 0.2</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>
-    FALSE      TRUE 
-0.6479828 0.3520172 </code></pre>
+<pre><code>BH rejects 4456 at level 0.2</code></pre>
 </div>
-</div>
-<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_3_glm_25efaff7c3bee1fc25953018fdeaa1b2">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>res_3_glm <span class="ot">&lt;-</span> <span class="fu">adapt_glm</span>(<span class="at">x =</span> x_bmi, <span class="at">pvals =</span> pvals_bmi, <span class="at">pi_formulas =</span> formulas,</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span>alpha,</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">s0 =</span> <span class="fu">rep</span>(<span class="fl">0.3</span>, <span class="fu">length</span>(pvals_bmi)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"BH rejects"</span>, <span class="fu">sum</span>(<span class="fu">p.adjust</span>(pvals_bmi, <span class="at">method =</span> <span class="st">"BH"</span>) <span class="sc">&lt;=</span> <span class="fl">0.1</span>), <span class="st">"at level 0.1</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Model selection starts!
-Shrink the set of candidate models if it is too time-consuming.
-
-  |                                                        
-  |                                                  |   0%
-  |                                                        
-  |=========================                         |  50%
-  |                                                        
-  |==================================================| 100%
-alpha = 0.3: FDPhat 0.3, Number of Rej. 7610</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>res_3_glm<span class="sc">$</span>nrejs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1]    0    0 7610</code></pre>
+<pre><code>BH rejects 2744 at level 0.1</code></pre>
 </div>
 </div>
-<p>So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 70377 rejections</p>
-<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_2_glm_5f141a0375f748a189d949a9ea2d93bb">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#formulas = "~x"</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>res_2_glm <span class="ot">&lt;-</span> IHWForestPaper<span class="sc">::</span><span class="fu">adapt_mtp</span>(</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Ps =</span> pvals_bmi,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Xs =</span> x_bmi,</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> alpha</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>alpha = 0.3: FDPhat 0.2946, Number of Rej. 129
-alpha = 0.2: FDPhat 0.1954, Number of Rej. 87</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in adapt_glm_fit$qvals &lt;= alpha: longer object length is not a multiple
-of shorter object length</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">#sum(res_2_glm)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_3_gam_9e6535f97448be52a640cbd9f1a1b223">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>res_3_gam <span class="ot">&lt;-</span> <span class="fu">adapt_gam</span>(<span class="at">x =</span> x_bmi, <span class="at">pvals =</span> pvals_bmi, <span class="at">pi_formulas =</span> formulas,</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span>alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="adapt" class="level3">
+<h3 class="anchored" data-anchor-id="adapt">AdaPT</h3>
+<p>Trying Adapt</p>
+<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_1_glm_f967b5614ec23aec82f10069de4831d1">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>res_1_glm <span class="ot">&lt;-</span> <span class="fu">adapt_glm</span>(<span class="at">x =</span> x_bmi, <span class="at">pvals =</span> pvals_bmi, <span class="at">pi_formulas =</span> formulas, <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span> alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Model selection starts!
 Shrink the set of candidate models if it is too time-consuming.
@@ -321,17 +260,102 @@ Shrink the set of candidate models if it is too time-consuming.
   |==================================================| 100%
 alpha = 0.3: FDPhat 0.3, Number of Rej. 7684</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>res_3_gam<span class="sc">$</span>nrejs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(alpha)) {</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"AdaPT reject"</span>, res_1_glm<span class="sc">$</span>nrejs[i], <span class="st">"for level"</span>, alpha[i]))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "AdaPT reject 0 for level 0.1"
+[1] "AdaPT reject 0 for level 0.2"
+[1] "AdaPT reject 7684 for level 0.3"</code></pre>
+</div>
+</div>
+<pre><code>Warning: Initialization of pi(x) by 'pifun_init' fails. Initialize pi(x) as a constant 0.1 by default. Please check if too few p-values lying in [s0, 1-s0] and decrease s0 or change 'pifun_init' if so. Warning: Model 1 fails.</code></pre>
+<p>To adress the warning, we decrease the <code>s0</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>s0 <span class="ot">&lt;-</span> <span class="fl">0.45</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span>(<span class="fl">0.3</span> <span class="sc">&gt;=</span> <span class="fu">sum</span>(dplyr<span class="sc">::</span><span class="fu">between</span>(pvals_bmi, s0, <span class="dv">1</span><span class="sc">-</span>s0))<span class="sc">/</span><span class="fu">length</span>(pvals_bmi)){</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  s0 <span class="ot">&lt;-</span> s0 <span class="sc">-</span> <span class="fl">0.05</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="co">#table(between(pvals_bmi, s0, 1-s0))/length(pvals_bmi)</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">#table(between(pvals_estrogen,s0, 1-s0))/length(pvals_estrogen)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_3_glm_f0339a0ea3ceac775d29abbbed8b560a">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>res_3_glm <span class="ot">&lt;-</span> <span class="fu">adapt_glm</span>(<span class="at">x =</span> x_bmi, <span class="at">pvals =</span> pvals_bmi, <span class="at">pi_formulas =</span> formulas, <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span>alpha, <span class="at">s0 =</span> <span class="fu">rep</span>(s0, <span class="fu">length</span>(pvals_bmi)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model selection starts!
+Shrink the set of candidate models if it is too time-consuming.
+
+  |                                                        
+  |                                                  |   0%
+  |                                                        
+  |=========================                         |  50%
+  |                                                        
+  |==================================================| 100%
+alpha = 0.3: FDPhat 0.3, Number of Rej. 7611</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(alpha)) {</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"AdaPT reject"</span>, res_3_glm<span class="sc">$</span>nrejs[i], <span class="st">"for level"</span>, alpha[i]))</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "AdaPT reject 0 for level 0.1"
+[1] "AdaPT reject 0 for level 0.2"
+[1] "AdaPT reject 7611 for level 0.3"</code></pre>
+</div>
+</div>
+<p>So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 70377 rejections</p>
+<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_2_glm_5f141a0375f748a189d949a9ea2d93bb">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">#formulas = "~x"</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>res_2_glm <span class="ot">&lt;-</span> IHWForestPaper<span class="sc">::</span><span class="fu">adapt_mtp</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Ps =</span> pvals_bmi,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Xs =</span> x_bmi,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> alpha</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>alpha = 0.3: FDPhat 0.2946, Number of Rej. 129
+alpha = 0.2: FDPhat 0.1954, Number of Rej. 87</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in adapt_glm_fit$qvals &lt;= alpha: longer object length is not a multiple
+of shorter object length</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#sum(res_2_glm)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_3_gam_cf2fd9a85c642f6a9969c144ae300448">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>res_3_gam <span class="ot">&lt;-</span> <span class="fu">adapt_gam</span>(<span class="at">x =</span> x_bmi, <span class="at">pvals =</span> pvals_bmi, <span class="at">pi_formulas =</span> formulas,</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span>alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model selection starts!
+Shrink the set of candidate models if it is too time-consuming.
+
+  |                                                        
+  |                                                  |   0%
+  |                                                        
+  |=========================                         |  50%
+  |                                                        
+  |==================================================| 100%
+alpha = 0.3: FDPhat 0.3, Number of Rej. 7684</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>res_3_gam<span class="sc">$</span>nrejs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]    0    0 7684</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(alpha)) {</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"AdaPT reject"</span>, res_3_gam<span class="sc">$</span>nrejs[i], <span class="st">"for level"</span>, alpha[i]))</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "AdaPT reject 0 for level 0.1"
+[1] "AdaPT reject 0 for level 0.2"
+[1] "AdaPT reject 7684 for level 0.3"</code></pre>
 </div>
+</div>
+</section>
 </section>
 <section id="data-set-2-2" class="level2">
 <h2 class="anchored" data-anchor-id="data-set-2-2">Data set 2</h2>
-<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_4_glm_ebd63fc4c5b17cbfe226b605f89b6f91">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>res_4_glm <span class="ot">&lt;-</span> <span class="fu">adapt_glm</span>(<span class="at">x =</span> x_estrogen, <span class="at">pvals =</span> pvals_estrogen, <span class="at">pi_formulas =</span> formulas,</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span> alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="check_adapt_20230811c_cache/html/res_4_glm_c133ec9d488e7db41a477c084779fc29">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>res_4_glm <span class="ot">&lt;-</span> <span class="fu">adapt_glm</span>(<span class="at">x =</span> x_estrogen, <span class="at">pvals =</span> pvals_estrogen, <span class="at">pi_formulas =</span> formulas,</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_formulas =</span> formulas, <span class="at">nfits =</span> nfits, <span class="at">alphas =</span> alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Model selection starts!
 Shrink the set of candidate models if it is too time-consuming.
@@ -343,24 +367,28 @@ Shrink the set of candidate models if it is too time-consuming.
   |                                                        
   |==================================================| 100%
 alpha = 0.3: FDPhat 0.3, Number of Rej. 3517
-alpha = 0.2: FDPhat 0.2, Number of Rej. 2520
-alpha = 0.1: FDPhat 0.0997, Number of Rej. 1474
+alpha = 0.2: FDPhat 0.2, Number of Rej. 2525
+alpha = 0.1: FDPhat 0.1, Number of Rej. 1480
 Task completed!</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>res_4_glm<span class="sc">$</span>nrejs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(alpha)) {</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"AdaPT reject"</span>, res_4_glm<span class="sc">$</span>nrejs[i], <span class="st">"for level"</span>, alpha[i]))</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1474 2520 3517</code></pre>
+<pre><code>[1] "AdaPT reject 1480 for level 0.1"
+[1] "AdaPT reject 2525 for level 0.2"
+[1] "AdaPT reject 3517 for level 0.3"</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>adaptMT<span class="sc">::</span><span class="fu">plot_1d_thresh</span>(res_4_glm, x_estrogen, pvals_estrogen, <span class="fl">0.3</span>, <span class="st">"P-value Thresholds (alpha = 0.3)"</span>,</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">disp_ymax =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>adaptMT<span class="sc">::</span><span class="fu">plot_1d_thresh</span>(res_4_glm, x_estrogen, pvals_estrogen, <span class="fl">0.3</span>, <span class="st">"P-value Thresholds (alpha = 0.3)"</span>,</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">disp_ymax =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="check_adapt_20230811c_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+<p><img src="check_adapt_20230811c_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(tmp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(tmp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>

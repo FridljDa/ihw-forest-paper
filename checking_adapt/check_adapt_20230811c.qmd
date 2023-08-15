@@ -38,9 +38,9 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
 ```{r, include=FALSE}
 load(here::here("boca_leek/BMI_GIANT_GWAS.RData"))
 BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
-  filter(chr_name %in% c("1", "10"))
-BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  filter(chr_name %in% c("1", "10")) %>%
   select(p, Freq_MAF_Hapmap)
+nrow(BMI_GIANT_GWAS)
 ```
 
 ```{r}
@@ -109,9 +109,23 @@ alpha = c(0.1, 0.2, 0.3)
 
 ## Data set 1
 
+### BH
+```{r}
+cat("BH rejects", sum(p.adjust(pvals_bmi, method = "BH") <= 0.3), "at level 0.3\n")
+cat("BH rejects", sum(p.adjust(pvals_bmi, method = "BH") <= 0.2), "at level 0.2\n")
+cat("BH rejects", sum(p.adjust(pvals_bmi, method = "BH") <= 0.1), "at level 0.1\n")
+```
+
+### AdaPT
+Trying Adapt
+
 ```{r res_1_glm, cache = TRUE}
 res_1_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas, mu_formulas = formulas, nfits = nfits, alphas = alpha)
-res_1_glm$nrejs
+
+
+for (i in seq_along(alpha)) {
+  print(paste("AdaPT reject", res_1_glm$nrejs[i], "for level", alpha[i]))
+}
 ```
 
 ```         
@@ -124,22 +138,19 @@ s0 <- 0.45
 while(0.3 >= sum(dplyr::between(pvals_bmi, s0, 1-s0))/length(pvals_bmi)){
   s0 <- s0 - 0.05
 }
-
-table(between(pvals_bmi, s0, 1-s0))/length(pvals_bmi)
-table(between(pvals_estrogen,s0, 1-s0))/length(pvals_estrogen)
 ```
 
 ```{r res_3_glm, cache=TRUE, eval = TRUE, include=TRUE}
-res_3_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
-                 mu_formulas = formulas, nfits = nfits, alphas =alpha,
-                 s0 = rep(0.3, length(pvals_bmi)))
-res_3_glm$nrejs
+res_3_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas, mu_formulas = formulas, nfits = nfits, alphas =alpha, s0 = rep(s0, length(pvals_bmi)))
+
+for (i in seq_along(alpha)) {
+  print(paste("AdaPT reject", res_3_glm$nrejs[i], "for level", alpha[i]))
+}
 ```
 
 So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 70377 rejections
 ```{r, eval = FALSE, include=FALSE}
-adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.3, "P-value Thresholds (alpha = 0.3)",
-               disp_ymax = 0.5)
+adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.3, "P-value Thresholds (alpha = 0.3)", disp_ymax = 0.5)
 ```
 
 ```{r, eval = FALSE, include=FALSE}
@@ -161,6 +172,10 @@ res_2_glm <- IHWForestPaper::adapt_mtp(
 res_3_gam <- adapt_gam(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
                  mu_formulas = formulas, nfits = nfits, alphas =alpha)
 res_3_gam$nrejs
+
+for (i in seq_along(alpha)) {
+  print(paste("AdaPT reject", res_3_gam$nrejs[i], "for level", alpha[i]))
+}
 ```
 
 ## Data set 2
@@ -168,7 +183,10 @@ res_3_gam$nrejs
 ```{r res_4_glm, cache=TRUE}
 res_4_glm <- adapt_glm(x = x_estrogen, pvals = pvals_estrogen, pi_formulas = formulas,
                  mu_formulas = formulas, nfits = nfits, alphas = alpha)
-res_4_glm$nrejs
+
+for (i in seq_along(alpha)) {
+  print(paste("AdaPT reject", res_4_glm$nrejs[i], "for level", alpha[i]))
+}
 ```
 
 ```{r}
