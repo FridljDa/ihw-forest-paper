@@ -38,6 +38,8 @@ BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
 ```{r, include=FALSE}
 load(here::here("boca_leek/BMI_GIANT_GWAS.RData"))
 BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  filter(chr_name %in% c("1", "10"))
+BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
   select(p, Freq_MAF_Hapmap)
 ```
 
@@ -48,8 +50,8 @@ head(BMI_GIANT_GWAS)
 dry run
 
 ```{r, eval = TRUE}
-BMI_GIANT_GWAS_dry <- BMI_GIANT_GWAS %>%
-  sample_n(20000) #00
+BMI_GIANT_GWAS_dry <- BMI_GIANT_GWAS #%>%
+  #sample_n(2000) #00
 ```
 
 ```{r}
@@ -107,7 +109,17 @@ alpha = c(0.1, 0.2, 0.3)
 
 ## Data set 1
 
-```{r}
+```{r res_1_glm, cache = TRUE}
+res_1_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas, mu_formulas = formulas, nfits = nfits, alphas = alpha)
+res_1_glm$nrejs
+```
+
+```         
+Warning: Initialization of pi(x) by 'pifun_init' fails. Initialize pi(x) as a constant 0.1 by default. Please check if too few p-values lying in [s0, 1-s0] and decrease s0 or change 'pifun_init' if so. Warning: Model 1 fails.
+```
+
+To adress the warning, we decrease the `s0`.
+```{r, eval = TRUE, include=TRUE}
 s0 <- 0.45
 while(0.3 >= sum(dplyr::between(pvals_bmi, s0, 1-s0))/length(pvals_bmi)){
   s0 <- s0 - 0.05
@@ -117,40 +129,25 @@ table(between(pvals_bmi, s0, 1-s0))/length(pvals_bmi)
 table(between(pvals_estrogen,s0, 1-s0))/length(pvals_estrogen)
 ```
 
-```{r}
-res_1_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
-                 mu_formulas = formulas, nfits = nfits, alphas = alpha
-              
-          )
-res_1_glm$nrejs
-```
-
-```         
-Warning: Initialization of pi(x) by 'pifun_init' fails. Initialize pi(x) as a constant 0.1 by default. Please check if too few p-values lying in [s0, 1-s0] and decrease s0 or change 'pifun_init' if so. Warning: Model 1 fails.
-```
-
-```{r, cache=TRUE}
+```{r res_3_glm, cache=TRUE, eval = TRUE, include=TRUE}
 res_3_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
                  mu_formulas = formulas, nfits = nfits, alphas =alpha,
                  s0 = rep(0.3, length(pvals_bmi)))
 res_3_glm$nrejs
 ```
-So at alpha = 0.1, 0 rejections
-at alpha = 0.2, 0 rejections
-at alpha = 0.3, 582 rejections
 
-```{r}
-par(mfrow = c(3, 1))
+So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 70377 rejections
+```{r, eval = FALSE, include=FALSE}
 adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.3, "P-value Thresholds (alpha = 0.3)",
-               disp_ymax = 0.5)
-adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.2, "P-value Thresholds (alpha = 0.2)",
-               disp_ymax = 0.5)
-adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.1, "P-value Thresholds (alpha = 0.1)",
                disp_ymax = 0.5)
 ```
 
+```{r, eval = FALSE, include=FALSE}
+adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.2, "P-value Thresholds (alpha = 0.2)",
+               disp_ymax = 0.5)
+```
 
-```{r, cache=TRUE}
+```{r res_2_glm, cache=TRUE}
 #formulas = "~x"
 res_2_glm <- IHWForestPaper::adapt_mtp(
   Ps = pvals_bmi,
@@ -160,14 +157,20 @@ res_2_glm <- IHWForestPaper::adapt_mtp(
 #sum(res_2_glm)
 ```
 
+```{r res_3_gam, cache=TRUE, eval = TRUE, include=TRUE}
+res_3_gam <- adapt_gam(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
+                 mu_formulas = formulas, nfits = nfits, alphas =alpha)
+res_3_gam$nrejs
+```
 
 ## Data set 2
 
-```{r, cache=TRUE}
+```{r res_4_glm, cache=TRUE}
 res_4_glm <- adapt_glm(x = x_estrogen, pvals = pvals_estrogen, pi_formulas = formulas,
                  mu_formulas = formulas, nfits = nfits, alphas = alpha)
 res_4_glm$nrejs
 ```
+
 ```{r}
 adaptMT::plot_1d_thresh(res_4_glm, x_estrogen, pvals_estrogen, 0.3, "P-value Thresholds (alpha = 0.3)",
                disp_ymax = 0.5)
