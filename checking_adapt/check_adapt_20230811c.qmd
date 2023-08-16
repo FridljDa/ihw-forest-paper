@@ -135,9 +135,8 @@ res_3_glm <- adapt_glm(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
                  s0 = rep(0.3, length(pvals_bmi)))
 res_3_glm$nrejs
 ```
-So at alpha = 0.1, 0 rejections
-at alpha = 0.2, 0 rejections
-at alpha = 0.3, 582 rejections
+
+So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 582 rejections
 
 ```{r}
 par(mfrow = c(3, 1))
@@ -149,7 +148,6 @@ adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.1, "P-value Thresholds (a
                disp_ymax = 0.5)
 ```
 
-
 ```{r, cache=TRUE}
 #formulas = "~x"
 res_2_glm <- IHWForestPaper::adapt_mtp(
@@ -160,7 +158,6 @@ res_2_glm <- IHWForestPaper::adapt_mtp(
 #sum(res_2_glm)
 ```
 
-
 ## Data set 2
 
 ```{r, cache=TRUE}
@@ -168,6 +165,7 @@ res_4_glm <- adapt_glm(x = x_estrogen, pvals = pvals_estrogen, pi_formulas = for
                  mu_formulas = formulas, nfits = nfits, alphas = alpha)
 res_4_glm$nrejs
 ```
+
 ```{r}
 adaptMT::plot_1d_thresh(res_4_glm, x_estrogen, pvals_estrogen, 0.3, "P-value Thresholds (alpha = 0.3)",
                disp_ymax = 0.5)

@@ -1,0 +1,95 @@
+---
+title: "simulation_flexible_plot"
+format: html
+editor: visual
+---
+
+```{r}
+devtools::load_all(here::here("IHWForestPaper"))
+```
+
+```{r}
+dimensions <- 2
+  m <- c(1000)
+  r <- 1
+  seed = seq_len(r)
+  #ndim = dimensions
+  signal_strength = 0.8
+  lp_norm = 1
+  target_average_alt_prob = 0.2#seq(0.1, 0.2, by = 0.01)# # ##
+  beta_shape1 = 0.25 #seq(0.25, 0.1, length.out = 5)
+  kappa = seq(0, 0.1, length.out = 5)
+  alpha = 0.1
+  ndim <- 1#c(1,2,3)
+  
+  methods <- c("BH", "AdaPT")
+```
+
+```{r}
+list_of_parameters <- list(
+  dimensions = dimensions,
+  m = m, 
+  kappa = kappa,
+  #ndim = ndim,
+  signal_strength = signal_strength,
+  lp_norm = lp_norm,
+  target_average_alt_prob = target_average_alt_prob,
+  beta_shape1 = beta_shape1,
+  alpha = alpha
+)
+
+sim_parameters <- create_dataframe(list_of_parameters)
+
+sim_parameters <- sim_parameters %>% 
+  merge(data.frame(seed = seed)) %>% 
+  merge(data.frame(ndim = ndim)) %>%
+  filter(ndim <= dimensions)
+```
+
+```{r}
+prop_alt_function_creator <- discrete_prop_alt_creator
+prop_alt_function_name <- "discrete_prop_alt"
+```
+
+```{r}
+simulation_list <- flexible_prop_alt_sim(
+  sim_parameters = sim_parameters,
+  prop_alt_function_creator = prop_alt_function_creator,
+  prop_alt_function_name = prop_alt_function_name
+)
+```
+
+```{r}
+plot_2d_simulation <- function(Xs, Hs){
+  #TODO check that Xs 2d
+  df <- data.frame(Xs1 = Xs[,1],
+                 Xs2 = Xs[,2],
+                 Hs = as.factor(Hs_i))
+  
+  ggplot(df, aes(x = Xs1, y = Xs2, color = Hs)) +
+    geom_point()
+}
+```
+
+```{r}
+i <- 1
+#TODO check that simulation_list[[1]][["dimensions"]] == 2
+Xs_i <- simulation_list[[i]][["covariate"]]
+Hs_i <- simulation_list[[1]][["Hs"]]
+```
+
+```{r}
+plot_2d_simulation(Xs = simulation_list[[1]][["covariate"]],
+                   Hs = simulation_list[[1]][["Hs"]])
+```
+
+```{r}
+df <- data.frame(Xs1 = Xs_i[,1],
+                 Xs2 = Xs_i[,2],
+                 Hs = as.factor(Hs_i))
+```
+
+```{r}
+ggplot(df, aes(x = Xs1, y = Xs2, color = Hs)) +
+  geom_point()
+```
