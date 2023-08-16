@@ -147,18 +147,27 @@ for (i in seq_along(alpha)) {
   print(paste("AdaPT reject", res_3_glm$nrejs[i], "for level", alpha[i]))
 }
 ```
+<<<<<<< HEAD
+
+So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 582 rejections
+=======
+>>>>>>> e23f354d8d045eac048e095619310fc472e00f85
 
 So at alpha = 0.1, 0 rejections at alpha = 0.2, 0 rejections at alpha = 0.3, 70377 rejections
 ```{r, eval = FALSE, include=FALSE}
 adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.3, "P-value Thresholds (alpha = 0.3)", disp_ymax = 0.5)
 ```
 
+<<<<<<< HEAD
+```{r, cache=TRUE}
+=======
 ```{r, eval = FALSE, include=FALSE}
 adaptMT::plot_1d_thresh(res_3_glm, x_bmi, pvals_bmi, 0.2, "P-value Thresholds (alpha = 0.2)",
                disp_ymax = 0.5)
 ```
 
 ```{r res_2_glm, cache=TRUE}
+>>>>>>> e23f354d8d045eac048e095619310fc472e00f85
 #formulas = "~x"
 res_2_glm <- IHWForestPaper::adapt_mtp(
   Ps = pvals_bmi,
@@ -168,6 +177,8 @@ res_2_glm <- IHWForestPaper::adapt_mtp(
 #sum(res_2_glm)
 ```
 
+<<<<<<< HEAD
+=======
 ```{r res_3_gam, cache=TRUE, eval = TRUE, include=TRUE}
 res_3_gam <- adapt_gam(x = x_bmi, pvals = pvals_bmi, pi_formulas = formulas,
                  mu_formulas = formulas, nfits = nfits, alphas =alpha)
@@ -178,6 +189,7 @@ for (i in seq_along(alpha)) {
 }
 ```
 
+>>>>>>> e23f354d8d045eac048e095619310fc472e00f85
 ## Data set 2
 
 ```{r res_4_glm, cache=TRUE}

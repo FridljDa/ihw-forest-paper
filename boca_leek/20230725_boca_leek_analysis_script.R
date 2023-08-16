@@ -129,7 +129,6 @@ result <- eval_sim_parallel(simulation_list,
                               null_proportion = TRUE,
                               folds = folds,
                               parallel = FALSE)
-  
 
 
 ## ---- eval=TRUE-------------------------------------------------------------
