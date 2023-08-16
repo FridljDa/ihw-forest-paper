@@ -4,7 +4,7 @@
 \alias{create_formula}
 \title{Create a formula from a data frame}
 \usage{
-create_formula(Xs)
+create_formula(Xs, ns_knots = FALSE)
 }
 \arguments{
 \item{Xs}{A data frame whose column names will be used to create the formula.}

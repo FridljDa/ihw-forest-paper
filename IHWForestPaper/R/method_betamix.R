@@ -61,10 +61,9 @@ betamix_oracle_lfdr <- function(Ps, pi1s, mu_alphas, alpha){
                         alpha)
 }
 
-
-#' Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
-#' from https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76
-#'
+#' Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithm
+#' @seealso \url{https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76}
+#' \url{https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/betamix_simulations_functions.R#L32}
 #' @param Ps     Numeric vector of unadjusted p-values.
 #' @param Xs     Data frame with features
 #' @param alpha  Significance level at which to apply method
@@ -72,11 +71,20 @@ betamix_oracle_lfdr <- function(Ps, pi1s, mu_alphas, alpha){
 #'
 #' @return Binary vector of rejected/non-rejected hypotheses.
 #' @export
-betamix_datadriven_lfdr <- function(Ps, Xs, alpha, maxiter=200,...){
+#' @examples
+#' # Generate some example data
+#' save.seed <- .Random.seed; set.seed(1)
+#' X   <- runif(20000, min=0, max=2.5)   # covariate
+#' H   <- rbinom(20000,1,0.1)            # hypothesis true or false
+#' Z   <- rnorm(20000, H*X)              # Z-score
+#' .Random.seed <- save.seed
+#' pvalue <- 1-pnorm(Z) 
+#' # Run the Betamix data-driven LFDR procedure
+#' rejections <- betamix_datadriven_lfdr(pvalue, X, alpha = 0.05, maxiter = 200)
+betamix_datadriven_lfdr <- function(Ps, Xs, alpha, maxiter=200, tau_pi0=0.5,...){
   Xs <- as.data.frame(Xs)
   formula_rhs <- create_formula(Xs)
-  
-  gamma_glm_fit  <- gamma_glm_basic_em(Ps, Xs, formula_rhs=formula_rhs, maxiter = maxiter, tau_pi0=0.5,...)
+  gamma_glm_fit  <- gamma_glm_basic_em(Ps, Xs, formula_rhs=formula_rhs, maxiter = maxiter, tau_pi0=tau_pi0,...)
   betamix_oracle_lfdr(Ps, gamma_glm_fit$pi1s, gamma_glm_fit$alphas, alpha)
 }
 

@@ -19,7 +19,7 @@ flexible_prop_alt_sim(
   \item{kappa}{A vector specifying the mixing parameter for generating alternative proportions.}
 }}
 
-\item{prop_alt_function_creator}{A function that creates alternative proportion functions, default is 'discrete_prop_alt_creator'.}
+\item{prop_alt_function_creator}{\pi_0(X_i) A function that creates alternative proportion functions, default is 'discrete_prop_alt_creator'.}
 
 \item{prop_alt_function_name}{A string naming the proportion alternative function creator, default is "discrete_prop_alt_creator".}
 

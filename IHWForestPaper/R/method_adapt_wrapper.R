@@ -80,7 +80,7 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
   rejections
 }
 
-#devtools::load_all(""IHWForestPaper/adaptMT")
+#devtools::load_all("IHWForestPaper/adaptMT")
 #' Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
 #' @importFrom adaptMT adapt_xgboost
 #' @param Ps   Numeric vector of unadjusted p-values.

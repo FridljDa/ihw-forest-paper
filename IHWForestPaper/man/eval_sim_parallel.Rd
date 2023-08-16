@@ -11,7 +11,8 @@ eval_sim_parallel(
   forest_par = NULL,
   null_proportion = TRUE,
   folds = NULL,
-  parallel = TRUE
+  parallel = TRUE,
+  silent = FALSE
 )
 }
 \arguments{

@@ -13,7 +13,8 @@ run_sim(
   forest_par = NULL,
   null_proportion = T,
   methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"),
-  folds = NULL
+  folds = NULL,
+  silent = FALSE
 )
 }
 \arguments{

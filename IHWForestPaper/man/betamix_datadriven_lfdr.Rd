@@ -2,10 +2,9 @@
 % Please edit documentation in R/method_betamix.R
 \name{betamix_datadriven_lfdr}
 \alias{betamix_datadriven_lfdr}
-\title{Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
-from https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76}
+\title{Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithm}
 \usage{
-betamix_datadriven_lfdr(Ps, Xs, alpha, maxiter = 200, ...)
+betamix_datadriven_lfdr(Ps, Xs, alpha, maxiter = 200, tau_pi0 = 0.5, ...)
 }
 \arguments{
 \item{Ps}{Numeric vector of unadjusted p-values.}
@@ -20,6 +19,20 @@ betamix_datadriven_lfdr(Ps, Xs, alpha, maxiter = 200, ...)
 Binary vector of rejected/non-rejected hypotheses.
 }
 \description{
-Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithml
-from https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76
+Local false discovery rate procedure with local fdrs estimated from the Betamix-model through the EM algorithm
+}
+\examples{
+# Generate some example data
+save.seed <- .Random.seed; set.seed(1)
+X   <- runif(20000, min=0, max=2.5)   # covariate
+H   <- rbinom(20000,1,0.1)            # hypothesis true or false
+Z   <- rnorm(20000, H*X)              # Z-score
+.Random.seed <- save.seed
+pvalue <- 1-pnorm(Z) 
+# Run the Betamix data-driven LFDR procedure
+rejections <- betamix_datadriven_lfdr(pvalue, X, alpha = 0.05, maxiter = 200)
+}
+\seealso{
+\url{https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/40d485f972fd2c03b371b98d3cad3d7f1a48520c/IHWStatsPaper/R/betamix.R#L76}
+\url{https://github.com/Huber-group-EMBL/covariate-powered-cross-weighted-multiple-testing/blob/master/IHWStatsPaper/R/betamix_simulations_functions.R#L32}
 }
