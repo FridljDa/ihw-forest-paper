@@ -141,6 +141,12 @@ eval_sim_parallel <- function(simulation_list,
     stop("All simulations in simulation_list must contain the following items: ", paste(required_items, collapse = ", "))
   }
   
+  # use sapply to get a logical vector indicating whether each element has length 1
+  is_single_double <- sapply(simulation_list[[1]], function(x) is.numeric(x) && length(x) == 1)
+  
+  # use this logical vector to subset the names of the list
+  context_information <- names(simulation_list[[1]])[is_single_double]
+  
   # Function to apply for each simulation
   eval_function <- function(i) {
     cat(paste0("simulation run:", i, "/", length(simulation_list), "\n"))
@@ -172,12 +178,6 @@ eval_sim_parallel <- function(simulation_list,
     
     return(sim_res_i)
   }
-  
-  # use sapply to get a logical vector indicating whether each element has length 1
-  is_single_double <- sapply(simulation_list[[1]], function(x) is.numeric(x) && length(x) == 1)
-  
-  # use this logical vector to subset the names of the list
-  context_information <- names(simulation_list[[1]])[is_single_double]
   
   # Determine if the computation should be run in parallel
   if (parallel) {

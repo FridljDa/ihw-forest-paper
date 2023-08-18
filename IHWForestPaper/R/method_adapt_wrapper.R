@@ -97,12 +97,13 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
 #'
 adapt_xgboost_wrapper <- function(Ps, 
                                   Xs, 
-                                  alpha = 0.1) {
+                                  alpha = 0.1,
+                                  nfits = 5) {
 
   res <- adapt_xgboost(as.matrix(Xs), 
                        Ps, 
                        alphas = alpha, 
-                       nfits = 5)
+                       nfits = nfits)
   
   
   rejection_position <- res[["rejs"]]
