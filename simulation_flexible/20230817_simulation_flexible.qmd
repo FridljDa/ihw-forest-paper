@@ -44,7 +44,7 @@ $$
    \int_{[-0.5,0.5]^d}\pi_1(x)dx&=s\lambda^{d_1+d_2}\left(B_p^{d_1}(r)\times [-0.5,0.5]^{(d_2)}\right)
    \\&=s\lambda^{d_1}(B_p^{d_1}(r))\times \lambda^{d_2}\left([-0.5,0.5]^{(d_2)}\right)
    \\&=s\lambda^{d_1}(B_p^{d_1}(r))
-   \\&=s\lambda^{d_1}f(p,d_1, r)
+   \\&=s f(p,d_1, r)
    \\&=s\cdot \lambda^{d_1} \frac{2^{d_1} \cdot \Gamma\left(\frac{1}{p} + 1\right)^{d_1} \cdot r^{d_1}}{\Gamma\left(\frac{d_1}{p} + 1\right)}.
 \end{aligned}
 $$
@@ -80,8 +80,8 @@ simulation_evaluated <- simulation_evaluated %>%
 simulation_evaluated %>%
   ggplot(aes(x = target_average_alt_prob, y = 1 - pi0s)) +
   geom_point() +
-  xlim(0,0.5) +
-  ylim(0,0.5) +
+  #xlim(0,0.5) +
+  #ylim(0,0.5) +
   geom_abline(intercept = 0, slope = 1, linetype="dashed", color="red") 
   
 ```
@@ -165,7 +165,6 @@ shape of ball with signal (konkav, konvex)
 
 ```{r}
 simulation_evaluated %>%
-  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 &  target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
-         ) %>%
+  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 &  target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8) %>%
   plot_fdr_power(group_by_dimension = "lp_norm", log_trans = FALSE)
 ```

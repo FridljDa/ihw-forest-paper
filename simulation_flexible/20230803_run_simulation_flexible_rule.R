@@ -39,18 +39,21 @@ if (dry_run) {
   
   methods <- c("BH", "AdaPT") #"IHW-quantile", "IHW-forest", , "Boca-Leek", "Clfdr-EM"
 } else {
-  dimensions <- seq(from = 1, to = 5, by = 1)
+  dimensions <- seq(from = 1, to = 10, by = 1)
   m <- c(1000)
   r <- 50
   seed = seq_len(r)
   #ndim = dimensions
   signal_strength = 0.8#seq(0.8, 0.2, length.out = 5) #
   lp_norm = c(1,2,0.5)
-  target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
+  target_average_alt_prob = c(0.1, 0.2, 0.3)
+  #target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
   beta_shape1 = 0.25#seq(0.25, 0.1, length.out = 5)#0.25 #seq(0.25, 0.1, length.out = 5)
-  kappa = seq(0, 0.1, length.out = 5)#0#seq(0, 0.1, length.out = 5)
+  #kappa = seq(0, 0.1, length.out = 5)#0#seq(0, 0.1, length.out = 5)
+  kappa = c(0, 0.1)
   alpha = 0.1
-  ndim <- seq(from = 1, to = 5, by = 1)#dimensions#c(1,2,3)#1#
+  ndim <- 1
+  #ndim <- seq(from = 1, to = 5, by = 1)#dimensions#c(1,2,3)#1#
   
   methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM", "AdaPT-xgboost")
 }
@@ -62,20 +65,26 @@ cat("\n")
 list_of_parameters <- list(
   dimensions = dimensions,
   m = m, 
-  kappa = kappa,
   #ndim = ndim,
   signal_strength = signal_strength,
   lp_norm = lp_norm,
-  target_average_alt_prob = target_average_alt_prob,
+  #target_average_alt_prob = target_average_alt_prob,
   beta_shape1 = beta_shape1,
   alpha = alpha
 )
 
-sim_parameters <- create_dataframe(list_of_parameters)
+sim_parameters <- list_of_parameters %>% 
+  create_dataframe()
 
 sim_parameters <- sim_parameters %>% 
-  merge(data.frame(seed = seed)) %>% 
-  merge(data.frame(ndim = ndim)) %>%
+  merge(
+    expand.grid(
+      seed = seed,
+      kappa = kappa,
+      ndim = ndim,
+      target_average_alt_prob = target_average_alt_prob
+    )
+  ) %>% 
   filter(ndim <= dimensions)
 
 cat(timestamp(),"\n")
