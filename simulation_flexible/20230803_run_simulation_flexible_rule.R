@@ -39,7 +39,7 @@ if (dry_run) {
   
   methods <- c("BH", "AdaPT") #"IHW-quantile", "IHW-forest", , "Boca-Leek", "Clfdr-EM"
 } else {
-  dimensions <- seq(from = 1, to = 10, by = 1)
+  dimensions <- seq(from = 1, to = 5, by = 1)
   m <- c(1000)
   r <- 50
   seed = seq_len(r)
