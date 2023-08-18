@@ -12,7 +12,8 @@ eval_sim_parallel(
   null_proportion = TRUE,
   folds = NULL,
   parallel = TRUE,
-  silent = FALSE
+  silent = FALSE,
+  per_covariate_bins = 5
 )
 }
 \arguments{

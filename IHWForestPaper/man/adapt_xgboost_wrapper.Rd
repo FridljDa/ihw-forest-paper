@@ -4,7 +4,7 @@
 \alias{adapt_xgboost_wrapper}
 \title{Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")}
 \usage{
-adapt_xgboost_wrapper(Ps, Xs, alpha = 0.1)
+adapt_xgboost_wrapper(Ps, Xs, alpha = 0.1, nfits = 5)
 }
 \arguments{
 \item{Ps}{Numeric vector of unadjusted p-values.}
@@ -20,9 +20,9 @@ Binary vector of rejected/non-rejected hypotheses.
 Wrapper for AdaPT Wrapper devtools::install_github("ryurko/adaptMT")
 }
 \examples{
-Xs <- runif(20000, min=0, max=2.5) # covariate
-Hs <- rbinom(20000,1,0.1) # hypothesis true or false
-Zs <- rnorm(20000, Xs*Hs) # Z-score
+Xs <- runif(2000, min=0, max=2.5) # covariate
+Hs <- rbinom(2000,1,0.1) # hypothesis true or false
+Zs <- rnorm(2000, Xs*Hs) # Z-score
 Ps <- 1-pnorm(Zs) # pvalue
 adapt_xgboost_wrapper(Ps, Xs)
 

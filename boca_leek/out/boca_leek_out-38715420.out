@@ -1,0 +1,129 @@
+WARNING: ignoring environment value of R_HOME
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.
+[1] "Freq_MAF_Hapmap"                                                                                         
+[2] "Freq_MAF_Hapmap + N"                                                                                     
+[3] "Freq_MAF_Hapmap + N + minor_allele_freq"                                                                 
+[4] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1"                                                    
+[5] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2"                                       
+[6] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3"                          
+[7] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4"             
+[8] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4 + covariate5"
+parameters_run
+      summands number_covariates alphas
+1 Freq_MAF....                 1   0.01
+2 Freq_MAF....                 2   0.01
+3 Freq_MAF....                 3   0.01
+4 Freq_MAF....                 4   0.01
+5 Freq_MAF....                 5   0.01
+6 Freq_MAF....                 6   0.01
+
+56simulation run:1/56
+simulation run:2/56
+simulation run:3/56
+simulation run:4/56
+simulation run:5/56
+simulation run:6/56
+simulation run:7/56
+simulation run:8/56
+simulation run:9/56
+simulation run:10/56
+simulation run:11/56
+simulation run:12/56
+simulation run:13/56
+simulation run:14/56
+simulation run:15/56
+simulation run:16/56
+simulation run:17/56
+simulation run:18/56
+simulation run:19/56
+simulation run:20/56
+simulation run:21/56
+simulation run:22/56
+simulation run:23/56
+simulation run:24/56
+simulation run:25/56
+simulation run:26/56
+simulation run:27/56
+simulation run:28/56
+simulation run:29/56
+simulation run:30/56
+simulation run:31/56
+simulation run:32/56
+simulation run:33/56
+simulation run:34/56
+simulation run:35/56
+simulation run:36/56
+simulation run:37/56
+simulation run:38/56
+simulation run:39/56
+simulation run:40/56
+simulation run:41/56
+simulation run:42/56
+simulation run:43/56
+simulation run:44/56
+simulation run:45/56
+simulation run:46/56
+simulation run:47/56
+simulation run:48/56
+simulation run:49/56
+simulation run:50/56
+simulation run:51/56
+simulation run:52/56
+simulation run:53/56
+simulation run:54/56
+simulation run:55/56
+simulation run:56/56
+Ran IHW-quantile. Time taken: 193.913 seconds
+Ran IHW-quantile. Time taken: 197.931 seconds
+Ran IHW-quantile. Time taken: 193.767 seconds
+Ran BH. Time taken: 0.446 seconds
+Ran BH. Time taken: 0.219 seconds
+Ran IHW-quantile. Time taken: 198.088 seconds
+Ran BH. Time taken: 0.41 seconds
+Ran IHW-quantile. Time taken: 205.438 seconds
+Ran BH. Time taken: 0.457 seconds
+Ran BH. Time taken: 0.36 seconds
+Ran IHW-quantile. Time taken: 262.967 seconds
+Ran IHW-quantile. Time taken: 258.398 seconds
+Ran BH. Time taken: 0.262 seconds
+Ran IHW-quantile. Time taken: 248.101 seconds
+Ran BH. Time taken: 0.314 seconds
+Ran IHW-quantile. Time taken: 248.608 seconds
+Ran BH. Time taken: 0.359 seconds
+Ran BH. Time taken: 0.257 seconds
+Ran IHW-quantile. Time taken: 261.094 seconds
+Ran BH. Time taken: 0.26 seconds
+Ran IHW-quantile. Time taken: 286.869 seconds
+Ran IHW-quantile. Time taken: 278.894 seconds
+Ran BH. Time taken: 0.3 seconds
+Ran BH. Time taken: 0.258 seconds
+Ran IHW-quantile. Time taken: 303.764 seconds
+Ran IHW-quantile. Time taken: 301.898 seconds
+Ran BH. Time taken: 0.205 seconds
+Ran BH. Time taken: 0.288 seconds
+Ran IHW-quantile. Time taken: 301.533 seconds
+Ran BH. Time taken: 0.407 seconds
+alpha = 0.4: FDPhat 0.4, Number of Rej. 9198
+Task completed!
+Ran AdaPT. Time taken: 1978.633 seconds
+Ran Boca-Leek. Time taken: 34.059 seconds
+Ran Clfdr-EM. Time taken: 1.327 seconds
+Ran AdaPT. Time taken: 2073.688 seconds
+alpha = 0.1: FDPhat 0.0965, Number of Rej. 228
+Task completed!
+Ran AdaPT. Time taken: 2027.465 seconds
+alpha = 0.2: FDPhat 0.1965, Number of Rej. 229
+Task completed!
+Ran AdaPT. Time taken: 2031.934 seconds
+Ran Boca-Leek. Time taken: 31.083 seconds
+Ran Clfdr-EM. Time taken: 1.18 seconds
+Ran Boca-Leek. Time taken: 32.621 seconds
+Ran Boca-Leek. Time taken: 33.37 seconds
+Ran Clfdr-EM. Time taken: 0.796 seconds
+Ran Clfdr-EM. Time taken: 0.95 seconds
+alpha = 0.2: FDPhat 0.1982, Number of Rej. 227
+Task completed!
+Ran AdaPT. Time taken: 2102.44 seconds
+Ran Boca-Leek. Time taken: 26.401 seconds
+Ran Clfdr-EM. Time taken: 0.906 seconds

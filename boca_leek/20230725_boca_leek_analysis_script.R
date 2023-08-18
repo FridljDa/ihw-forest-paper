@@ -64,14 +64,15 @@ parameters_run <- data.frame(
 )
 
 parameters_run <- parameters_run %>%
-  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4)))
-
+  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2)))
+#, 0.3, 0.4
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
 
 methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek", "AdaPT-xgboost")
+methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
 
-dry_run <- FALSE
+dry_run <- TRUE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
   BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
@@ -92,7 +93,7 @@ if (dry_run) {
   methods = c("IHW-forest", "AdaPT-xgboost")
   parallel = FALSE
 }else{
-  parallel = TRUE
+  parallel = FALSE
 }
 
 cat("parameters_run\n")
@@ -134,8 +135,10 @@ result <- eval_sim_parallel(simulation_list,
                               methods = methods,
                               null_proportion = TRUE,
                               folds = folds,
-                              parallel = parallel)
+                              parallel = parallel,
+                              per_covariate_bins = 10)
 
 
 ## ---- eval=TRUE-------------------------------------------------------------
-saveRDS(result, paste0("boca_leek/data/", Sys.Date(), "_boca_leek_analysis_adapt_ihw_forest.RDS"))
+#_adapt_ihw_forest
+saveRDS(result, paste0("boca_leek/data/", Sys.Date(), "_boca_leek_analysis.RDS"))

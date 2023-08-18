@@ -1,0 +1,16 @@
+WARNING: ignoring environment value of R_HOME
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.
+[1]	train-logloss:0.233376 
+[2]	train-logloss:0.136658 
+[1] TRUE
+[1] TRUE
+[1] "xgb.DMatrix"
+[1] 1 0 0 1 0 0
+[1] TRUE
+[20:16:11] 6513x126 matrix with 143286 entries loaded from xgb.DMatrix
+[1]	eval-MSE:1.592293	train-MSE:1.595967 
+[2]	eval-MSE:2.405194	train-MSE:2.409772 
+[1] TRUE
+[1] TRUE
+[1] TRUE

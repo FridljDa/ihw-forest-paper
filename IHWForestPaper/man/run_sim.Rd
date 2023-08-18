@@ -14,7 +14,9 @@ run_sim(
   null_proportion = T,
   methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"),
   folds = NULL,
-  silent = FALSE
+  silent = FALSE,
+  per_covariate_bins = 5,
+  ...
 )
 }
 \arguments{

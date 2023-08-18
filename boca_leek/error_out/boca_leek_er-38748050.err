@@ -1,0 +1,53 @@
+here() starts at /g/huber/users/fridljand/R/ihw-forest-paper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+ℹ Loading IHWForestPaper
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results. Consider to decrease nodedepth or increase nodesize.
+Error in `map()` at ]8;line = 68:col = 2;file:///tmp/Rtmpz9TDBY/R.INSTALL1562232c84b38/purrr/R/superseded-map-df.Rpurrr/R/superseded-map-df.R:68:2]8;;:
+ℹ In index: 1.
+Caused by error in `mutate()` at ]8;line = 91:col = 2;file:///tmp/Rtmp9Gfe3d/R.INSTALL1192ef2ae02b77/rlang/R/dots.Rrlang/R/dots.R:91:2]8;;:
+ℹ In argument: `time_taken = time_taken`.
+Caused by error:
+! `time_taken` must be size 1, not 5.
+Backtrace:
+     ▆
+  1. ├─IHWForestPaper::eval_sim_parallel(...)
+  2. │ └─purrr::map_dfr(seq_along(simulation_list), eval_function) at ]8;line = 196:col = 4;file:///g/huber/users/fridljand/R/ihw-forest-paper/IHWForestPaper/R/evaluation.RIHWForestPaper/R/evaluation.R:196:4]8;;
+  3. │   └─purrr::map(.x, .f, ...) at ]8;line = 68:col = 2;file:///tmp/Rtmpz9TDBY/R.INSTALL1562232c84b38/purrr/R/superseded-map-df.Rpurrr/R/superseded-map-df.R:68:2]8;;
+  4. │     └─purrr:::map_("list", .x, .f, ..., .progress = .progress) at ]8;line = 129:col = 2;file:///tmp/Rtmpz9TDBY/R.INSTALL1562232c84b38/purrr/R/map.Rpurrr/R/map.R:129:2]8;;
+  5. │       ├─purrr:::with_indexed_errors(...) at ]8;line = 174:col = 2;file:///tmp/Rtmpz9TDBY/R.INSTALL1562232c84b38/purrr/R/map.Rpurrr/R/map.R:174:2]8;;
+  6. │       │ └─base::withCallingHandlers(...) at ]8;line = 201:col = 2;file:///tmp/Rtmpz9TDBY/R.INSTALL1562232c84b38/purrr/R/map.Rpurrr/R/map.R:201:2]8;;
+  7. │       ├─purrr:::call_with_cleanup(...) at ]8;line = 174:col = 2;file:///tmp/Rtmpz9TDBY/R.INSTALL1562232c84b38/purrr/R/map.Rpurrr/R/map.R:174:2]8;;
+  8. │       └─IHWForestPaper (local) .f(.x[[i]], ...)
+  9. │         └─IHWForestPaper::run_sim(...) at ]8;line = 164:col = 4;file:///g/huber/users/fridljand/R/ihw-forest-paper/IHWForestPaper/R/evaluation.RIHWForestPaper/R/evaluation.R:164:4]8;;
+ 10. │           ├─dplyr::bind_rows(...) at ]8;line = 51:col = 4;file:///g/huber/users/fridljand/R/ihw-forest-paper/IHWForestPaper/R/evaluation.RIHWForestPaper/R/evaluation.R:51:4]8;;
+ 11. │           │ └─rlang::list2(...) at ]8;line = 31:col = 2;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/bind-rows.Rdplyr/R/bind-rows.R:31:2]8;;
+ 12. │           ├─dplyr::mutate(ihw_forest_res, method = "IHW-forest", time_taken = time_taken) at ]8;line = 91:col = 2;file:///tmp/Rtmp9Gfe3d/R.INSTALL1192ef2ae02b77/rlang/R/dots.Rrlang/R/dots.R:91:2]8;;
+ 13. │           └─dplyr:::mutate.data.frame(ihw_forest_res, method = "IHW-forest", time_taken = time_taken) at ]8;line = 146:col = 2;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/mutate.Rdplyr/R/mutate.R:146:2]8;;
+ 14. │             └─dplyr:::mutate_cols(.data, dplyr_quosures(...), by) at ]8;line = 181:col = 2;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/mutate.Rdplyr/R/mutate.R:181:2]8;;
+ 15. │               ├─base::withCallingHandlers(...) at ]8;line = 268:col = 2;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/mutate.Rdplyr/R/mutate.R:268:2]8;;
+ 16. │               └─dplyr:::mutate_col(dots[[i]], data, mask, new_columns) at ]8;line = 273:col = 6;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/mutate.Rdplyr/R/mutate.R:273:6]8;;
+ 17. │                 └─mask$eval_all_mutate(quo) at ]8;line = 380:col = 8;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/mutate.Rdplyr/R/mutate.R:380:8]8;;
+ 18. │                   └─dplyr (local) eval() at ]8;line = 94:col = 6;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/data-mask.Rdplyr/R/data-mask.R:94:6]8;;
+ 19. ├─dplyr:::dplyr_internal_error(...)
+ 20. │ └─rlang::abort(class = c(class, "dplyr:::internal_error"), dplyr_error_data = data) at ]8;line = 194:col = 2;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/conditions.Rdplyr/R/conditions.R:194:2]8;;
+ 21. │   └─rlang:::signal_abort(cnd, .file) at ]8;line = 379:col = 2;file:///tmp/Rtmp9Gfe3d/R.INSTALL1192ef2ae02b77/rlang/R/cnd-abort.Rrlang/R/cnd-abort.R:379:2]8;;
+ 22. │     └─base::signalCondition(cnd) at ]8;line = 850:col = 4;file:///tmp/Rtmp9Gfe3d/R.INSTALL1192ef2ae02b77/rlang/R/cnd-abort.Rrlang/R/cnd-abort.R:850:4]8;;
+ 23. └─dplyr (local) `<fn>`(`<dpl:::__>`)
+ 24.   └─rlang::abort(message, class = error_class, parent = parent, call = error_call) at ]8;line = 235:col = 4;file:///tmp/RtmpnUudJe/R.INSTALL12dd6f9c571f3/dplyr/R/conditions.Rdplyr/R/conditions.R:235:4]8;;
+Execution halted

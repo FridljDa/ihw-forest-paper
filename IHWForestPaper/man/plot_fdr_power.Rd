@@ -8,7 +8,8 @@ plot_fdr_power(
   sim_res,
   group_by_dimension = "length",
   alpha = 0.1,
-  log_trans = TRUE
+  log_trans = TRUE,
+  silent = TRUE
 )
 }
 \arguments{

@@ -20,7 +20,10 @@
 #' pvalue <- 1 - pnorm(Z) # pvalue
 #' run_sim(pvalue, X, H, 1)
 #' @export
-run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NULL, null_proportion = T, methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"), folds = NULL, silent = FALSE) {
+run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, 
+                    alpha = 0.1, forest_par = NULL, null_proportion = T, 
+                    methods = c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"), 
+                    folds = NULL, silent = FALSE, per_covariate_bins = 5, ...) {
   valid_methods <- c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM", "AdaPT-xgboost")
   invalid_methods <- setdiff(methods, valid_methods)
 
@@ -35,17 +38,17 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
 
   if ("IHW-quantile" %in% methods) {
     time_taken <- system.time({
-      ihw_quantile_res <- fdp_eval_error_wrapper(Hs, ihw_quantile_wrapper(Ps, Xs, alpha, null_proportion = null_proportion, folds = folds))
+      ihw_quantile_res <- fdp_eval_error_wrapper(Hs, ihw_quantile_wrapper(Ps, Xs, alpha, null_proportion = null_proportion, folds = folds, per_covariate_bins = per_covariate_bins, ...))
     })
-    sim_res <- bind_rows(sim_res, mutate(ihw_quantile_res, method = "IHW-quantile"))
+    sim_res <- bind_rows(sim_res, mutate(ihw_quantile_res, method = "IHW-quantile", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran IHW-quantile. Time taken:", time_taken["elapsed"], "seconds\n")
   }
 
   if ("IHW-forest" %in% methods) {
     time_taken <- system.time({
-      ihw_forest_res <- fdp_eval_error_wrapper(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion, drop_inbag = FALSE, folds = folds))
+      ihw_forest_res <- fdp_eval_error_wrapper(Hs, ihw_forest_wrapper(Ps, Xs, alpha, forest_par, null_proportion = null_proportion, drop_inbag = FALSE, folds = folds, ...))
     })
-    sim_res <- bind_rows(sim_res, mutate(ihw_forest_res, method = "IHW-forest"))
+    sim_res <- bind_rows(sim_res, mutate(ihw_forest_res, method = "IHW-forest", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran IHW-forest. Time taken:", time_taken["elapsed"], "seconds\n")
   }
   
@@ -53,7 +56,7 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
     time_taken <- system.time({
       bh_res <- fdp_eval(Hs, p.adjust(Ps, method = "BH") <= alpha)
     })
-    sim_res <- bind_rows(sim_res, mutate(bh_res, method = "BH"))
+    sim_res <- bind_rows(sim_res, mutate(bh_res, method = "BH", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran BH. Time taken:", time_taken["elapsed"], "seconds\n")
   }
   
@@ -61,7 +64,7 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
     time_taken <- system.time({
       adapt_res <- fdp_eval_error_wrapper(Hs, adapt_mtp(Ps, Xs, alpha))
     })
-    sim_res <- bind_rows(sim_res, mutate(adapt_res, method = "AdaPT"))
+    sim_res <- bind_rows(sim_res, mutate(adapt_res, method = "AdaPT", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran AdaPT. Time taken:", time_taken["elapsed"], "seconds\n")
   }
   
@@ -69,7 +72,7 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
     time_taken <- system.time({
       boca_leek_res <- fdp_eval_error_wrapper(Hs, boca_leek_wrapper(Ps, as.data.frame(Xs), alpha))
     })
-    sim_res <- bind_rows(sim_res, mutate(boca_leek_res, method = "Boca-Leek"))
+    sim_res <- bind_rows(sim_res, mutate(boca_leek_res, method = "Boca-Leek", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran Boca-Leek. Time taken:", time_taken["elapsed"], "seconds\n")
   }
   
@@ -77,7 +80,7 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
     time_taken <- system.time({
       lfdr_em_res <- fdp_eval_error_wrapper(Hs, betamix_datadriven_lfdr(Ps, as.data.frame(Xs), alpha))
     })
-    sim_res <- bind_rows(sim_res, mutate(lfdr_em_res, method = "Clfdr-EM"))
+    sim_res <- bind_rows(sim_res, mutate(lfdr_em_res, method = "Clfdr-EM", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran Clfdr-EM. Time taken:", time_taken["elapsed"], "seconds\n")
   }
   
@@ -85,7 +88,7 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
     time_taken <- system.time({
       adapt_xgboost_res <- fdp_eval_error_wrapper(Hs, adapt_xgboost_wrapper(Ps, Xs))
     })
-    sim_res <- bind_rows(sim_res, mutate(adapt_xgboost_res, method = "AdaPT-xgboost"))
+    sim_res <- bind_rows(sim_res, mutate(adapt_xgboost_res, method = "AdaPT-xgboost", time_taken = time_taken["elapsed"]))
     if(!silent) cat("Ran AdaPT-xgboost. Time taken:", time_taken["elapsed"], "seconds\n")
   }
 
@@ -127,14 +130,15 @@ run_sim <- function(Ps, Xs, Hs = NULL, seed = NULL, alpha = 0.1, forest_par = NU
 #'   list(seed = 12345, pvalue = c(0.05, 0.10, 0.20), covariate = c(1.2, 3.4, 5.6), Hs = c(TRUE, FALSE, TRUE), alpha = 0.05),
 #'   list(seed = 67890, pvalue = c(0.01, 0.03, 0.05), covariate = c(2.3, 4.5, 6.7), Hs = c(FALSE, FALSE, TRUE), alpha = 0.1)
 #' )
-#' results <- eval_sim_parallel(simulation_list = sim_list, context_information = c("info1", "info2"))
+#' results <- eval_sim_parallel(simulation_list = sim_list)
 eval_sim_parallel <- function(simulation_list,
                               methods = c("IHW-quantile", "IHW-forest", "IHW-forest-drop-inbag", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM"),
                               forest_par = NULL,
                               null_proportion = TRUE,
                               folds = NULL,
                               parallel = TRUE,
-                              silent = FALSE) {
+                              silent = FALSE, 
+                              per_covariate_bins = 5) {
   
   required_items <- c("seed", "pvalue", "covariate", "Hs", "alpha")
   if (any(sapply(simulation_list, function(sim) !all(required_items %in% names(sim))))) {
@@ -166,7 +170,8 @@ eval_sim_parallel <- function(simulation_list,
                          null_proportion = null_proportion,
                          methods = methods,
                          folds = folds,
-                         silent = silent
+                         silent = silent,
+                         per_covariate_bins = per_covariate_bins
     )
     
     # Add context information to sim_res_i

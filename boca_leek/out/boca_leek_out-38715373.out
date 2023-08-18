@@ -1,0 +1,145 @@
+WARNING: ignoring environment value of R_HOME
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.
+[1] "Freq_MAF_Hapmap"                                                                                         
+[2] "Freq_MAF_Hapmap + N"                                                                                     
+[3] "Freq_MAF_Hapmap + N + minor_allele_freq"                                                                 
+[4] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1"                                                    
+[5] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2"                                       
+[6] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3"                          
+[7] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4"             
+[8] "Freq_MAF_Hapmap + N + minor_allele_freq + covariate1 + covariate2 + covariate3 + covariate4 + covariate5"
+parameters_run
+      summands number_covariates alphas
+1 Freq_MAF....                 1   0.01
+2 Freq_MAF....                 2   0.01
+3 Freq_MAF....                 3   0.01
+4 Freq_MAF....                 4   0.01
+5 Freq_MAF....                 5   0.01
+6 Freq_MAF....                 6   0.01
+
+56simulation run:1/56
+simulation run:2/56
+simulation run:3/56
+simulation run:4/56
+simulation run:5/56
+simulation run:6/56
+simulation run:7/56
+simulation run:8/56
+simulation run:9/56
+simulation run:10/56
+simulation run:11/56
+simulation run:12/56
+simulation run:13/56
+simulation run:14/56
+simulation run:15/56
+simulation run:16/56
+simulation run:17/56
+simulation run:18/56
+simulation run:19/56
+simulation run:20/56
+simulation run:21/56
+simulation run:22/56
+simulation run:23/56
+simulation run:24/56
+simulation run:25/56
+simulation run:26/56
+simulation run:27/56
+simulation run:28/56
+simulation run:29/56
+simulation run:30/56
+simulation run:31/56
+simulation run:32/56
+simulation run:33/56
+simulation run:34/56
+simulation run:35/56
+simulation run:36/56
+simulation run:37/56
+simulation run:38/56
+simulation run:39/56
+simulation run:40/56
+simulation run:41/56
+simulation run:42/56
+simulation run:43/56
+simulation run:44/56
+simulation run:45/56
+simulation run:46/56
+simulation run:47/56
+simulation run:48/56
+simulation run:49/56
+simulation run:50/56
+simulation run:51/56
+simulation run:52/56
+simulation run:53/56
+simulation run:54/56
+simulation run:55/56
+simulation run:56/56
+Ran IHW-quantile. Time taken: 382.056 seconds
+Ran IHW-quantile. Time taken: 392.541 seconds
+Ran IHW-quantile. Time taken: 385.461 seconds
+Ran IHW-quantile. Time taken: 377.499 seconds
+Ran IHW-quantile. Time taken: 377.459 seconds
+Ran IHW-quantile. Time taken: 392.875 seconds
+Ran IHW-quantile. Time taken: 385.583 seconds
+Ran IHW-quantile. Time taken: 381.207 seconds
+Ran IHW-quantile. Time taken: 377.554 seconds
+Ran IHW-quantile. Time taken: 382.524 seconds
+Ran IHW-quantile. Time taken: 392.957 seconds
+Ran IHW-quantile. Time taken: 384.027 seconds
+Ran IHW-quantile. Time taken: 387.243 seconds
+Ran IHW-quantile. Time taken: 384.142 seconds
+Ran IHW-quantile. Time taken: 394.336 seconds
+Ran IHW-quantile. Time taken: 400.779 seconds
+Ran IHW-quantile. Time taken: 394.358 seconds
+Ran IHW-quantile. Time taken: 375.224 seconds
+Ran IHW-quantile. Time taken: 376.002 seconds
+Ran IHW-forest. Time taken: 150.838 seconds
+Ran IHW-forest. Time taken: 151.257 seconds
+Ran BH. Time taken: 0.206 seconds
+Ran BH. Time taken: 0.19 seconds
+Ran IHW-forest. Time taken: 154.064 seconds
+Ran BH. Time taken: 0.193 seconds
+Ran IHW-forest. Time taken: 156.101 seconds
+Ran IHW-forest. Time taken: 157.366 seconds
+Ran BH. Time taken: 0.218 seconds
+Ran BH. Time taken: 0.246 seconds
+Ran IHW-forest. Time taken: 158.974 seconds
+Ran IHW-forest. Time taken: 159.942 seconds
+Ran IHW-forest. Time taken: 159.663 seconds
+Ran BH. Time taken: 0.267 seconds
+Ran BH. Time taken: 0.193 seconds
+Ran IHW-forest. Time taken: 161.585 seconds
+Ran BH. Time taken: 0.274 seconds
+Ran IHW-forest. Time taken: 161.972 seconds
+Ran BH. Time taken: 0.374 seconds
+Ran IHW-forest. Time taken: 163.717 seconds
+Ran BH. Time taken: 0.273 seconds
+Ran BH. Time taken: 0.16 seconds
+Ran IHW-forest. Time taken: 168.732 seconds
+Ran BH. Time taken: 0.278 seconds
+Ran IHW-forest. Time taken: 179.622 seconds
+Ran BH. Time taken: 0.252 seconds
+alpha = 0.4: FDPhat 0.4, Number of Rej. 9611
+Task completed!
+Ran AdaPT. Time taken: 1529.377 seconds
+Ran Boca-Leek. Time taken: 29.818 seconds
+Ran Clfdr-EM. Time taken: 1.238 seconds
+Ran AdaPT-xgboost. Time taken: 3.19 seconds
+alpha = 0.05: FDPhat 0.0487, Number of Rej. 226
+Task completed!
+Ran AdaPT. Time taken: 1566.176 seconds
+alpha = 0.3: FDPhat 0.2987, Number of Rej. 231
+Task completed!
+Ran AdaPT. Time taken: 1583.974 seconds
+alpha = 0.2: FDPhat 0.1982, Number of Rej. 227
+Task completed!
+Ran AdaPT. Time taken: 1589.15 seconds
+Ran Boca-Leek. Time taken: 23.202 seconds
+Ran Clfdr-EM. Time taken: 1.297 seconds
+Ran AdaPT-xgboost. Time taken: 2.91 seconds
+Ran Boca-Leek. Time taken: 23.434 seconds
+Ran Clfdr-EM. Time taken: 0.745 seconds
+Ran AdaPT-xgboost. Time taken: 1.72 seconds
+Ran Boca-Leek. Time taken: 21.082 seconds
+Ran Clfdr-EM. Time taken: 0.781 seconds
+Ran AdaPT-xgboost. Time taken: 1.715 seconds

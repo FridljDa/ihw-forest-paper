@@ -12,7 +12,6 @@ Imports: dplyr,
         dplyr,
         doRNG,
         doParallel
-RoxygenNote: 7.2.1 
+RoxygenNote: 7.2.3
 Remotes: git::https://github.com/FridljDa/IHW.git@forest,
   git::https://github.com/ryurko/adaptMT.git
-
