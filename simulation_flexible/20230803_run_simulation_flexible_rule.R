@@ -46,7 +46,8 @@ if (dry_run) {
   #ndim = dimensions
   signal_strength = 0.8#seq(0.8, 0.2, length.out = 5) #
   lp_norm = c(1,2,0.5)
-  target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
+  target_average_alt_prob = c(0.2, 0.3, 0.1)
+  #target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
   beta_shape1 = 0.25#seq(0.25, 0.1, length.out = 5)#0.25 #seq(0.25, 0.1, length.out = 5)
   kappa = seq(0, 0.1, length.out = 5)#0#seq(0, 0.1, length.out = 5)
   alpha = 0.1
@@ -66,16 +67,22 @@ list_of_parameters <- list(
   #ndim = ndim,
   signal_strength = signal_strength,
   lp_norm = lp_norm,
-  target_average_alt_prob = target_average_alt_prob,
+  #target_average_alt_prob = target_average_alt_prob,
   beta_shape1 = beta_shape1,
   alpha = alpha
 )
 
-sim_parameters <- create_dataframe(list_of_parameters)
+sim_parameters <- list_of_parameters %>% 
+  create_dataframe()
 
 sim_parameters <- sim_parameters %>% 
-  merge(data.frame(seed = seed)) %>% 
-  merge(data.frame(ndim = ndim)) %>%
+  merge(
+    expand.grid(
+      seed = seed,
+      ndim = ndim,
+      target_average_alt_prob = target_average_alt_prob
+    )
+  ) %>% 
   filter(ndim <= dimensions)
 
 cat(timestamp(),"\n")
