@@ -25,7 +25,7 @@
 #' plot_fdr_power(sim_res, group_by_dimension = "length")
 #'
 #' @export
-plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, log_trans = TRUE) {
+plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, log_trans = TRUE, silent = TRUE) {
   sim_res$group_by_dimension <- sim_res[, group_by_dimension]
   
   sim_res <- sim_res %>%
@@ -41,11 +41,12 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, 
     ungroup()
   
   if (length(unique(sim_res$n_monte_carlo)) > 1) {
-    print("Warning: n_monte_carlo is not constant across groups.")
-    print(table(sim_res$method, sim_res$n_monte_carlo))
+    if(!silent){
+      print("Warning: n_monte_carlo is not constant across groups.")
+      print(sim_res %>%
+              select(group_by_dimension, method, n_monte_carlo))
+    }
   }
-  
-  #TODO if sim_res$n_monte_carlo is not constant, print a message 
   
   breaks <- unique(sim_res$group_by_dimension)
   if(length(breaks) < 5) {

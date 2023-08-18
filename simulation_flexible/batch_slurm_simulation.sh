@@ -9,7 +9,7 @@
 #SBATCH --mail-user=daniel.fridljand@embl.de # send-to address
 
 # Number of times to submit the job
-num_splits=20
+num_splits=30
 
 # Loop to submit the job multiple times
 for ((i=1; i<=num_splits; i++))

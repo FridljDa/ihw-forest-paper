@@ -110,11 +110,20 @@ simulation_evaluated %>%
 
 ### fixed dimension with with signal, varying ambient dimension
 
+In this simulation we have a single dimension with signal `ndim`\`= $d_1$ , and growing number of irrelevant noise dimensions.
+
 ```{r}
 simulation_evaluated %>%
   filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
          ) %>% 
-  plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = TRUE)
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 2 & beta_shape1 == 0.25 & signal_strength == 0.8 
+         ) %>% 
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = TRUE)
 ```
 
 ```{r}
@@ -128,9 +137,7 @@ simulation_evaluated %>%
               values_from = n)
 ```
 
-As we can see, can see the power of `IHW-Quantile` drops as the dimensionality of the covariate spaces increases until `IHW-Quantile` it breaks down entirely at dimension 5. This is because of the exploding number of covariate bins `m/(covariate_per_dimension^dimension)=1000/5^5=0.32 < 1`. 
-
-
+For dimension = 1, `IHW-Quantile` is the most powerful method. As we can see, can see the power of `IHW-Quantile` drops as the dimensionality of the covariate spaces increases until `IHW-Quantile` it breaks down entirely at dimension 5. This is because the number of covariate bins exploads with the covariate dimensions and the number of observations per bin becomes prohibitive: `m/(covariate_per_dimension^dimension)=1000/5^5=0.32 < 1`.
 
 ```{r}
 simulation_evaluated %>%
@@ -138,7 +145,7 @@ simulation_evaluated %>%
   plot_fdr_power(group_by_dimension = "dimensions", log_trans = FALSE)
 ```
 
-fixed ambient dimension for covariates, variable dimension with signal
+### fixed ambient dimension for covariates, variable dimension with signal
 
 ```{r}
 simulation_evaluated %>%

@@ -69,7 +69,8 @@ parameters_run <- parameters_run %>%
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
 
-methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile",  "Boca-Leek")
+methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek", "AdaPT-xgboost")
+
 dry_run <- FALSE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
@@ -88,7 +89,10 @@ if (dry_run) {
     )
   # parameters_run
   #methods = c("Clfdr-EM")
-  methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
+  methods = c("IHW-forest", "AdaPT-xgboost")
+  parallel = FALSE
+}else{
+  parallel = TRUE
 }
 
 cat("parameters_run\n")
@@ -130,8 +134,8 @@ result <- eval_sim_parallel(simulation_list,
                               methods = methods,
                               null_proportion = TRUE,
                               folds = folds,
-                              parallel = FALSE)
+                              parallel = parallel)
 
 
 ## ---- eval=TRUE-------------------------------------------------------------
-saveRDS(result, paste0("boca_leek/data/", Sys.Date(), "_boca_leek_analysis.RDS"))
+saveRDS(result, paste0("boca_leek/data/", Sys.Date(), "_boca_leek_analysis_adapt_ihw_forest.RDS"))
