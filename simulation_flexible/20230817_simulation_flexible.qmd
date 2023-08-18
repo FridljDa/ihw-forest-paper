@@ -123,7 +123,7 @@ simulation_evaluated %>%
 simulation_evaluated %>%
   filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 2 & beta_shape1 == 0.25 & signal_strength == 0.8 
          ) %>% 
-  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = TRUE)
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = FALSE)
 ```
 
 ```{r}
