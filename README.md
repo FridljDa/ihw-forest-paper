@@ -8,9 +8,10 @@ All numerical results and figures in the aforementioned paper are made third-par
 
 We note that the Bioconductor package IHW provides a user-friendly implementation of the IHW-Forest from version TODO.
 
-It further depends on the forest version of IHW.
+It further depends on the forest version of IHW and adaptMT:
 ```r
-devtools::install_github("FridljDa/IHW", ref = "forest")                         
+devtools::install_github("FridljDa/IHW", ref = "forest")  
+devtools::install_github("ryurko/adaptMT")
 ```
 
 ## Pre-rendered vignettes

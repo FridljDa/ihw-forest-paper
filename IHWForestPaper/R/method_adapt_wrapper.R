@@ -87,9 +87,9 @@ adapt_xgboost_cv_wrapper <- function(Ps, Xs, alphas = 0.1,
 #' @param Xs   Vector or matrix of covariates
 #' @param alpha    Significance level at which to apply method
 #' @examples 
-#' Xs <- runif(20000, min=0, max=2.5) # covariate
-#' Hs <- rbinom(20000,1,0.1) # hypothesis true or false
-#' Zs <- rnorm(20000, Xs*Hs) # Z-score
+#' Xs <- runif(2000, min=0, max=2.5) # covariate
+#' Hs <- rbinom(2000,1,0.1) # hypothesis true or false
+#' Zs <- rnorm(2000, Xs*Hs) # Z-score
 #' Ps <- 1-pnorm(Zs) # pvalue
 #' adapt_xgboost_wrapper(Ps, Xs)
 #'

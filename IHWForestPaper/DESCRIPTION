@@ -9,8 +9,10 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr,
-        IHW,
         dplyr,
         doRNG,
         doParallel
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.1 
+Remotes: git::https://github.com/FridljDa/IHW.git@forest,
+  git::https://github.com/ryurko/adaptMT.git
+

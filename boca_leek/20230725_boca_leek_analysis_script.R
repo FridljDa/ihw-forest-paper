@@ -2,8 +2,7 @@
 library(here)
 library(dplyr)
 library(magrittr)
-library(tictoc)
-#library(IHWForestPaper)
+
 ## ---------------------------------------------------------------------------
 
 set.seed(4)
@@ -69,13 +68,14 @@ parameters_run <- parameters_run %>%
 
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
-methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
+
+methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile",  "Boca-Leek")
 dry_run <- FALSE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
-  #BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
+  BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
     # group_by(chr_name) %>%
- #  sample_n(200000) # %>%
+   sample_n(2000) # %>%
   # ungroup()
 
   parameters_run <- parameters_run %>%
@@ -87,7 +87,8 @@ if (dry_run) {
       #       alphas == 0.04
     )
   # parameters_run
-  methods = c("Clfdr-EM")
+  #methods = c("Clfdr-EM")
+  methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
 }
 
 cat("parameters_run\n")

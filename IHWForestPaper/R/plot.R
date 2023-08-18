@@ -10,7 +10,7 @@
 #' @return A combined ggplot object showing FDR and Power plots with a common legend.
 #' @import magrittr
 #' @import dplyr
-#' @import ggpubr
+#' @importFrom ggpubr ggarrange
 #' @import ggplot2
 #'
 #' @examples
@@ -85,7 +85,7 @@ plot_fdr_power <- function(sim_res, group_by_dimension = "length", alpha = 0.1, 
     sim_res_FDR <- sim_res_FDR + scale_y_log10()
     sim_res_power <- sim_res_power + scale_y_log10()
   }
-  g_combined <- ggarrange(sim_res_FDR, sim_res_power,
+  g_combined <- ggpubr::ggarrange(sim_res_FDR, sim_res_power,
                           nrow = 1, widths = c(1, 1),
                           common.legend = TRUE, legend = "bottom"
   )
