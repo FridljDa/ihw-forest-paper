@@ -1,0 +1,30 @@
+Warning message:
+renv took longer than expected (44 seconds) to activate the sandbox.
+
+The sandbox can be disabled by setting:
+
+    RENV_CONFIG_SANDBOX_ENABLED = FALSE
+
+within an appropriate start-up .Renviron file.
+
+See `?renv::config` for more details. 
+ℹ Loading IHWForestPaper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+/var/spool/slurm/job38710485/slurm_script: line 23: 373585 Killed                  Rscript simulation_flexible/20230803_run_simulation_flexible_rule.R $num_splits $split_index
+slurmstepd: error: Detected 6 oom-kill event(s) in StepId=38710485.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.

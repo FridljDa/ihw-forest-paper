@@ -1,0 +1,21 @@
+here() starts at /g/huber/users/fridljand/R/ihw-forest-paper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+ℹ Loading IHWForestPaper
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+/var/spool/slurm/job38710380/slurm_script: line 18: 3585726 Killed                  Rscript boca_leek/20230725_boca_leek_analysis_script.R
+slurmstepd: error: Detected 5 oom-kill event(s) in StepId=38710380.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.

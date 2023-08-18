@@ -167,3 +167,5 @@ Ran AdaPT. Time taken: 1015.614 seconds
 Ran Boca-Leek. Time taken: 26.559 seconds
 Ran Clfdr-EM. Time taken: 0.835 seconds
 simulation run:22/56
+Ran IHW-quantile. Time taken: 301.171 seconds
+Ran BH. Time taken: 0.044 seconds
