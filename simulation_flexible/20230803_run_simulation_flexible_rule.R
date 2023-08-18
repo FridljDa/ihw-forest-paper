@@ -36,6 +36,7 @@ if (dry_run) {
   kappa = seq(0, 0.1, length.out = 5)
   alpha = 0.1
   ndim <- 1#c(1,2,3)
+  parallel <- FALSE
   
   methods <- c("BH", "AdaPT") #"IHW-quantile", "IHW-forest", , "Boca-Leek", "Clfdr-EM"
 } else {
@@ -53,6 +54,7 @@ if (dry_run) {
   kappa = c(0, 0.1)
   alpha = 0.1
   ndim <- 1
+  parallel <- FALSE
   #ndim <- seq(from = 1, to = 5, by = 1)#dimensions#c(1,2,3)#1#
   
   methods <- c("IHW-quantile", "IHW-forest", "BH", "AdaPT", "Boca-Leek", "Clfdr-EM", "AdaPT-xgboost")
@@ -87,6 +89,9 @@ sim_parameters <- sim_parameters %>%
   ) %>% 
   filter(ndim <= dimensions)
 
+sim_parameters <- sim_parameters %>%
+  sample_frac(size = 1, replace = FALSE)
+
 cat(timestamp(),"\n")
 
 cat("\n")
@@ -102,7 +107,8 @@ simulation_list <- flexible_prop_alt_sim(
 
 ##---evaluate mehtods on simulation---
 evaluated_simulation <- eval_sim_parallel(simulation_list,
-                                          methods = methods
+                                          methods = methods,
+                                          parallel = parallel
 )
 
 print("\n")
