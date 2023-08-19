@@ -16,9 +16,9 @@
 module load R
 
 # Retrieve the command-line argument
-num_splits=$1
-split_index=$2
+split_index=$1
+num_splits=$2
+
 
 # Run R script
-Rscript boca_leek/20230725_boca_leek_analysis_script.R $num_splits $split_index
-# Run R script
+Rscript boca_leek/20230725_boca_leek_analysis_script.R $split_index $num_splits
