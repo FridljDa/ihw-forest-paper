@@ -78,7 +78,7 @@ parameters_run <- data.frame(
 
 parameters_run <- parameters_run %>%
   merge(data.frame(alphas = c(0.01, 0.05, 0.1, 0.2, 0.3))) #0.02, , 0.4
-#, 0.3, 0.4
+#, 0.3, 0.4s
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
 
