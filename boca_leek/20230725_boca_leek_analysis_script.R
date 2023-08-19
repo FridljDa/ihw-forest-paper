@@ -18,7 +18,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
 } else {
   num_splits <- 5
   split_index <- 1
-  dry_run <- FALSE
+  dry_run <- TRUE
 }
 
 ## ---------------------------------------------------------------------------
@@ -82,10 +82,6 @@ parameters_run <- parameters_run %>%
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
 
-methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek", "AdaPT-xgboost")
-methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
-
-dry_run <- FALSE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
   BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
@@ -107,6 +103,7 @@ if (dry_run) {
   parallel = FALSE
 }else{
   parallel = TRUE
+  methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
 }
 
 #-- get split 
