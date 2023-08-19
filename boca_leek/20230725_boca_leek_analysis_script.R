@@ -64,7 +64,7 @@ parameters_run <- data.frame(
 )
 
 parameters_run <- parameters_run %>%
-  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2)))
+  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4)))
 #, 0.3, 0.4
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
@@ -72,7 +72,7 @@ parameters_run <- parameters_run %>%
 methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek", "AdaPT-xgboost")
 methods = c("BH", "AdaPT", "Clfdr-EM", "IHW-quantile", "IHW-forest", "Boca-Leek")
 
-dry_run <- TRUE
+dry_run <- FALSE
 if (dry_run) {
   # parameters_run_copy <- parameters_run
   BMI_GIANT_GWAS <- BMI_GIANT_GWAS %>%
@@ -93,7 +93,7 @@ if (dry_run) {
   methods = c("IHW-forest", "AdaPT-xgboost")
   parallel = FALSE
 }else{
-  parallel = FALSE
+  parallel = TRUE
 }
 
 cat("parameters_run\n")
