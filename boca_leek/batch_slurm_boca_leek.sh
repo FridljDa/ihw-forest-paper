@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name=flexible.sim.batch
+#SBATCH --job-name=boca.leek.batch
 #SBATCH -A huber                # group to which you belong
 #SBATCH -t 0-0:01                   # runtime limit (D-HH:MM:SS)
-#SBATCH -o bocaleek/out/high_dim_sim_out_batch-%j.out
-#SBATCH -e bocaleek/error_out/high_dim_sim_out_batch-%j.err       # STDERR
+#SBATCH -o bocaleek/out/boca_leek_batch-%j.out
+#SBATCH -e bocaleek/error_out/boca_leek_batch-%j.err       # STDERR
 #SBATCH --mail-type=All        # notifications for job done & fail
 #SBATCH --mail-user=daniel.fridljand@embl.de # send-to address
 

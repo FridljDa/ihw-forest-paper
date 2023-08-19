@@ -10,7 +10,7 @@
 #' @param timeout Maximum amount of time (in seconds) for the procedure to run. Default is 300.
 #' @param folds The number of folds for cross-validation. Default is NULL.
 #' @return Binary vector of rejected/non-rejected hypotheses. If the procedure fails or times out, returns NA.
-#' @import IHW 
+#' @importFrom IHW ihw
 #' @examples
 #' # Generate some example data
 #' Ps <- runif(100)  # P-values
@@ -70,7 +70,7 @@ ihw_quantile_wrapper <- function(Ps, Xs, alpha, per_covariate_bins = 5, null_pro
 #' @param drop_inbag Logical; if TRUE, does not use hypotheses, which have already been used for the construction of the partition for the construction of the weights as well. Default is FALSE.
 #' @param folds The number of folds for cross-validation. Default is NULL.
 #' @return Binary vector of rejected/non-rejected hypotheses.
-#' @import IHW 
+#' @importFrom IHW ihw
 #' @examples
 #' # Generate some example data
 #' Ps <- runif(100)  # P-values

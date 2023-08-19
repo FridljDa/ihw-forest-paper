@@ -16,7 +16,7 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   num_splits <- as.numeric(num_splits)
   dry_run <- FALSE
 } else {
-  num_splits <- 1
+  num_splits <- 5
   split_index <- 1
   dry_run <- FALSE
 }

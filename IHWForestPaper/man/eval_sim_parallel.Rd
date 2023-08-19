@@ -47,5 +47,5 @@ sim_list <- list(
   list(seed = 12345, pvalue = c(0.05, 0.10, 0.20), covariate = c(1.2, 3.4, 5.6), Hs = c(TRUE, FALSE, TRUE), alpha = 0.05),
   list(seed = 67890, pvalue = c(0.01, 0.03, 0.05), covariate = c(2.3, 4.5, 6.7), Hs = c(FALSE, FALSE, TRUE), alpha = 0.1)
 )
-results <- eval_sim_parallel(simulation_list = sim_list, context_information = c("info1", "info2"))
+results <- eval_sim_parallel(simulation_list = sim_list)
 }

@@ -13,9 +13,9 @@ if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   num_splits <- as.numeric(num_splits)
   dry_run <- FALSE
 } else {
-  num_splits <- 1
+  num_splits <- 5
   split_index <- 1
-  dry_run <- FALSE
+  dry_run <- TRUE
 }
 ### ---
 
@@ -49,7 +49,7 @@ if (dry_run) {
   lp_norm = 1#c(1,2,0.5)
   target_average_alt_prob = c(0.1, 0.2, 0.3)
   #target_average_alt_prob = seq(0.3, 0.1, length.out = 5)#0.2#seq(0.1, 0.2, by = 0.01)# # ##
-  beta_shape1 = 0.25#seq(0.25, 0.1, length.out = 5)#0.25 #seq(0.25, 0.1, length.out = 5)
+  beta_shape1 = seq(0.25, 0.1, length.out = 5)#0.25#seq(0.25, 0.1, length.out = 5)#0.25 #seq(0.25, 0.1, length.out = 5)
   #kappa = seq(0, 0.1, length.out = 5)#0#seq(0, 0.1, length.out = 5)
   kappa = c(0, 0.1)
   alpha = 0.1

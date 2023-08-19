@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=flexible.sim.batch
+#SBATCH --job-name=boca_leek.sim.batch
 #SBATCH -A huber                # group to which you belong
 #SBATCH -t 0-0:01                   # runtime limit (D-HH:MM:SS)
 #SBATCH -o simulation/out/high_dim_sim_out_batch-%j.out
@@ -9,7 +9,7 @@
 #SBATCH --mail-user=daniel.fridljand@embl.de # send-to address
 
 # Number of times to submit the job
-num_splits=30
+num_splits=20
 
 # Loop to submit the job multiple times
 for ((i=1; i<=num_splits; i++))
