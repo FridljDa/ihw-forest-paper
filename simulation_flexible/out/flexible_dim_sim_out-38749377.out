@@ -1,0 +1,881 @@
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.
+
+##------ Sat Aug 19 01:35:42 2023 ------##
+##------ Sat Aug 19 01:35:42 2023 ------## 
+
+simulation run:1/90
+Ran IHW-quantile. Time taken: 1.204 seconds
+Ran IHW-forest. Time taken: 0.375 seconds
+Ran BH. Time taken: 0.001 seconds
+alpha = 0.1: FDPhat 0.0959, Number of Rej. 73
+Task completed!
+Ran AdaPT. Time taken: 3.748 seconds
+Ran Boca-Leek. Time taken: 0.06 seconds
+Ran Clfdr-EM. Time taken: 0.695 seconds
+Ran AdaPT-xgboost. Time taken: 2.121 seconds
+simulation run:2/90
+Ran IHW-quantile. Time taken: 1.12 seconds
+Ran IHW-forest. Time taken: 0.291 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0833, Number of Rej. 24
+Task completed!
+Ran AdaPT. Time taken: 3.867 seconds
+Ran Boca-Leek. Time taken: 0.079 seconds
+Ran Clfdr-EM. Time taken: 2.576 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:3/90
+Ran IHW-quantile. Time taken: 1.212 seconds
+Ran IHW-forest. Time taken: 0.3 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 120
+Task completed!
+Ran AdaPT. Time taken: 3.365 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 1.951 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:4/90
+Ran IHW-quantile. Time taken: 1.307 seconds
+Ran IHW-forest. Time taken: 0.303 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0926, Number of Rej. 108
+Task completed!
+Ran AdaPT. Time taken: 3.145 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 2.149 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:5/90
+Ran IHW-quantile. Time taken: 1.278 seconds
+Ran IHW-forest. Time taken: 0.301 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0923, Number of Rej. 65
+Task completed!
+Ran AdaPT. Time taken: 3.446 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 2.498 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:6/90
+Ran IHW-quantile. Time taken: 1.189 seconds
+Ran IHW-forest. Time taken: 0.295 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0938, Number of Rej. 64
+Task completed!
+Ran AdaPT. Time taken: 3.542 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 1.812 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:7/90
+Ran IHW-quantile. Time taken: 1.081 seconds
+Ran IHW-forest. Time taken: 0.29 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 31
+Task completed!
+Ran AdaPT. Time taken: 4.755 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 1.772 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:8/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.307 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0935, Number of Rej. 107
+Task completed!
+Ran AdaPT. Time taken: 4.037 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 2.265 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:9/90
+Ran IHW-quantile. Time taken: 1.211 seconds
+Ran IHW-forest. Time taken: 0.297 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0976, Number of Rej. 82
+Task completed!
+Ran AdaPT. Time taken: 3.539 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.862 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:10/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.308 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.096, Number of Rej. 125
+Task completed!
+Ran AdaPT. Time taken: 4.392 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.188 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:11/90
+Ran IHW-quantile. Time taken: 2.739 seconds
+Ran IHW-forest. Time taken: 0.295 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0889, Number of Rej. 45
+Task completed!
+Ran AdaPT. Time taken: 4.233 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.019 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:12/90
+Ran IHW-quantile. Time taken: 21.312 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 10
+Task completed!
+Ran AdaPT. Time taken: 5.119 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 0.022 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:13/90
+Ran IHW-quantile. Time taken: 6.037 seconds
+Ran IHW-forest. Time taken: 0.296 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 11
+Task completed!
+Ran AdaPT. Time taken: 3.897 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 0.019 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:14/90
+Ran IHW-quantile. Time taken: 20.967 seconds
+Ran IHW-forest. Time taken: 0.303 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 4.904 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 2.058 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:15/90
+Ran IHW-quantile. Time taken: 1.172 seconds
+Ran IHW-forest. Time taken: 0.302 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0857, Number of Rej. 35
+Task completed!
+Ran AdaPT. Time taken: 3.314 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 2.212 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:16/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.309 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0991, Number of Rej. 111
+Task completed!
+Ran AdaPT. Time taken: 3.738 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 2.237 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:17/90
+Ran IHW-quantile. Time taken: 6.707 seconds
+Ran IHW-forest. Time taken: 0.302 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0988, Number of Rej. 81
+Task completed!
+Ran AdaPT. Time taken: 4.604 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.401 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:18/90
+Ran IHW-quantile. Time taken: 1.034 seconds
+Ran IHW-forest. Time taken: 0.289 seconds
+Ran BH. Time taken: 0.002 seconds
+Ran AdaPT. Time taken: 3.774 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 0.008 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:19/90
+Ran IHW-quantile. Time taken: 6.511 seconds
+Ran IHW-forest. Time taken: 0.308 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0918, Number of Rej. 98
+Task completed!
+Ran AdaPT. Time taken: 3.834 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.116 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:20/90
+Ran IHW-quantile. Time taken: 1.14 seconds
+Ran IHW-forest. Time taken: 0.298 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.093, Number of Rej. 43
+Task completed!
+Ran AdaPT. Time taken: 3.36 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 1.818 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:21/90
+Ran IHW-quantile. Time taken: 1.172 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.087, Number of Rej. 46
+Task completed!
+Ran AdaPT. Time taken: 3.586 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.866 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:22/90
+Ran IHW-quantile. Time taken: 1.028 seconds
+Ran IHW-forest. Time taken: 0.293 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 4.27 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 0.017 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:23/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.31 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 93
+Task completed!
+Ran AdaPT. Time taken: 4.579 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 2.922 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:24/90
+Ran IHW-quantile. Time taken: 1.06 seconds
+Ran IHW-forest. Time taken: 0.291 seconds
+Ran BH. Time taken: 0.002 seconds
+Ran AdaPT. Time taken: 3.554 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 0.019 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:25/90
+Ran IHW-quantile. Time taken: 1.1 seconds
+Ran IHW-forest. Time taken: 0.294 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0526, Number of Rej. 19
+Task completed!
+Ran AdaPT. Time taken: 3.516 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.892 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:26/90
+Ran IHW-quantile. Time taken: 3.195 seconds
+Ran IHW-forest. Time taken: 0.295 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0769, Number of Rej. 13
+Task completed!
+Ran AdaPT. Time taken: 3.77 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.021 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:27/90
+Ran IHW-quantile. Time taken: 1.143 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0882, Number of Rej. 68
+Task completed!
+Ran AdaPT. Time taken: 3.69 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.787 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:28/90
+Ran IHW-quantile. Time taken: 0 seconds
+Ran IHW-forest. Time taken: 0.306 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 70
+Task completed!
+Ran AdaPT. Time taken: 4.414 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.419 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:29/90
+Ran IHW-quantile. Time taken: 1.197 seconds
+Ran IHW-forest. Time taken: 0.306 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 120
+Task completed!
+Ran AdaPT. Time taken: 3.854 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 0.175 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:30/90
+Ran IHW-quantile. Time taken: 6.392 seconds
+Ran IHW-forest. Time taken: 0.304 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0933, Number of Rej. 75
+Task completed!
+Ran AdaPT. Time taken: 3.516 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 0.054 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:31/90
+Ran IHW-quantile. Time taken: 1.252 seconds
+Ran IHW-forest. Time taken: 0.304 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 70
+Task completed!
+Ran AdaPT. Time taken: 3.45 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.997 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:32/90
+Ran IHW-quantile. Time taken: 1.209 seconds
+Ran IHW-forest. Time taken: 0.301 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0811, Number of Rej. 37
+Task completed!
+Ran AdaPT. Time taken: 3.679 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.795 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:33/90
+Ran IHW-quantile. Time taken: 1.185 seconds
+Ran IHW-forest. Time taken: 0.302 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0957, Number of Rej. 115
+Task completed!
+Ran AdaPT. Time taken: 3.598 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.496 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:34/90
+Ran IHW-quantile. Time taken: 1.184 seconds
+Ran IHW-forest. Time taken: 0.301 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0886, Number of Rej. 79
+Task completed!
+Ran AdaPT. Time taken: 3.518 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.773 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:35/90
+Ran IHW-quantile. Time taken: 26.658 seconds
+Ran IHW-forest. Time taken: 0.306 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0882, Number of Rej. 34
+Task completed!
+Ran AdaPT. Time taken: 4.694 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.364 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:36/90
+Ran IHW-quantile. Time taken: 34.885 seconds
+Ran IHW-forest. Time taken: 0.308 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.092, Number of Rej. 87
+Task completed!
+Ran AdaPT. Time taken: 3.556 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 0.162 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:37/90
+Ran IHW-quantile. Time taken: 1.134 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0968, Number of Rej. 62
+Task completed!
+Ran AdaPT. Time taken: 3.275 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.765 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:38/90
+Ran IHW-quantile. Time taken: 1.034 seconds
+Ran IHW-forest. Time taken: 0.294 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 2.314 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 0.017 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:39/90
+Ran IHW-quantile. Time taken: 5.176 seconds
+Ran IHW-forest. Time taken: 0.296 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 5.173 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.02 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:40/90
+Ran IHW-quantile. Time taken: 1.042 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 4.163 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.76 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:41/90
+Ran IHW-quantile. Time taken: 1.273 seconds
+Ran IHW-forest. Time taken: 0.297 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0982, Number of Rej. 112
+Task completed!
+Ran AdaPT. Time taken: 3.698 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.093 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:42/90
+Ran IHW-quantile. Time taken: 2.857 seconds
+Ran IHW-forest. Time taken: 0.296 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0938, Number of Rej. 64
+Task completed!
+Ran AdaPT. Time taken: 3.782 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.101 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:43/90
+Ran IHW-quantile. Time taken: 44.283 seconds
+Ran IHW-forest. Time taken: 0.304 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 60
+Task completed!
+Ran AdaPT. Time taken: 3.8 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.01 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:44/90
+Ran IHW-quantile. Time taken: 1.271 seconds
+Ran IHW-forest. Time taken: 0.3 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0977, Number of Rej. 133
+Task completed!
+Ran AdaPT. Time taken: 3.991 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.821 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:45/90
+Ran IHW-quantile. Time taken: 1.248 seconds
+Ran IHW-forest. Time taken: 0.295 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 90
+Task completed!
+Ran AdaPT. Time taken: 3.038 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.771 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:46/90
+Ran IHW-quantile. Time taken: 28.004 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 110
+Task completed!
+Ran AdaPT. Time taken: 4.408 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 2.151 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:47/90
+Ran IHW-quantile. Time taken: 5.542 seconds
+Ran IHW-forest. Time taken: 0.294 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0769, Number of Rej. 13
+Task completed!
+Ran AdaPT. Time taken: 3.781 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.021 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:48/90
+Ran IHW-quantile. Time taken: 6.686 seconds
+Ran IHW-forest. Time taken: 0.301 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0986, Number of Rej. 71
+Task completed!
+Ran AdaPT. Time taken: 4.166 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.541 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:49/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.305 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 33
+Task completed!
+Ran AdaPT. Time taken: 4.215 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.022 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:50/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.305 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0988, Number of Rej. 81
+Task completed!
+Ran AdaPT. Time taken: 3.824 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.022 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:51/90
+Ran IHW-quantile. Time taken: 2.86 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 3.591 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.193 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:52/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.3 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0833, Number of Rej. 36
+Task completed!
+Ran AdaPT. Time taken: 4.575 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.091 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:53/90
+Ran IHW-quantile. Time taken: 2.727 seconds
+Ran IHW-forest. Time taken: 0.297 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.098, Number of Rej. 51
+Task completed!
+Ran AdaPT. Time taken: 3.563 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.04 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:54/90
+Ran IHW-quantile. Time taken: 21.88 seconds
+Ran IHW-forest. Time taken: 0.308 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0974, Number of Rej. 154
+Task completed!
+Ran AdaPT. Time taken: 3.817 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 1.152 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:55/90
+Ran IHW-quantile. Time taken: 1.259 seconds
+Ran IHW-forest. Time taken: 0.298 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0984, Number of Rej. 122
+Task completed!
+Ran AdaPT. Time taken: 2.886 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 0.452 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:56/90
+Ran IHW-quantile. Time taken: 34.337 seconds
+Ran IHW-forest. Time taken: 0.297 seconds
+Ran BH. Time taken: 0.002 seconds
+Ran AdaPT. Time taken: 5.092 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.009 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:57/90
+Ran IHW-quantile. Time taken: 1.58 seconds
+Ran IHW-forest. Time taken: 0.305 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0965, Number of Rej. 114
+Task completed!
+Ran AdaPT. Time taken: 3.358 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 0.249 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:58/90
+Ran IHW-quantile. Time taken: 21.505 seconds
+Ran IHW-forest. Time taken: 0.3 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0862, Number of Rej. 58
+Task completed!
+Ran AdaPT. Time taken: 4.468 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 2.116 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:59/90
+Ran IHW-quantile. Time taken: 2.801 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0976, Number of Rej. 41
+Task completed!
+Ran AdaPT. Time taken: 3.866 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 0.325 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:60/90
+Ran IHW-quantile. Time taken: 1.03 seconds
+Ran IHW-forest. Time taken: 0.288 seconds
+Ran BH. Time taken: 0.002 seconds
+Ran AdaPT. Time taken: 4.345 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 0.008 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:61/90
+Ran IHW-quantile. Time taken: 21.687 seconds
+Ran IHW-forest. Time taken: 0.298 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0962, Number of Rej. 52
+Task completed!
+Ran AdaPT. Time taken: 4.226 seconds
+Ran Boca-Leek. Time taken: 0.067 seconds
+Ran Clfdr-EM. Time taken: 0.022 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:62/90
+Ran IHW-quantile. Time taken: 2.935 seconds
+Ran IHW-forest. Time taken: 0.297 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0962, Number of Rej. 52
+Task completed!
+Ran AdaPT. Time taken: 3.658 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.465 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:63/90
+Ran IHW-quantile. Time taken: 1.039 seconds
+Ran IHW-forest. Time taken: 0.291 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0714, Number of Rej. 14
+Task completed!
+Ran AdaPT. Time taken: 3.941 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 0.02 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:64/90
+Ran IHW-quantile. Time taken: 46.267 seconds
+Ran IHW-forest. Time taken: 0.289 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0909, Number of Rej. 11
+Task completed!
+Ran AdaPT. Time taken: 5.255 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 0.021 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:65/90
+Ran IHW-quantile. Time taken: 20.984 seconds
+Ran IHW-forest. Time taken: 0.289 seconds
+Ran BH. Time taken: 0.004 seconds
+Ran AdaPT. Time taken: 5.313 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 0.022 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:66/90
+Ran IHW-quantile. Time taken: 1.174 seconds
+Ran IHW-forest. Time taken: 0.297 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.093, Number of Rej. 43
+Task completed!
+Ran AdaPT. Time taken: 3.367 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.796 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:67/90
+Ran IHW-quantile. Time taken: 1.042 seconds
+Ran IHW-forest. Time taken: 0.286 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0625, Number of Rej. 16
+Task completed!
+Ran AdaPT. Time taken: 3.522 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.843 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:68/90
+Ran IHW-quantile. Time taken: 1.012 seconds
+Ran IHW-forest. Time taken: 0.288 seconds
+Ran BH. Time taken: 0.002 seconds
+Ran AdaPT. Time taken: 4.423 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 0.018 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:69/90
+Ran IHW-quantile. Time taken: 0.001 seconds
+Ran IHW-forest. Time taken: 0.311 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0941, Number of Rej. 85
+Task completed!
+Ran AdaPT. Time taken: 3.731 seconds
+Ran Boca-Leek. Time taken: 0.068 seconds
+Ran Clfdr-EM. Time taken: 0.694 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:70/90
+Ran IHW-quantile. Time taken: 5.129 seconds
+Ran IHW-forest. Time taken: 0.295 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 21
+Task completed!
+Ran AdaPT. Time taken: 4.926 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.008 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:71/90
+Ran IHW-quantile. Time taken: 1.215 seconds
+Ran IHW-forest. Time taken: 0.304 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0986, Number of Rej. 71
+Task completed!
+Ran AdaPT. Time taken: 4.653 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.836 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:72/90
+Ran IHW-quantile. Time taken: 21.339 seconds
+Ran IHW-forest. Time taken: 0.29 seconds
+Ran BH. Time taken: 0.003 seconds
+Ran AdaPT. Time taken: 6.027 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.01 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:73/90
+Ran IHW-quantile. Time taken: 1.231 seconds
+Ran IHW-forest. Time taken: 0.309 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.093, Number of Rej. 86
+Task completed!
+Ran AdaPT. Time taken: 3.444 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 0.478 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:74/90
+Ran IHW-quantile. Time taken: 28.562 seconds
+Ran IHW-forest. Time taken: 0.287 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+Ran AdaPT. Time taken: 4.401 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.213 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:75/90
+Ran IHW-quantile. Time taken: 2.992 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.093, Number of Rej. 43
+Task completed!
+Ran AdaPT. Time taken: 3.773 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.328 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:76/90
+Ran IHW-quantile. Time taken: 1.124 seconds
+Ran IHW-forest. Time taken: 0.287 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 63
+Task completed!
+Ran AdaPT. Time taken: 3.754 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.826 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:77/90
+Ran IHW-quantile. Time taken: 1.093 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0714, Number of Rej. 14
+Task completed!
+Ran AdaPT. Time taken: 3.438 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 0.018 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:78/90
+Ran IHW-quantile. Time taken: 1.188 seconds
+Ran IHW-forest. Time taken: 0.299 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 63
+Task completed!
+Ran AdaPT. Time taken: 3.41 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.718 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:79/90
+Ran IHW-quantile. Time taken: 31.987 seconds
+Ran IHW-forest. Time taken: 0.293 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0923, Number of Rej. 65
+Task completed!
+Ran AdaPT. Time taken: 3.737 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.021 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:80/90
+Ran IHW-quantile. Time taken: 6.325 seconds
+Ran IHW-forest. Time taken: 0.303 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0962, Number of Rej. 104
+Task completed!
+Ran AdaPT. Time taken: 3.698 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.153 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:81/90
+Ran IHW-quantile. Time taken: 21.473 seconds
+Ran IHW-forest. Time taken: 0.303 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 80
+Task completed!
+Ran AdaPT. Time taken: 3.788 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 0.236 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:82/90
+Ran IHW-quantile. Time taken: 1.129 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.098, Number of Rej. 51
+Task completed!
+Ran AdaPT. Time taken: 3.477 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.738 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:83/90
+Ran IHW-quantile. Time taken: 1.098 seconds
+Ran IHW-forest. Time taken: 0.29 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.098, Number of Rej. 51
+Task completed!
+Ran AdaPT. Time taken: 3.232 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.766 seconds
+Ran AdaPT-xgboost. Time taken: 0.007 seconds
+simulation run:84/90
+Ran IHW-quantile. Time taken: 1.152 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.004 seconds
+alpha = 0.1: FDPhat 0.0921, Number of Rej. 76
+Task completed!
+Ran AdaPT. Time taken: 3.017 seconds
+Ran Boca-Leek. Time taken: 0.063 seconds
+Ran Clfdr-EM. Time taken: 1.749 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:85/90
+Ran IHW-quantile. Time taken: 1.187 seconds
+Ran IHW-forest. Time taken: 0.301 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0952, Number of Rej. 105
+Task completed!
+Ran AdaPT. Time taken: 2.844 seconds
+Ran Boca-Leek. Time taken: 0.062 seconds
+Ran Clfdr-EM. Time taken: 1.816 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:86/90
+Ran IHW-quantile. Time taken: 2.883 seconds
+Ran IHW-forest. Time taken: 0.296 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.1, Number of Rej. 20
+Task completed!
+Ran AdaPT. Time taken: 4.291 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.756 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:87/90
+Ran IHW-quantile. Time taken: 5.728 seconds
+Ran IHW-forest. Time taken: 0.304 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0899, Number of Rej. 89
+Task completed!
+Ran AdaPT. Time taken: 3.89 seconds
+Ran Boca-Leek. Time taken: 0.066 seconds
+Ran Clfdr-EM. Time taken: 1.813 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:88/90
+Ran IHW-quantile. Time taken: 6.342 seconds
+Ran IHW-forest. Time taken: 0.292 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.0862, Number of Rej. 58
+Task completed!
+Ran AdaPT. Time taken: 3.497 seconds
+Ran Boca-Leek. Time taken: 0.065 seconds
+Ran Clfdr-EM. Time taken: 0.074 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+simulation run:89/90
+Ran IHW-quantile. Time taken: 5.576 seconds
+Ran IHW-forest. Time taken: 0.29 seconds
+Ran BH. Time taken: 0.002 seconds
+alpha = 0.1: FDPhat 0.0714, Number of Rej. 14
+Task completed!
+Ran AdaPT. Time taken: 4.887 seconds
+Ran Boca-Leek. Time taken: 0.064 seconds
+Ran Clfdr-EM. Time taken: 0.009 seconds
+Ran AdaPT-xgboost. Time taken: 0.005 seconds
+simulation run:90/90
+Ran IHW-quantile. Time taken: 1.211 seconds
+Ran IHW-forest. Time taken: 0.298 seconds
+Ran BH. Time taken: 0.003 seconds
+alpha = 0.1: FDPhat 0.087, Number of Rej. 46
+Task completed!
+Ran AdaPT. Time taken: 3.172 seconds
+Ran Boca-Leek. Time taken: 0.061 seconds
+Ran Clfdr-EM. Time taken: 1.732 seconds
+Ran AdaPT-xgboost. Time taken: 0.006 seconds
+[1] "\n"

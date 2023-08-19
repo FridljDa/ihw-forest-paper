@@ -1,0 +1,42 @@
+ℹ Loading IHWForestPaper
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: iterators
+Loading required package: parallel
+Warning message:
+replacing previous import ‘IHW::alpha’ by ‘ggplot2::alpha’ when loading ‘IHWForestPaper’ 
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+/var/spool/slurm/job38749227/slurm_script: line 23: 2946103 Killed                  Rscript simulation_flexible/20230803_run_simulation_flexible_rule.R $num_splits $split_index
+We recommend that you supply (many) more than 1000 p-values for meaningful data-driven hypothesis weighting results.
+slurmstepd: error: Detected 2 oom-kill event(s) in StepId=38749227.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
