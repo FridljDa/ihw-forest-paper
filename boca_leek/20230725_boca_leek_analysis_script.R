@@ -8,6 +8,19 @@ library(magrittr)
 set.seed(4)
 options(bitmapType = "cairo")
 
+if (length(commandArgs(trailingOnly = TRUE)) > 0) {
+  # Retrieve the command-line argument
+  split_index <- commandArgs(trailingOnly = TRUE)[1]
+  split_index <- as.numeric(split_index)
+  num_splits <- commandArgs(trailingOnly = TRUE)[2]
+  num_splits <- as.numeric(num_splits)
+  dry_run <- FALSE
+} else {
+  num_splits <- 1
+  split_index <- 1
+  dry_run <- FALSE
+}
+
 ## ---------------------------------------------------------------------------
 ## list.files("../../IHW")
 # if(Sys.info()["sysname"] == "Darwin"){
@@ -64,7 +77,7 @@ parameters_run <- data.frame(
 )
 
 parameters_run <- parameters_run %>%
-  merge(data.frame(alphas = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4)))
+  merge(data.frame(alphas = c(0.01, 0.05, 0.1, 0.2, 0.3))) #0.02, , 0.4
 #, 0.3, 0.4
 ## ---- eval = TRUE-----------------------------------------------------------
 #---dry run---
@@ -96,6 +109,10 @@ if (dry_run) {
   parallel = TRUE
 }
 
+#-- get split 
+parameters_run <- get_split(parameters_run, num_splits, split_index)
+
+#---
 cat("parameters_run\n")
 head(parameters_run)
 

@@ -1,0 +1,147 @@
+---
+title: "20230803_simulation_flexible"
+format: html
+editor: visual
+---
+
+## Loading Stuff
+
+```{r}
+library(magrittr)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(here)
+library(purrr)
+#library(IHWForestPaper)
+devtools::load_all(here("IHWForestPaper"))
+knitr::opts_chunk$set(echo = TRUE)
+
+set.seed(123)
+theme_set(cowplot::theme_cowplot())
+options(bitmapType = "cairo")
+```
+
+## Generative model
+
+```{r}
+simulation_evaluated <- latest_files(here("simulation_flexible/data"), "discrete_prop_alt_eval")
+#simulation_evaluated <- readRDS(here::here("simulation_flexible/data/2023-08-09_1_discrete_prop_alt_eval.Rds"))
+head(simulation_evaluated)
+```
+
+Let $d_1,d_2 \in \mathbb{N}$. Let $p\in (0,\infty)$. Let $\|x\|_p = \left(\sum_{i=1}^{n} \|x_i\|_p\right)^{1/p}$ and $B_p(r) = \{x \in \mathbb{R}^d : \|x\|_p \leq r\}$. Let $s\in (0,1]$. Let $$
+\begin{aligned}
+   \pi_1: &[-0.5,0.5]^{(d_1+d_2)} &\rightarrow &[0,1], 
+   \\& x &\mapsto &s\cdot 1\left(x\in \left(B_p^{d_1}(r)\times [-0.5,0.5]^{(d_2)}\right)\right).
+\end{aligned}
+$$
+
+Fix $\bar{\pi}_1 \in (0,1)$. We choose $r$ s.t. $\int_{[-0.5,0.5]^d}\pi_1(x)dx=\bar{\pi}_1$, where $\lambda$ denotes the Lebesgue measure. Solving for $r$, we get
+
+$$
+\begin{aligned}
+   \int_{[-0.5,0.5]^d}\pi_1(x)dx&=s\lambda^{d_1+d_2}\left(B_p^{d_1}(r)\times [-0.5,0.5]^{(d_2)}\right)
+   \\&=s\lambda^{d_1}(B_p^{d_1}(r))\times \lambda^{d_2}\left([-0.5,0.5]^{(d_2)}\right)
+   \\&=s\lambda^{d_1}(B_p^{d_1}(r))
+   \\&=s f(p,d_1, r)
+   \\&=s\cdot \lambda^{d_1} \frac{2^{d_1} \cdot \Gamma\left(\frac{1}{p} + 1\right)^{d_1} \cdot r^{d_1}}{\Gamma\left(\frac{d_1}{p} + 1\right)}.
+\end{aligned}
+$$
+
+Let $\kappa\in (0,0.1)$ and $\beta \in (0.1,0.25)$. We generate our data from the following model: $$
+\begin{aligned}
+   &X_i \stackrel{\text{iid.}}{\sim} \operatorname{U}[-0.5,0.5]^d, \\
+   &H_i \mid X_i \sim  \operatorname{Bernoulli}(\pi_1(X_i)),\\
+   &P_i \mid H_i = 0, X_i \stackrel{\text{iid.}}{\sim} (1-\kappa) \operatorname{U}[0,1]+\kappa \operatorname{Beta}(1,0.5),\\
+   &P_i \mid H_i = 1, X_i  \sim \operatorname{Beta}(\beta,1).
+\end{aligned}
+$$
+
+```{r}
+# Assuming simulation_evaluated is your data frame
+unique_levels <- lapply(simulation_evaluated, unique)
+unique_levels <- unique_levels[c("dimensions","kappa","ndim","signal_strength","lp_norm","target_average_alt_prob","prop_alt_function_name")]
+unique_levels
+```
+
+## Diagnostic for generative model
+
+```{r}
+hist(simulation_evaluated$pi0s)
+```
+
+```{r, eval = FALSE}
+simulation_evaluated <- simulation_evaluated %>%
+  filter( 1 - pi0s >= 0.2)
+```
+
+```{r}
+simulation_evaluated %>%
+  ggplot(aes(x = target_average_alt_prob, y = 1 - pi0s)) +
+  geom_point() +
+  #xlim(0,0.5) +
+  #ylim(0,0.5) +
+  geom_abline(intercept = 0, slope = 1, linetype="dashed", color="red") 
+  
+```
+
+## Evaluating multiple testing methods
+
+```{r}
+first_elements <- lapply(unique_levels, function(x) x[1])
+first_elements
+```
+
+## Plotting different sub-group analyses
+
+```{r}
+simulation_evaluated
+```
+
+### Base line parameters
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0 & dimensions == 1 & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
+         ) %>%
+  plot_fdr_power(group_by_dimension = "kappa", log_trans = FALSE)
+```
+
+### fixed dimension with with signal, varying ambient dimension
+
+In this simulation we have a single dimension with signal `ndim`\`= $d_1$ , and growing number of irrelevant noise dimensions.
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 
+         ) %>% 
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = TRUE)
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.3 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8 & m == 1000
+         ) %>%
+  filter(!is.na(pow)) %>%
+  group_by(dimensions, method) %>%
+  summarise(n = n()) %>%
+  tidyr::pivot_wider(names_from = dimensions,
+              values_from = n)
+```
+
+For dimension = 1, `IHW-Quantile` is the most powerful method. As we can see, can see the power of `IHW-Quantile` drops as the dimensionality of the covariate spaces increases until `IHW-Quantile` it breaks down entirely at dimension 5. This is because the number of covariate bins exploads with the covariate dimensions and the number of observations per bin becomes prohibitive: `m/(covariate_per_dimension^dimension)=1000/5^5=0.32 < 1`.
+
+### 
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.2 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8) %>% 
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = TRUE)
+```
+
+```{r}
+simulation_evaluated %>%
+  filter(kappa == 0.1  & alpha == 0.1 & lp_norm == 1 & target_average_alt_prob == 0.1 & ndim == 1 & beta_shape1 == 0.25 & signal_strength == 0.8) %>% 
+  plot_fdr_power(group_by_dimension = "dimensions", log_trans = TRUE, silent = TRUE)
+```
